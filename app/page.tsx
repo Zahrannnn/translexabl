@@ -184,7 +184,7 @@ export default function HomePage() {
   return (
     <div className="flex flex-col overflow-hidden">
       {/* Hero Section */}
-      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/5 noise-bg">
+      <section className="relative min-h-screen flex items-center justify-center overflow-hidden bg-gradient-to-br from-background via-background to-primary/5 ">
         {/* Animated background elements */}
         <div className="absolute inset-0 opacity-30">
           <div className="absolute inset-0" style={{
