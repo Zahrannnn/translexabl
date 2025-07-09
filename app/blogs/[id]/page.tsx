@@ -5,7 +5,6 @@ import {
   Clock, 
   ArrowLeft, 
   ArrowRight,
-  BookOpen, 
   User,
   Tag,
   Share2,
@@ -146,8 +145,9 @@ function getRelatedPosts(currentPostId: string, currentCategory: string) {
     .slice(0, 3)
 }
 
-export async function generateMetadata({ params }: { params: { id: string } }) {
-  const post = blogPosts.find(p => p.id === params.id)
+export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const post = blogPosts.find(p => p.id === id)
   
   if (!post) {
     return {
@@ -168,8 +168,9 @@ export async function generateMetadata({ params }: { params: { id: string } }) {
   }
 }
 
-export default function BlogPostPage({ params }: { params: { id: string } }) {
-  const post = blogPosts.find(p => p.id === params.id)
+export default async function BlogPostPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id } = await params;
+  const post = blogPosts.find(p => p.id === id)
   
   if (!post) {
     notFound()
