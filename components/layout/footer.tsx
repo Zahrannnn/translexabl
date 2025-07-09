@@ -18,7 +18,7 @@ export function Footer() {
       links: [
         { name: "About Us", href: "/" },
         { name: "Careers", href: "/" },
-        { name: "Blog", href: "/" },
+        { name: "Blog", href: "/blogs" },
         { name: "Press Kit", href: "/" },
         { name: "Contact", href: "/" },
       ],
