@@ -1,0 +1,81 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
+1. Overview
+A web platform that allows users to translate text or upload documents (PDF, DOCX, PPT, SRT) using DeepL Pro API ,Gemini API. The system supports tone selection, glossary terms, grammar review, and human review. Users will consume credits based on content length.
+________________________________________
+2. User Roles
+•	Anonymous User: Can see landing page and basic features.
+•	Authenticated User: Can access translation tools, purchase credits, view history.
+•	Admin: Can manage users, translations, transactions, and system settings.
+________________________________________
+3. Main Features
+3.1. Text Translation
+•	User pastes raw text.
+•	Select:
+o	Target language.
+o	Tone (formal, informal, business, friendly).
+o	Glossary (optional).
+o	Grammar check (toggle).
+o	Human review (optional).
+•	Estimate cost in credits before confirming.
+•	Show translated output with options to copy, download.
+Tone, Glossary , Grammar Check , Human Review if chosen , user will be redirected to whatsapp chat 
+3.2. Document Translation
+•	Upload documents: .pdf, .docx, .pptx, .srt.
+•	Translate with same options as text translation.
+
+
+
+
+3.3. Tone Setting
+•	User selects tone per translation job.
+•	Tones supported:
+o	Formal
+o	Informal
+o	Business
+o	Friendly
+3.4. Human Review
+•	If enabled, translation will be reviewed by a human translator (manual queue).
+•	Notify user when review is complete.
+________________________________________
+4. Credit System
+•	Each user has a credit balance.
+•	1 credit = 700 characters (configurable).
+•	System estimates and credits before processing translation , deducts credits if the request is done.
+•	Users can buy credit via integrated payment system.
+________________________________________
+5. User Dashboard
+•	Show:
+o	Credit balance.
+o	Transaction history.
+________________________________________
+
+
+6. Admin Dashboard
+•	Manage users
+•	Add Blogs
+________________________________________
+
+7. Technology Stack (suggested)
+•	Frontend: Next.js (with Tailwind, shadcn/ui)
+•	Backend: API Routes or dedicated server (Node.js / Python FastAPI)
+•	Translation API: DeepL Pro API
+•	Auth: Supabase or Auth0
+•	Payments: Kashier / Paymob
+•	Database: PostgreSQL (via Supabase or hosted)
+________________________________________
+8. File & Data Handling
+•	Uploaded files stored temporarily.
+•	Documents are parsed → translated → reconstructed.
+•	Secure /tmp usage or S3 bucket with lifecycle policy.
+
+
+
+
+
+
+
+
