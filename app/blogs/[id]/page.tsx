@@ -7,147 +7,91 @@ import {
   ArrowRight,
   User,
   Tag,
-  Share2,
-  MessageCircle,
-  Heart,
-  Eye,
   ChevronRight
 } from "lucide-react"
 import Link from "next/link"
 import { notFound } from "next/navigation"
 
-// Mock blog data - in a real app, this would come from an API or database
-const blogPosts = [
-  {
-    id: "1",
-    title: "The Future of AI-Powered Translation: Trends to Watch in 2025",
-    excerpt: "Explore the cutting-edge developments in artificial intelligence that are revolutionizing the translation industry and what they mean for businesses worldwide.",
-    content: `
-      <h2>Introduction</h2>
-      <p>AI translation technology has come a long way from simple word-for-word substitutions. As we move into 2025, we're witnessing unprecedented advancements that are reshaping how businesses and individuals communicate across language barriers.</p>
-      
-      <h2>The Evolution of Neural Machine Translation</h2>
-      <p>Neural Machine Translation (NMT) has fundamentally changed the translation landscape. Unlike traditional statistical methods, NMT systems use deep learning to understand context, nuance, and cultural subtleties that were previously impossible for machines to grasp.</p>
-      
-      <blockquote>
-        "The future of translation lies not in replacing human translators, but in empowering them with AI tools that enhance accuracy and efficiency." - Dr. Sarah Chen, Lead AI Researcher
-      </blockquote>
-      
-      <h2>Key Trends Shaping 2025</h2>
-      <h3>1. Real-time Conversational Translation</h3>
-      <p>We're moving beyond text-based translation to real-time speech translation that preserves tone, emotion, and cultural context. This technology is particularly revolutionary for global business meetings and international negotiations.</p>
-      
-      <h3>2. Domain-Specific AI Models</h3>
-      <p>Specialized AI models trained on specific industries (legal, medical, technical) are achieving near-human accuracy levels. These models understand industry jargon, regulatory requirements, and professional standards.</p>
-      
-      <h3>3. Multimodal Translation</h3>
-      <p>Future translation systems will process text, images, audio, and video simultaneously, providing comprehensive understanding of multimedia content.</p>
-      
-      <h2>The Business Impact</h2>
-      <p>For businesses, these advancements mean:</p>
-      <ul>
-        <li>Faster time-to-market for global products</li>
-        <li>Reduced translation costs without sacrificing quality</li>
-        <li>Enhanced customer experience across different markets</li>
-        <li>More efficient international collaboration</li>
-      </ul>
-      
-      <h2>Challenges and Considerations</h2>
-      <p>Despite the remarkable progress, challenges remain. Cultural sensitivity, regional dialects, and the nuanced nature of human communication still require careful consideration and often human oversight.</p>
-      
-      <h2>Conclusion</h2>
-      <p>The future of AI-powered translation is bright, with technology becoming increasingly sophisticated while remaining accessible to businesses of all sizes. The key is finding the right balance between automation and human expertise.</p>
-    `,
-    author: "Sarah Chen",
-    authorBio: "Sarah is a leading expert in artificial intelligence and machine learning with over 15 years of experience in language technology research. She holds a PhD in Computational Linguistics from MIT.",
-    publishedAt: "2024-03-15",
-    readTime: "8 min read",
-    category: "Technology",
-    tags: ["AI", "Machine Learning", "Translation Technology", "Neural Networks", "Future Tech"],
-    featured: true,
-    views: "12.5k",
-    likes: "324",
-    comments: "45"
-  },
-  {
-    id: "2", 
-    title: "How to Choose the Right Translation Tone for Your Business",
-    excerpt: "Learn how to select the perfect tone for your translations - whether formal, informal, business, or friendly - to match your brand voice and audience expectations.",
-    content: `
-      <h2>Understanding Translation Tone</h2>
-      <p>The tone of your translations can make or break your international communications. It's not just about converting words from one language to another – it's about conveying the right emotion, professionalism level, and brand personality that resonates with your target audience.</p>
-      
-      <h2>The Four Primary Translation Tones</h2>
-      <h3>1. Formal Tone</h3>
-      <p>Best suited for:</p>
-      <ul>
-        <li>Legal documents and contracts</li>
-        <li>Government communications</li>
-        <li>Academic papers and research</li>
-        <li>Corporate announcements</li>
-      </ul>
-      
-      <h3>2. Business Tone</h3>
-      <p>Ideal for:</p>
-      <ul>
-        <li>Professional emails and correspondence</li>
-        <li>Product documentation</li>
-        <li>Company presentations</li>
-        <li>Business proposals</li>
-      </ul>
-      
-      <h3>3. Friendly Tone</h3>
-      <p>Perfect for:</p>
-      <ul>
-        <li>Customer service communications</li>
-        <li>Social media content</li>
-        <li>Marketing materials</li>
-        <li>Newsletter content</li>
-      </ul>
-      
-      <h3>4. Informal Tone</h3>
-      <p>Great for:</p>
-      <ul>
-        <li>Blog posts and articles</li>
-        <li>Internal team communications</li>
-        <li>Community forums</li>
-        <li>Casual marketing campaigns</li>
-      </ul>
-      
-      <h2>Cultural Considerations</h2>
-      <p>Different cultures have varying expectations for communication styles. What might be considered friendly in one culture could be perceived as unprofessional in another. Always research your target market's communication preferences.</p>
-      
-      <h2>Best Practices for Tone Selection</h2>
-      <ol>
-        <li><strong>Know your audience:</strong> Research cultural communication norms</li>
-        <li><strong>Maintain consistency:</strong> Use the same tone across all materials</li>
-        <li><strong>Test and iterate:</strong> Gather feedback from native speakers</li>
-        <li><strong>Consider context:</strong> The same content might need different tones for different platforms</li>
-      </ol>
-    `,
-    author: "Marcus Rodriguez",
-    authorBio: "Marcus has been working in professional translation for over 12 years, specializing in business communications and cultural adaptation for global brands.",
-    publishedAt: "2024-03-12",
-    readTime: "6 min read",
-    category: "Best Practices",
-    tags: ["Business", "Tone", "Communication", "Cultural Adaptation"],
-    featured: false,
-    views: "8.2k",
-    likes: "156",
-    comments: "23"
+
+interface BlogPost {
+  id: number
+  title: string
+  content: string
+  summary: string
+  author: string
+  publishedAt: string | null
+  updatedAt: string
+  tags: string[]
+  category: string
+  published: boolean
+}
+
+// Fetch blog post from API
+async function getBlogPost(id: string): Promise<BlogPost | null> {
+  try {
+    const response = await fetch(`http://localhost:8085/api/blogs/${id}`, {
+      cache: 'no-store' 
+    })
+    
+    if (!response.ok) {
+      return null
+    }
+    
+    const data = await response.json()
+    return data
+  } catch (error) {
+    console.error('Error fetching blog post:', error)
+    return null
   }
-]
+}
+
+// Fetch all blog posts for related posts
+async function getAllBlogPosts(): Promise<BlogPost[]> {
+  try {
+    const response = await fetch('http://localhost:8085/api/blogs', {
+      cache: 'no-store'
+    })
+    
+    if (!response.ok) {
+      return []
+    }
+    
+    const data = await response.json()
+    return data
+  } catch (error) {
+    console.error('Error fetching blog posts:', error)
+    return []
+  }
+}
 
 // Related posts function
-function getRelatedPosts(currentPostId: string, currentCategory: string) {
-  return blogPosts
-    .filter(post => post.id !== currentPostId && post.category === currentCategory)
+function getRelatedPosts(currentPostId: number, currentCategory: string, allPosts: BlogPost[]) {
+  return allPosts
+    .filter(post => post.id !== currentPostId && post.category === currentCategory && post.published)
     .slice(0, 3)
+}
+
+// Helper function to calculate read time
+function calculateReadTime(content: string): string {
+  const wordsPerMinute = 200
+  const words = content.replace(/<[^>]*>/g, '').split(/\s+/).length
+  const minutes = Math.ceil(words / wordsPerMinute)
+  return `${minutes} min read`
+}
+
+// Helper function to format date
+function formatDate(dateString: string | null): string {
+  if (!dateString) return 'Draft'
+  return new Date(dateString).toLocaleDateString('en-US', { 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  })
 }
 
 export async function generateMetadata({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const post = blogPosts.find(p => p.id === id)
+  const post = await getBlogPost(id)
   
   if (!post) {
     return {
@@ -157,10 +101,10 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
   return {
     title: `${post.title} | TransleXable Blog`,
-    description: post.excerpt,
+    description: post.summary,
     openGraph: {
       title: post.title,
-      description: post.excerpt,
+      description: post.summary,
       type: "article",
       publishedTime: post.publishedAt,
       authors: [post.author],
@@ -170,13 +114,15 @@ export async function generateMetadata({ params }: { params: Promise<{ id: strin
 
 export default async function BlogPostPage({ params }: { params: Promise<{ id: string }> }) {
   const { id } = await params;
-  const post = blogPosts.find(p => p.id === id)
+  const post = await getBlogPost(id)
   
   if (!post) {
     notFound()
   }
 
-  const relatedPosts = getRelatedPosts(post.id, post.category)
+  const allPosts = await getAllBlogPosts()
+  const relatedPosts = getRelatedPosts(post.id, post.category, allPosts)
+  const readTime = calculateReadTime(post.content)
 
   return (
     <div className="flex flex-col min-h-screen bg-gradient-to-br from-background to-primary/5 py-10">
@@ -203,21 +149,15 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                 <span className="bg-primary/10 text-primary px-3 py-1 rounded-full font-medium">
                   {post.category}
                 </span>
-                <div className="flex items-center space-x-1">
-                  <Calendar className="h-4 w-4" />
-                  <span>{new Date(post.publishedAt).toLocaleDateString('en-US', { 
-                    year: 'numeric', 
-                    month: 'long', 
-                    day: 'numeric' 
-                  })}</span>
-                </div>
+                {post.publishedAt && (
+                  <div className="flex items-center space-x-1">
+                    <Calendar className="h-4 w-4" />
+                    <span>{formatDate(post.publishedAt)}</span>
+                  </div>
+                )}
                 <div className="flex items-center space-x-1">
                   <Clock className="h-4 w-4" />
-                  <span>{post.readTime}</span>
-                </div>
-                <div className="flex items-center space-x-1">
-                  <Eye className="h-4 w-4" />
-                  <span>{post.views} views</span>
+                  <span>{readTime}</span>
                 </div>
               </div>
 
@@ -226,9 +166,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                 {post.title}
               </h1>
 
-              {/* Excerpt */}
+              {/* Summary */}
               <p className="text-xl lg:text-2xl text-muted-foreground leading-relaxed">
-                {post.excerpt}
+                {post.summary}
               </p>
 
               {/* Author and actions */}
@@ -239,24 +179,14 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                   </div>
                   <div>
                     <p className="font-semibold text-lg">{post.author}</p>
+                    <p className="text-sm text-muted-foreground">
+                      Updated {formatDate(post.updatedAt)}
+                    </p>
                   </div>
                 </div>
 
                 <div className="flex items-center space-x-4">
-                  <div className="flex items-center space-x-3 text-sm text-muted-foreground">
-                    <div className="flex items-center space-x-1">
-                      <Heart className="h-4 w-4" />
-                      <span>{post.likes}</span>
-                    </div>
-                    <div className="flex items-center space-x-1">
-                      <MessageCircle className="h-4 w-4" />
-                      <span>{post.comments}</span>
-                    </div>
-                  </div>
-                  <Button variant="outline" size="sm" className="modern-card hover-lift">
-                    <Share2 className="h-4 w-4 mr-2" />
-                    Share
-                  </Button>
+                 
                 </div>
               </div>
             </div>
@@ -273,16 +203,18 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
           </div>
 
           {/* Tags */}
-          <div className="mt-16 pt-8 border-t border-border/20">
-            <div className="flex flex-wrap gap-2">
-              {post.tags.map((tag) => (
-                <Button key={tag} variant="outline" size="sm" className="rounded-full hover-lift">
-                  <Tag className="h-3 w-3 mr-1" />
-                  {tag}
-                </Button>
-              ))}
+          {post.tags && post.tags.length > 0 && (
+            <div className="mt-16 pt-8 border-t border-border/20">
+              <div className="flex flex-wrap gap-2">
+                {post.tags.map((tag) => (
+                  <Button key={tag} variant="outline" size="sm" className="rounded-full hover-lift">
+                    <Tag className="h-3 w-3 mr-1" />
+                    {tag}
+                  </Button>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
 
           {/* Author Bio */}
           <div className="mt-16">
@@ -293,7 +225,9 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                 </div>
                 <div className="flex-1">
                   <h3 className="text-2xl font-bold mb-2">About {post.author}</h3>
-                  <p className="text-primary font-medium mb-4">{post.authorBio}</p>
+                  <p className="text-primary font-medium mb-4">
+                    Content creator and translation expert sharing insights about language technology and global communication.
+                  </p>
                 </div>
               </div>
             </Card>
@@ -308,12 +242,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
               </Link>
             </Button>
 
-            <div className="flex items-center space-x-2 text-sm text-muted-foreground">
-              <span>Share this article:</span>
-              <Button variant="ghost" size="sm" className="p-2 hover:bg-primary/10 rounded-full">
-                <Share2 className="h-4 w-4" />
-              </Button>
-            </div>
+           
           </div>
         </div>
       </article>
@@ -337,17 +266,19 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
                       <span className="bg-primary/10 text-primary px-2 py-1 rounded-full font-medium">
                         {relatedPost.category}
                       </span>
-                      <div className="flex items-center space-x-1">
-                        <Calendar className="h-3 w-3" />
-                        <span>{new Date(relatedPost.publishedAt).toLocaleDateString('en-US', { 
-                          month: 'short', 
-                          day: 'numeric', 
-                          year: 'numeric' 
-                        })}</span>
-                      </div>
+                      {relatedPost.publishedAt && (
+                        <div className="flex items-center space-x-1">
+                          <Calendar className="h-3 w-3" />
+                          <span>{new Date(relatedPost.publishedAt).toLocaleDateString('en-US', { 
+                            month: 'short', 
+                            day: 'numeric', 
+                            year: 'numeric' 
+                          })}</span>
+                        </div>
+                      )}
                       <div className="flex items-center space-x-1">
                         <Clock className="h-3 w-3" />
-                        <span>{relatedPost.readTime}</span>
+                        <span>{calculateReadTime(relatedPost.content)}</span>
                       </div>
                     </div>
                     <CardTitle className="text-lg leading-tight group-hover:text-primary transition-colors line-clamp-2">
@@ -357,7 +288,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ id: s
 
                   <CardContent className="pt-0">
                     <CardDescription className="text-sm leading-relaxed mb-4 line-clamp-2">
-                      {relatedPost.excerpt}
+                      {relatedPost.summary}
                     </CardDescription>
 
                     <div className="flex items-center justify-between">

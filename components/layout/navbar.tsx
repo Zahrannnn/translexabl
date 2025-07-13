@@ -1,12 +1,60 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Link from "next/link"
+import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { Menu, X, Sparkles, Zap } from "lucide-react"
+import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
+import { Menu, X, Sparkles, Zap, User, LogOut, Settings } from "lucide-react"
+
+interface UserInfo {
+  userId: number
+  username: string
+  email: string
+  role: string
+}
 
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
+  const [user, setUser] = useState<UserInfo | null>(null)
+  const router = useRouter()
+
+  useEffect(() => {
+    // Check if user is logged in by reading the cookie
+    const getUserFromCookie = () => {
+      const cookies = document.cookie.split(';')
+      const userCookie = cookies.find(cookie => cookie.trim().startsWith('user='))
+      
+      if (userCookie) {
+        try {
+          const userValue = userCookie.split('=')[1]
+          const userData = JSON.parse(decodeURIComponent(userValue))
+          setUser(userData)
+        } catch (error) {
+          console.error('Error parsing user cookie:', error)
+          setUser(null)
+        }
+      }
+    }
+
+    getUserFromCookie()
+  }, [])
+
+  const handleLogout = async () => {
+    try {
+      // Call logout API to clear cookies
+      await fetch('/api/auth/logout', {
+        method: 'POST',
+      })
+      setUser(null)
+      router.push('/login')
+    } catch (error) {
+      console.error('Logout error:', error)
+      // Still redirect even if API call fails
+      setUser(null)
+      router.push('/login')
+    }
+  }
 
   const navItems = [
     { name: "Features", href: "#features" },
@@ -51,22 +99,63 @@ export function Navbar() {
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
-            <Button 
-              variant="ghost" 
-              asChild 
-              className="text-sm font-medium hover:bg-primary/10 hover:text-primary transition-all duration-300 hover-lift"
-            >
-              <Link href="/login">Sign In</Link>
-            </Button>
-            <Button 
-              asChild 
-              className="btn-primary-enhanced text-sm px-6 py-2 h-auto rounded-lg shadow-glow hover:shadow-glow-lg transform hover:scale-105 transition-all duration-300"
-            >
-              <Link href="/register" className="flex items-center space-x-2">
-                <span>Get Started</span>
-                <Zap className="h-4 w-4" />
-              </Link>
-            </Button>
+            {user ? (
+              // User is logged in - show user menu
+              <DropdownMenu
+                trigger={
+                  <div className="flex items-center  space-x-3 p-2 rounded-lg hover:bg-primary/10 transition-colors cursor-pointer bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                    <div className=" bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
+                      <User className="h-4 w-4 text-white" />
+                    </div>
+                    <div className="flex flex-col">
+                      <span className="text-sm font-medium">{user.username}</span>
+
+                    </div>
+                  </div>
+                }
+              >
+                <DropdownMenuItem 
+                  onClick={() => router.push('/profile')}
+                  icon={<User className="h-4 w-4" />}
+                >
+                  Profile
+                </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => router.push('/dashboard')}
+                  icon={<Settings className="h-4 w-4" />}
+                >
+                  Dashboard
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem 
+                  onClick={handleLogout}
+                  icon={<LogOut className="h-4 w-4" />}
+                  className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                >
+                  Logout
+                </DropdownMenuItem>
+              </DropdownMenu>
+            ) : (
+              // User is not logged in - show login/register buttons
+              <>
+                <Button 
+                  variant="ghost" 
+                  asChild 
+                  className="text-sm font-medium hover:bg-primary/10 hover:text-primary transition-all duration-300 hover-lift"
+                >
+                  <Link href="/login">Sign In</Link>
+                </Button>
+                <Button 
+                  asChild 
+                  className="btn-primary-enhanced text-sm px-6 py-2 h-auto rounded-lg shadow-glow hover:shadow-glow-lg transform hover:scale-105 transition-all duration-300"
+                >
+                  <Link href="/register" className="flex items-center space-x-2">
+                    <span>Get Started</span>
+                    <Zap className="h-4 w-4" />
+                  </Link>
+                </Button>
+              </>
+            )}
           </div>
 
           {/* Mobile menu button */}
@@ -86,7 +175,7 @@ export function Navbar() {
           </div>
         </div>
 
-        {/* Mobile Navigation */}
+        {/* Mobile menu */}
         {isOpen && (
           <div className="md:hidden">
             <div className="px-2 pt-2 pb-3 space-y-1 modern-card mt-2 rounded-2xl border border-border/20 shadow-lg shadow-primary/10">
@@ -101,28 +190,71 @@ export function Navbar() {
                 </Link>
               ))}
               <div className="pt-4 space-y-3 border-t border-border/20">
-                <Button 
-                  variant="ghost" 
-                  asChild 
-                  className="w-full justify-start text-left hover:bg-primary/10 hover:text-primary rounded-xl"
-                >
-                  <Link href="/login" onClick={() => setIsOpen(false)}>
-                    Sign In
-                  </Link>
-                </Button>
-                <Button 
-                  asChild 
-                  className="w-full btn-primary-enhanced rounded-xl shadow-glow"
-                >
-                  <Link 
-                    href="/register" 
-                    onClick={() => setIsOpen(false)}
-                    className="flex items-center justify-center space-x-2"
-                  >
-                    <span>Get Started</span>
-                    <Zap className="h-4 w-4" />
-                  </Link>
-                </Button>
+                {user ? (
+                  // User is logged in - show user menu items
+                  <>
+                    <div className="px-3 py-2 text-sm text-muted-foreground">
+                      Signed in as <span className="font-medium text-foreground">{user.username}</span>
+                    </div>
+                    <Button 
+                      variant="default" 
+                      asChild 
+                      className="w-full justify-start text-left rounded-xl bg-indigo-500"
+                    >
+                      <Link href="/profile" onClick={() => setIsOpen(false)}>
+                        <User className="h-4 w-4 mr-2" />
+                        Profile
+                      </Link>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      asChild 
+                      className="w-full justify-start text-left hover:bg-primary/10 hover:text-primary rounded-xl"
+                    >
+                      <Link href="/dashboard" onClick={() => setIsOpen(false)}>
+                        <Settings className="h-4 w-4 mr-2" />
+                        Dashboard
+                      </Link>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      onClick={() => {
+                        setIsOpen(false)
+                        handleLogout()
+                      }}
+                      className="w-full justify-start text-left hover:bg-red-50 hover:text-red-600 rounded-xl"
+                    >
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Logout
+                    </Button>
+                  </>
+                ) : (
+                  // User is not logged in - show login/register buttons
+                  <>
+                    <Button 
+                      variant="ghost" 
+                      asChild 
+                      className="w-full justify-start text-left hover:bg-primary/10 hover:text-primary rounded-xl"
+                    >
+                      <Link href="/login" onClick={() => setIsOpen(false)}>
+                        Sign In
+                      </Link>
+                    </Button>
+                    <Button 
+                      asChild 
+                      className="w-full btn-primary-enhanced rounded-xl shadow-glow"
+                    >
+                      <Link 
+                        href="/register" 
+                        onClick={() => setIsOpen(false)}
+                        className="flex items-center justify-center space-x-2"
+                      >
+                        <span>Get Started</span>
+                        <Zap className="h-4 w-4" />
+                      </Link>
+                    </Button>
+                  </>
+                )}
               </div>
             </div>
           </div>

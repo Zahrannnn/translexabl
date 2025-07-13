@@ -1,6 +1,11 @@
 ---
 description: 
 globs: 
+alwaysApply: false
+---
+---
+description: 
+globs: 
 alwaysApply: true
 ---
 1. Overview
@@ -71,6 +76,9 @@ ________________________________________
 •	Uploaded files stored temporarily.
 •	Documents are parsed → translated → reconstructed.
 •	Secure /tmp usage or S3 bucket with lifecycle policy.
+
+
+ALWAYS read the docs from here @https://nextjs.org/docs 
 
 
 
