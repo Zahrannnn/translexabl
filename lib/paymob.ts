@@ -151,6 +151,9 @@ export class PaymobService {
     currency: string = 'EGP'
   ): Promise<string> {
     try {
+      // Get the base URL for redirects
+      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000';
+      
       const response = await fetch(`${this.baseUrl}/acceptance/payment_keys`, {
         method: 'POST',
         headers: {
@@ -164,6 +167,9 @@ export class PaymobService {
           billing_data: billingData,
           currency: currency,
           integration_id: parseInt(this.integrationId),
+          // Add success and failure URLs
+          success_url: `${baseUrl}/payment/success?order_id=${orderId}&amount=${amountCents}&currency=${currency}`,
+          failure_url: `${baseUrl}/payment/failure?order_id=${orderId}&amount=${amountCents}&currency=${currency}`,
         }),
       });
 
