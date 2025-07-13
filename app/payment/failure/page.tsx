@@ -72,7 +72,7 @@ function PaymentFailureContent() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-red-50 to-pink-50">
+    <div className="min-h-screen flex items-center justify-center p-4 ">
       <Card className="w-full max-w-md shadow-lg">
         <CardHeader className="text-center pb-4">
           <div className="mx-auto mb-4 w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
