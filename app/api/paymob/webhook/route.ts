@@ -91,7 +91,7 @@ export async function GET(request: NextRequest) {
     const url = new URL(request.url);
     const searchParams = url.searchParams;
 
-    // Check if this is a Paymob redirect (has transaction parameters)
+    
     const transactionId = searchParams.get('id');
     const success = searchParams.get('success');
     const errorOccurred = searchParams.get('error_occured');

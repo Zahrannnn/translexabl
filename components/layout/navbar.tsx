@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { Menu, X, Sparkles, Zap, User, LogOut, Settings } from "lucide-react"
+import { Menu, X, Sparkles, Zap, User, LogOut, Settings, Shield } from "lucide-react"
 
 interface UserInfo {
   userId: number
@@ -126,6 +126,14 @@ export function Navbar() {
                 >
                   Dashboard
                 </DropdownMenuItem>
+                {user.role === 'ADMIN' && (
+                  <DropdownMenuItem 
+                    onClick={() => router.push('/admin')}
+                    icon={<Shield className="h-4 w-4" />}
+                  >
+                    Admin Panel
+                  </DropdownMenuItem>
+                )}
                 <DropdownMenuSeparator />
                 <DropdownMenuItem 
                   onClick={handleLogout}

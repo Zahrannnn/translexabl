@@ -29,7 +29,7 @@ interface BlogPost {
 // Fetch blog post from API
 async function getBlogPost(id: string): Promise<BlogPost | null> {
   try {
-    const response = await fetch(`http://localhost:8085/api/blogs/${id}`, {
+    const response = await fetch(`https://translatex-production.up.railway.app/api/blogs/${id}`, {
       cache: 'no-store' 
     })
     
@@ -48,7 +48,7 @@ async function getBlogPost(id: string): Promise<BlogPost | null> {
 // Fetch all blog posts for related posts
 async function getAllBlogPosts(): Promise<BlogPost[]> {
   try {
-    const response = await fetch('http://localhost:8085/api/blogs', {
+    const response = await fetch('https://translatex-production.up.railway.app/api/blogs', {
       cache: 'no-store'
     })
     
