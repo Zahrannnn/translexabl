@@ -44,7 +44,7 @@ function PaymentFailureContent() {
   }
 
   const handleRetry = () => {
-    // Navigate back to payment or try again
+ 
     router.push('/test-payment')
   }
 

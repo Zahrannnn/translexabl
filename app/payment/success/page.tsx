@@ -2,16 +2,14 @@
 "use client"
 
 import { useEffect, useState, Suspense } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
+import { useSearchParams } from "next/navigation"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { CheckCircle, CreditCard, Receipt, Home } from "lucide-react"
+import { CheckCircle, CreditCard, Receipt } from "lucide-react"
 
 function PaymentSuccessContent() {
   const [transactionDetails, setTransactionDetails] = useState<any>(null)
   const [loading, setLoading] = useState(true)
   const searchParams = useSearchParams()
-  const router = useRouter()
 
   const orderId = searchParams.get('order_id')
   const transactionId = searchParams.get('transaction_id')
@@ -41,16 +39,7 @@ function PaymentSuccessContent() {
     }
   }
 
-  const handleContinue = () => {
-    router.push('/')
-  }
 
-  const handleViewReceipt = () => {
-    // Navigate to receipt page or download receipt
-    if (transactionId) {
-      router.push(`/receipt/${transactionId}`)
-    }
-  }
 
   if (loading) {
     return (
@@ -146,42 +135,12 @@ function PaymentSuccessContent() {
             <p className="text-gray-600 mb-2">
               Thank you for your payment! Your transaction has been processed successfully.
             </p>
-            <p className="text-sm text-gray-500">
-              You will receive a confirmation email shortly.
-            </p>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="space-y-3">
-            <Button 
-              onClick={handleContinue}
-              className="w-full bg-green-600 hover:bg-green-700"
-            >
-              <Home className="w-4 h-4 mr-2" />
-              Continue to Dashboard
-            </Button>
             
-            {transactionId && (
-              <Button 
-                onClick={handleViewReceipt}
-                variant="outline" 
-                className="w-full border-green-600 text-green-600 hover:bg-green-50"
-              >
-                <Receipt className="w-4 h-4 mr-2" />
-                View Receipt
-              </Button>
-            )}
           </div>
 
-          {/* Support Info */}
-          <div className="text-center pt-4 border-t">
-            <p className="text-xs text-gray-500">
-              Need help? Contact our support team at{" "}
-              <a href="mailto:support@translexabl.com" className="text-green-600 hover:underline">
-                support@translexabl.com
-              </a>
-            </p>
-          </div>
+          
+
+      
         </CardContent>
       </Card>
     </div>
