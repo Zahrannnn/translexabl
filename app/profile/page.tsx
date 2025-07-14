@@ -17,7 +17,6 @@ import {
   ArrowLeft,
   Coins,
   TrendingUp,
-  BookOpen,
   Lock,
   Shield,
   Eye,
@@ -26,7 +25,6 @@ import {
   X
 } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
-import { Separator } from "@/components/ui/separator"
 
 interface UserProfile {
   id: number
@@ -41,8 +39,6 @@ interface UserProfile {
   availableCredits: number
   totalCreditsUsed: number
   totalCreditsPurchased: number
-  freeGlossaryQuota: number
-  freeGlossaryUsed: number
   accountAge: number
   emailVerified: boolean
 }
@@ -269,14 +265,7 @@ export default function ProfilePage() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Header */}
         <div className="mb-8">
-          <Button 
-            onClick={() => router.push('/dashboard')} 
-            variant="outline" 
-            className="mb-4"
-          >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Button>
+        
           
           <div className="flex items-center gap-4">
             <div className="h-16 w-16 bg-blue-100 rounded-full flex items-center justify-center">
@@ -347,118 +336,39 @@ export default function ProfilePage() {
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 gap-4">
                 <div className="text-center p-3 bg-blue-50 rounded-lg">
                   <Coins className="h-6 w-6 text-blue-600 mx-auto mb-1" />
                   <p className="text-2xl font-bold text-blue-600">{profile.currentCredits}</p>
                   <p className="text-sm text-gray-600">Current Credits</p>
                 </div>
-                <div className="text-center p-3 bg-green-50 rounded-lg">
-                  <Coins className="h-6 w-6 text-green-600 mx-auto mb-1" />
-                  <p className="text-2xl font-bold text-green-600">{profile.availableCredits}</p>
-                  <p className="text-sm text-gray-600">Available Credits</p>
-                </div>
-              </div>
-
-              <Separator />
-
-              <div className="space-y-3">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Reserved Credits</span>
-                  <span className="font-medium">{profile.reservedCredits}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Total Credits Used</span>
-                  <span className="font-medium">{profile.totalCreditsUsed}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Total Credits Purchased</span>
-                  <span className="font-medium">{profile.totalCreditsPurchased}</span>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <BookOpen className="h-5 w-5" />
-                Glossary Usage
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-4">
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Free Glossary Quota</span>
-                  <span className="font-medium">{profile.freeGlossaryQuota}</span>
-                </div>
-                <div className="flex justify-between items-center">
-                  <span className="text-sm text-gray-600">Free Glossary Used</span>
-                  <span className="font-medium">{profile.freeGlossaryUsed}</span>
-                </div>
                 
-                {profile.freeGlossaryQuota > 0 && (
-                  <div className="mt-4">
-                    <div className="flex justify-between text-sm mb-1">
-                      <span>Usage Progress</span>
-                      <span>{Math.round((profile.freeGlossaryUsed / profile.freeGlossaryQuota) * 100)}%</span>
-                    </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
-                      <div 
-                        className="bg-blue-600 h-2 rounded-full transition-all duration-300"
-                        style={{ 
-                          width: `${Math.min((profile.freeGlossaryUsed / profile.freeGlossaryQuota) * 100, 100)}%` 
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                )}
               </div>
+
+             
             </CardContent>
           </Card>
 
-          {/* Account Statistics */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <TrendingUp className="h-5 w-5" />
-                Account Statistics
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-1 gap-4 text-center">
-              
-                <div className="p-4 bg-orange-50 rounded-lg">
-                  <p className="text-2xl font-bold text-orange-600">{profile.accountAge}</p>
-                  <p className="text-sm text-gray-600">Days Active</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
+
+        
         </div>
 
-        {/* Action Buttons */}
-        <div className="mt-8 flex gap-4 justify-center">
-          <Button onClick={() => router.push('/dashboard')}>
-            Back to Dashboard
-          </Button>
-          <Button variant="outline" onClick={() => router.push('/settings')}>
-            Account Settings
-          </Button>
+       
+        <div className="mt-8 flex flex-1 w-full gap-4 justify-center">
+          
+          
           <Button 
             variant="outline" 
-            className="flex items-center gap-2"
+            className="flex items-center gap-2 w-full bg-gradient-to-r from-indigo-500 to-purple-500"
             onClick={() => setShowResetPasswordModal(true)}
           >
             <KeyRound className="h-4 w-4" />
             Reset Password
           </Button>
         </div>
-          
         {/* Reset Password Modal */}
         {showResetPasswordModal && (
-          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+          <div className="fixed inset-0 flex items-center justify-center backdrop-blur-sm bg-opacity-50 z-50">
             <Card className="w-full max-w-md mx-4">
               <CardHeader className="relative">
                 <button

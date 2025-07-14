@@ -28,7 +28,7 @@ interface UserInfo {
   role: string
 }
 
-// Add full profile interface
+// Add user profile interface for credits
 interface UserProfile {
   id: number
   email: string
@@ -42,8 +42,6 @@ interface UserProfile {
   availableCredits: number
   totalCreditsUsed: number
   totalCreditsPurchased: number
-  freeGlossaryQuota: number
-  freeGlossaryUsed: number
   accountAge: number
   emailVerified: boolean
 }

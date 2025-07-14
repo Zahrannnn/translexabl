@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
@@ -9,18 +9,57 @@ import {
   Download, 
   Loader2, 
   CheckCircle,
-  Globe,
   Sparkles,
   AlertCircle,
   File,
   X,
-  Eye
+  CreditCard,
+  User,
 } from "lucide-react"
+import Link from "next/link"
 
 interface UploadedFile {
   file: File
   id: string
   preview?: string
+}
+
+interface TranslationResult {
+  originalFileName: string
+  fileId: string
+  characters_translated: number
+  credits_used: number
+  pages_translated?: number
+  file_format: string
+  translated_filename?: string
+  file_id?: string
+  error?: string
+}
+
+// Add user interface
+interface UserInfo {
+  userId: number
+  username: string
+  email: string
+  role: string
+}
+
+// Add user profile interface for credits
+interface UserProfile {
+  id: number
+  email: string
+  username: string
+  firstName: string
+  lastName: string
+  phoneNumber: string
+  role: string
+  currentCredits: number
+  reservedCredits: number
+  availableCredits: number
+  totalCreditsUsed: number
+  totalCreditsPurchased: number
+  accountAge: number
+  emailVerified: boolean
 }
 
 export default function TestTranslateDocsPage() {
@@ -30,9 +69,16 @@ export default function TestTranslateDocsPage() {
   const [tone, setTone] = useState("default")
   const [isTranslating, setIsTranslating] = useState(false)
   const [error, setError] = useState("")
-  const [translationResults, setTranslationResults] = useState<any[]>([])
+  const [translationResults, setTranslationResults] = useState<TranslationResult[]>([])
   const [estimatedCredits, setEstimatedCredits] = useState(0)
   const fileInputRef = useRef<HTMLInputElement>(null)
+  
+  // Add user state
+  const [user, setUser] = useState<UserInfo | null>(null)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false)
+  const [creditUpdateTrigger, setCreditUpdateTrigger] = useState(0) // Force re-render after credit changes
+  const [isDeductingCredits, setIsDeductingCredits] = useState(false) // Show when credits are being deducted
 
   const languages = [
     { code: "auto", name: "Auto-detect" },
@@ -76,6 +122,166 @@ export default function TestTranslateDocsPage() {
     { ext: ".srt", type: "text/srt", icon: File, name: "Subtitle Files" }
   ]
 
+  // Get user info from cookie and fetch profile on component mount
+  useEffect(() => {
+    const getUserFromCookie = () => {
+      const cookies = document.cookie.split(';')
+      const userCookie = cookies.find(cookie => cookie.trim().startsWith('user='))
+      
+      if (userCookie) {
+        try {
+          const userValue = userCookie.split('=')[1]
+          const userData = JSON.parse(decodeURIComponent(userValue))
+          setUser(userData)
+          
+          // Fetch user profile for credits info
+          fetchUserProfile()
+        } catch (error) {
+          console.error('Error parsing user cookie:', error)
+          setUser(null)
+        }
+      }
+    }
+
+    getUserFromCookie()
+  }, [])
+
+  // Watch for credit updates to ensure UI re-renders
+  useEffect(() => {
+    if (creditUpdateTrigger > 0) {
+      console.log(`🔄 Credit update trigger fired: ${creditUpdateTrigger}`)
+    }
+  }, [creditUpdateTrigger])
+
+  // Fetch user profile for credits information
+  const fetchUserProfile = async () => {
+    setIsLoadingProfile(true)
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        console.error('Failed to fetch user profile:', response.statusText)
+        return
+      }
+
+      const profileData = await response.json()
+      setProfile(profileData)
+      
+      console.log('User profile loaded:', {
+        credits: profileData.currentCredits,
+        availableCredits: profileData.availableCredits,
+        email: profileData.email
+      })
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+    } finally {
+      setIsLoadingProfile(false)
+    }
+  }
+
+  // Function to deduct credits after successful document translation
+  const deductCredits = async (userId: number, amount: number) => {
+    setIsDeductingCredits(true) // Set to true when credits are being deducted
+    try {
+      console.log(`💳 Attempting to deduct ${amount} credits from user ${userId}...`)
+      
+      const response = await fetch('https://translatex-production.up.railway.app/api/credits/deduct', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,
+          amount: amount
+        }),
+      })
+
+      if (response.ok) {
+        // Try to parse as JSON, but handle non-JSON responses
+        let result;
+        const contentType = response.headers.get('content-type');
+        const responseText = await response.text();
+        
+        console.log('Credit deduction response:', {
+          status: response.status,
+          contentType,
+          body: responseText
+        });
+        
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            result = JSON.parse(responseText);
+          } catch (parseError) {
+            console.warn('Failed to parse JSON response:', parseError);
+            result = { message: responseText };
+          }
+        } else {
+          // Non-JSON response, treat as success message
+          result = { message: responseText };
+        }
+        
+        console.log(`✅ Successfully deducted ${amount} credits from user ${userId}:`, result)
+        
+        // Immediately update the profile state with optimistic update
+        if (profile) {
+          const updatedProfile = {
+            ...profile,
+            currentCredits: Math.max(0, profile.currentCredits - amount),
+            availableCredits: Math.max(0, profile.availableCredits - amount)
+          }
+          setProfile(updatedProfile)
+          console.log(`💳 Updated profile with new credits: ${updatedProfile.currentCredits}`)
+        }
+        
+        // Force a re-render and then fetch fresh data from server
+        setCreditUpdateTrigger(prev => prev + 1)
+        
+        // Also refresh from server to ensure accuracy
+        setTimeout(async () => {
+          await fetchUserProfile()
+        }, 100)
+        
+        return result
+      } else {
+        const errorText = await response.text()
+        console.error('❌ Failed to deduct credits:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText,
+          userId,
+          amount,
+          headers: Object.fromEntries(response.headers.entries())
+        })
+        
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`)
+      }
+
+    } catch (error) {
+      console.error('❌ Failed to deduct credits from user:', error)
+      throw error
+    } finally {
+      setIsDeductingCredits(false) // Set to false after deduction attempt
+    }
+  }
+
+  // Helper function to calculate credits from files
+  const calculateCreditsFromFiles = (files: UploadedFile[]) => {
+    // DeepL has a MINIMUM billing of 50,000 characters per document
+    // regardless of actual file content size
+    const MINIMUM_CHARACTERS_PER_DOCUMENT = 50000
+    const CHARACTERS_PER_CREDIT = 700
+    
+    // Each document is billed for minimum 50,000 characters
+    const totalEstimatedChars = files.length * MINIMUM_CHARACTERS_PER_DOCUMENT
+    
+    return Math.ceil(totalEstimatedChars / CHARACTERS_PER_CREDIT)
+  }
+
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = Array.from(event.target.files || [])
     const validFiles = files.filter(file => {
@@ -91,20 +297,20 @@ export default function TestTranslateDocsPage() {
       preview: file.type.startsWith('text/') ? 'text-preview' : undefined
     }))
 
-    setUploadedFiles(prev => [...prev, ...newFiles])
+    const allFiles = [...uploadedFiles, ...newFiles]
+    setUploadedFiles(allFiles)
     
-    // Estimate credits (rough estimate: 1000 chars per page for docs)
-    const totalEstimatedChars = validFiles.reduce((acc, file) => {
-      const estimatedPages = Math.ceil(file.size / (1024 * 50)) // Rough estimate
-      return acc + (estimatedPages * 1000)
-    }, 0)
-    
-    setEstimatedCredits(Math.ceil(totalEstimatedChars / 700))
+    // Update credit estimation using helper function
+    setEstimatedCredits(calculateCreditsFromFiles(allFiles))
     setError("")
   }
 
   const removeFile = (fileId: string) => {
-    setUploadedFiles(prev => prev.filter(f => f.id !== fileId))
+    const updatedFiles = uploadedFiles.filter(f => f.id !== fileId)
+    setUploadedFiles(updatedFiles)
+    
+    // Recalculate credits after file removal
+    setEstimatedCredits(calculateCreditsFromFiles(updatedFiles))
   }
 
   const handleDragOver = (e: React.DragEvent) => {
@@ -129,7 +335,12 @@ export default function TestTranslateDocsPage() {
       id: Math.random().toString(36).substr(2, 9)
     }))
 
-    setUploadedFiles(prev => [...prev, ...newFiles])
+    const allFiles = [...uploadedFiles, ...newFiles]
+    setUploadedFiles(allFiles)
+    
+    // Update credit estimation for dropped files
+    setEstimatedCredits(calculateCreditsFromFiles(allFiles))
+    setError("")
   }
 
   const handleTranslateDocuments = async () => {
@@ -138,12 +349,24 @@ export default function TestTranslateDocsPage() {
       return
     }
 
+    if (!user) {
+      setError("Please login to use document translation services")
+      return
+    }
+
+    // Check if user has enough credits
+    if (profile && profile.currentCredits < estimatedCredits) {
+      setError(`Insufficient credits. You need ${estimatedCredits} credits but only have ${profile.currentCredits} available.`)
+      return
+    }
+
     setIsTranslating(true)
     setError("")
-    setTranslationResults([])
+    setTranslationResults([]) // Clear any previous results
 
     try {
-      const results = []
+      const results: TranslationResult[] = []
+      let totalCreditsUsed = 0
       
       for (const uploadedFile of uploadedFiles) {
         const formData = new FormData()
@@ -157,7 +380,7 @@ export default function TestTranslateDocsPage() {
           body: formData,
         })
 
-        const data = await response.json()
+        const data: TranslationResult = await response.json()
 
         if (!response.ok) {
           throw new Error(data.error || `Translation failed for ${uploadedFile.file.name}`)
@@ -168,17 +391,41 @@ export default function TestTranslateDocsPage() {
           originalFileName: uploadedFile.file.name,
           fileId: uploadedFile.id
         })
+
+        // Track total credits used
+        totalCreditsUsed += data.credits_used || 0
       }
 
-      setTranslationResults(results)
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Document translation failed")
+      // Store translation results temporarily - only show them if credit deduction succeeds
+      const translationResultsTemp = results
+
+      // Deduct credits first - only show translation results if this succeeds
+      try {
+        await deductCredits(user.userId, totalCreditsUsed)
+        console.log(`✅ Document translation successful and ${totalCreditsUsed} credits deducted`)
+        
+        // Only set the translation results if credit deduction was successful
+        setTranslationResults(translationResultsTemp)
+        setError("")
+        
+      } catch (creditError) {
+        console.error('❌ Document translation succeeded but failed to deduct credits:', creditError)
+        
+        // Don't show the translation results if credit deduction failed
+        setTranslationResults([])
+        setError(`Credit deduction failed. Document translation not displayed. Error: ${creditError instanceof Error ? creditError.message : 'Unknown error'}`)
+      }
+
+    } catch (error) {
+      console.error('Document translation error:', error)
+      setError(error instanceof Error ? error.message : "Document translation failed")
+      setTranslationResults([]) // Clear results on error
     } finally {
       setIsTranslating(false)
     }
   }
 
-  const downloadTranslatedFile = async (result: any) => {
+  const downloadTranslatedFile = async (result: TranslationResult) => {
     try {
       const response = await fetch(`/api/download-translated/${result.file_id}`)
       if (!response.ok) throw new Error('Download failed')
@@ -192,7 +439,8 @@ export default function TestTranslateDocsPage() {
       a.click()
       window.URL.revokeObjectURL(url)
       document.body.removeChild(a)
-    } catch (err) {
+    } catch (error) {
+      console.error('Download failed:', error)
       setError("Failed to download translated file")
     }
   }
@@ -215,13 +463,87 @@ export default function TestTranslateDocsPage() {
               <FileText className="h-6 w-6 text-white" />
             </div>
             <h1 className="text-4xl lg:text-5xl font-bold gradient-text">
-              Document Translation Test
+              Document Translations
             </h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Test document translation for PDF, DOCX, PPTX, and SRT files using DeepL API
+            Translate PDF, DOCX, PPTX, and SRT files 
           </p>
         </div>
+        <div>
+          {/* Navigation Links */}
+          <div className="flex justify-center mb-8">
+            <Card className="modern-card">
+              <CardContent className="py-3">
+                <div className="flex items-center space-x-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="flex items-center space-x-2"
+                  >
+                    <Link href="/translate-txt">
+                      <FileText className="h-4 w-4" />
+                      <span>Text Translation</span>
+                    </Link>
+                  </Button>
+                  <div className="w-px h-6 bg-border" />
+                  <div className="flex items-center space-x-2 text-sm font-medium text-primary">
+                    <FileText className="h-4 w-4" />
+                    <span>Document Translation</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </div>
+
+        {/* User Status and Credits Info */}
+        {user ? (
+          <div className="max-w-6xl mx-auto mb-8">
+            <Card className="modern-card">
+              <CardContent className="py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <User className="h-5 w-5 text-primary" />
+                    <span className="font-medium">Welcome, {user.username}</span>
+                  </div>
+                  <div className="flex items-center space-x-6">
+                    {isLoadingProfile || isDeductingCredits ? (
+                      <div className="flex items-center space-x-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span className="text-sm text-muted-foreground">
+                          {isDeductingCredits ? 'Updating credits...' : 'Loading credits...'}
+                        </span>
+                      </div>
+                    ) : profile ? (
+                      <>
+                        <div className="flex items-center space-x-2">
+                          <CreditCard className="h-4 w-4 text-accent" />
+                          <span className="text-sm font-medium">Current Credits: {profile.currentCredits}</span>
+                        </div>
+                       
+                      </>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">Unable to load credit info</span>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <div className="max-w-6xl mx-auto mb-8">
+            <Card className="modern-card border-orange-200">
+              <CardContent className="py-4">
+                <div className="flex items-center space-x-2 text-orange-600">
+                  <AlertCircle className="h-4 w-4" />
+                  <span>⚠️ Please login to use document translation services and see your credit balance</span>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Upload Panel */}
@@ -340,8 +662,15 @@ export default function TestTranslateDocsPage() {
                     </div>
                   ))}
                   <div className="flex justify-between text-sm text-muted-foreground">
-                    <span>Estimated credits: ~{estimatedCredits}</span>
+                    <span>Estimated credits: ~{estimatedCredits} (minimum 72 per document)</span>
                   </div>
+                  {/* Credit warning */}
+                  {profile && profile.currentCredits < estimatedCredits && estimatedCredits > 0 && (
+                    <div className="flex items-center space-x-2 text-destructive text-sm mt-2">
+                      <AlertCircle className="h-4 w-4" />
+                      <span>Insufficient credits (need {estimatedCredits}, have {profile.currentCredits})</span>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -356,7 +685,12 @@ export default function TestTranslateDocsPage() {
               {/* Translate Button */}
               <Button 
                 onClick={handleTranslateDocuments}
-                disabled={isTranslating || uploadedFiles.length === 0}
+                disabled={
+                  isTranslating || 
+                  uploadedFiles.length === 0 || 
+                  !user || 
+                  (profile !== null && profile.currentCredits < estimatedCredits)
+                }
                 className="w-full btn-primary-enhanced text-lg py-3 h-auto rounded-xl shadow-glow hover:shadow-glow-lg transform hover:scale-105 transition-all duration-300"
               >
                 {isTranslating ? (
@@ -367,7 +701,7 @@ export default function TestTranslateDocsPage() {
                 ) : (
                   <>
                     <Sparkles className="h-5 w-5" />
-                    Translate Documents
+                    Translate Documents ({estimatedCredits} credits - 72 min per doc)
                     <FileText className="h-5 w-5" />
                   </>
                 )}
@@ -470,14 +804,39 @@ export default function TestTranslateDocsPage() {
               </div>
               <div className="mt-6 p-4 bg-muted/30 rounded-lg">
                 <p className="text-sm text-muted-foreground">
-                  <strong>Note:</strong> Documents are translated using DeepL's professional document translation API, 
-                  which preserves original formatting and structure. Processing time varies by document size and complexity.
-                  Minimum billing of 50,000 characters applies to PDF, DOCX, DOC, PPTX, and XLSX files.
+                 
+                  <strong className="text-red-500 font-bold text-2xl"> Important:</strong> You will be charged a minimum of 50,000 characters per document 
+                  (approximately 72 credits) regardless of actual file content size. This means even a small 
+                  1-page PDF will be charged as if it contains 50,000 characters. 
                 </p>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Credit Purchase CTA */}
+        {user && profile && profile.currentCredits < 50 && (
+          <div className="mt-12 text-center">
+            <Card className="modern-card max-w-2xl mx-auto border-primary/20">
+              <CardContent className="py-8">
+                <div className="space-y-4">
+                  <CreditCard className="h-12 w-12 text-primary mx-auto" />
+                  <h3 className="text-2xl font-bold">Running Low on Credits?</h3>
+                  <p className="text-muted-foreground">
+                    You have {profile.currentCredits} credits remaining. Document translation typically requires more credits. Purchase more to continue translating documents.
+                  </p>
+                  <Button 
+                    onClick={() => window.location.href = '/pricing'}
+                    className="btn-primary-enhanced px-8 py-3 rounded-xl shadow-glow hover:shadow-glow-lg transform hover:scale-105 transition-all duration-300"
+                  >
+                    <CreditCard className="h-5 w-5 mr-2" />
+                    Purchase Credits
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   )

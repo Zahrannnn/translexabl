@@ -1,8 +1,9 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { 
   Languages, 
   ArrowRight, 
@@ -11,8 +12,38 @@ import {
   CheckCircle,
   Globe,
   Sparkles,
-  AlertCircle
+  AlertCircle,
+  CreditCard,
+  User,
+  FileText
 } from "lucide-react"
+import Link from "next/link"
+
+// Add user interface
+interface UserInfo {
+  userId: number
+  username: string
+  email: string
+  role: string
+}
+
+// Add user profile interface for credits
+interface UserProfile {
+  id: number
+  email: string
+  username: string
+  firstName: string
+  lastName: string
+  phoneNumber: string
+  role: string
+  currentCredits: number
+  reservedCredits: number
+  availableCredits: number
+  totalCreditsUsed: number
+  totalCreditsPurchased: number
+  accountAge: number
+  emailVerified: boolean
+}
 
 export default function TestTranslatePage() {
   const [sourceText, setSourceText] = useState("")
@@ -24,6 +55,13 @@ export default function TestTranslatePage() {
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState("")
   const [estimatedCredits, setEstimatedCredits] = useState(0)
+  
+  // Add user state
+  const [user, setUser] = useState<UserInfo | null>(null)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
+  const [isLoadingProfile, setIsLoadingProfile] = useState(false)
+  const [creditUpdateTrigger, setCreditUpdateTrigger] = useState(0) // Force re-render after credit changes
+  const [isDeductingCredits, setIsDeductingCredits] = useState(false) // Show when credits are being deducted
 
   const languages = [
     { code: "auto", name: "Auto-detect" },
@@ -56,6 +94,153 @@ export default function TestTranslatePage() {
     { value: "friendly", label: "Friendly", description: "Warm and approachable" }
   ]
 
+  // Get user info from cookie and fetch profile on component mount
+  useEffect(() => {
+    const getUserFromCookie = () => {
+      const cookies = document.cookie.split(';')
+      const userCookie = cookies.find(cookie => cookie.trim().startsWith('user='))
+      
+      if (userCookie) {
+        try {
+          const userValue = userCookie.split('=')[1]
+          const userData = JSON.parse(decodeURIComponent(userValue))
+          setUser(userData)
+          
+          // Fetch user profile for credits info
+          fetchUserProfile()
+        } catch (error) {
+          console.error('Error parsing user cookie:', error)
+          setUser(null)
+        }
+      }
+    }
+
+    getUserFromCookie()
+  }, [])
+
+  // Watch for credit updates to ensure UI re-renders
+  useEffect(() => {
+    if (creditUpdateTrigger > 0) {
+      console.log(`🔄 Credit update trigger fired: ${creditUpdateTrigger}`)
+    }
+  }, [creditUpdateTrigger])
+
+  // Fetch user profile for credits information
+  const fetchUserProfile = async () => {
+    setIsLoadingProfile(true)
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        console.error('Failed to fetch user profile:', response.statusText)
+        return
+      }
+
+      const profileData = await response.json()
+      setProfile(profileData)
+      
+      console.log('User profile loaded:', {
+        credits: profileData.currentCredits,
+        availableCredits: profileData.availableCredits,
+        email: profileData.email
+      })
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+    } finally {
+      setIsLoadingProfile(false)
+    }
+  }
+
+  // Function to deduct credits after successful translation
+  const deductCredits = async (userId: number, amount: number) => {
+    setIsDeductingCredits(true) // Set to true when credits are being deducted
+    try {
+      console.log(`💳 Attempting to deduct ${amount} credits from user ${userId}...`)
+      
+      const response = await fetch('https://translatex-production.up.railway.app/api/credits/deduct', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          userId: userId,
+          amount: amount
+        }),
+      })
+
+      if (response.ok) {
+        // Try to parse as JSON, but handle non-JSON responses
+        let result;
+        const contentType = response.headers.get('content-type');
+        const responseText = await response.text();
+        
+        console.log('Credit deduction response:', {
+          status: response.status,
+          contentType,
+          body: responseText
+        });
+        
+        if (contentType && contentType.includes('application/json')) {
+          try {
+            result = JSON.parse(responseText);
+          } catch (parseError) {
+            console.warn('Failed to parse JSON response:', parseError);
+            result = { message: responseText };
+          }
+        } else {
+          // Non-JSON response, treat as success message
+          result = { message: responseText };
+        }
+        
+        console.log(`✅ Successfully deducted ${amount} credits from user ${userId}:`, result)
+        
+        // Immediately update the profile state with optimistic update
+        if (profile) {
+          const updatedProfile = {
+            ...profile,
+            currentCredits: Math.max(0, profile.currentCredits - amount),
+            availableCredits: Math.max(0, profile.availableCredits - amount)
+          }
+          setProfile(updatedProfile)
+          console.log(`💳 Updated profile with new credits: ${updatedProfile.currentCredits}`)
+        }
+        
+        // Force a re-render and then fetch fresh data from server
+        setCreditUpdateTrigger(prev => prev + 1)
+        
+        // Also refresh from server to ensure accuracy
+        setTimeout(async () => {
+          await fetchUserProfile()
+        }, 100)
+        
+        return result
+      } else {
+        const errorText = await response.text()
+        console.error('❌ Failed to deduct credits:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText,
+          userId,
+          amount,
+          headers: Object.fromEntries(response.headers.entries())
+        })
+        
+        throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`)
+      }
+
+    } catch (error) {
+      console.error('❌ Failed to deduct credits from user:', error)
+      throw error
+    } finally {
+      setIsDeductingCredits(false) // Set to false after deduction attempt
+    }
+  }
+
   // Calculate estimated credits (1 credit = 700 characters)
   const calculateCredits = (text: string) => {
     return Math.ceil(text.length / 700)
@@ -74,8 +259,20 @@ export default function TestTranslatePage() {
       return
     }
 
+    if (!user) {
+      setError("Please login to use translation services")
+      return
+    }
+
+    // Check if user has enough credits
+    if (profile && profile.currentCredits < estimatedCredits) {
+      setError(`Insufficient credits. You need ${estimatedCredits} credits but only have ${profile.currentCredits} available.`)
+      return
+    }
+
     setIsTranslating(true)
     setError("")
+    setTranslatedText("") // Clear any previous translation
     
     try {
       const response = await fetch("/api/translate", {
@@ -97,9 +294,29 @@ export default function TestTranslatePage() {
         throw new Error(data.error || "Translation failed")
       }
 
-      setTranslatedText(data.translated_text)
+      // Store the translation temporarily - only show it if credit deduction succeeds
+      const translationResult = data.translated_text;
+      
+      // Deduct credits first - only show translation if this succeeds
+      try {
+        await deductCredits(user.userId, estimatedCredits)
+        console.log(`✅ Translation successful and ${estimatedCredits} credits deducted`)
+        
+        // Only set the translated text if credit deduction was successful
+        setTranslatedText(translationResult)
+        setError("")
+        
+      } catch (creditError) {
+        console.error('❌ Translation succeeded but failed to deduct credits:', creditError)
+        
+        // Don't show the translation if credit deduction failed
+        setTranslatedText("")
+        setError(`Credit deduction failed. Translation not displayed. Error: ${creditError instanceof Error ? creditError.message : 'Unknown error'}`)
+      }
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : "Translation failed")
+      setTranslatedText("") // Clear translation on error
     } finally {
       setIsTranslating(false)
     }
@@ -130,6 +347,74 @@ export default function TestTranslatePage() {
             Test the DeepL API Pro integration with tone selection and real-time translation
           </p>
         </div>
+        <div className="flex justify-center mb-8">
+            <Card className="modern-card">
+              <CardContent className="py-3">
+                <div className="flex items-center space-x-4">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    asChild
+                    className="flex items-center space-x-2"
+                  >
+                    <Link href="/translate-docs">
+                      <FileText className="h-4 w-4" />
+                      <span>Docs Translation</span>
+                    </Link>
+                  </Button>
+                  <div className="w-px h-6 bg-border" />
+                  <div className="flex items-center space-x-2 text-sm font-medium text-primary">
+                    <FileText className="h-4 w-4" />
+                    <span>Text Translation</span>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        {/* User Status and Credits Info */}
+        {user ? (
+          <div className="max-w-6xl mx-auto mb-8">
+            <Card className="modern-card">
+              <CardContent className="py-4">
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center space-x-3">
+                    <User className="h-5 w-5 text-primary" />
+                    <span className="font-medium">Welcome, {user.username}</span>
+                  </div>
+                  <div className="flex items-center space-x-6">
+                    {isLoadingProfile || isDeductingCredits ? (
+                      <div className="flex items-center space-x-2">
+                        <Loader2 className="h-4 w-4 animate-spin" />
+                        <span className="text-sm text-muted-foreground">
+                          {isDeductingCredits ? 'Updating credits...' : 'Loading credits...'}
+                        </span>
+                      </div>
+                    ) : profile ? (
+                      <>
+                        <div className="flex items-center space-x-2">
+                          <CreditCard className="h-4 w-4 text-accent" />
+                          <span className="text-sm font-medium">Current Credits: {profile.currentCredits}</span>
+                        </div>
+                        
+                      </>
+                    ) : (
+                      <span className="text-sm text-muted-foreground">Unable to load credit info</span>
+                    )}
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        ) : (
+          <div className="max-w-6xl mx-auto mb-8">
+            <Alert className="modern-card border-orange-200">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription className="text-orange-600">
+                ⚠️ Please login to use translation services and see your credit balance
+              </AlertDescription>
+            </Alert>
+          </div>
+        )}
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Source Text Panel */}
@@ -206,8 +491,21 @@ export default function TestTranslatePage() {
                 />
                 <div className="flex justify-between text-sm text-muted-foreground mt-2">
                   <span>{sourceText.length} characters</span>
-                  <span>~{estimatedCredits} credits</span>
+                  <span className={`font-medium ${
+                    profile && profile.currentCredits < estimatedCredits 
+                      ? 'text-destructive' 
+                      : 'text-primary'
+                  }`}>
+                    ~{estimatedCredits} credits
+                  </span>
                 </div>
+                {/* Credit warning */}
+                {profile && profile.currentCredits < estimatedCredits && estimatedCredits > 0 && (
+                  <div className="flex items-center space-x-2 text-destructive text-sm mt-2">
+                    <AlertCircle className="h-4 w-4" />
+                    <span>Insufficient credits (need {estimatedCredits}, have {profile.currentCredits})</span>
+                  </div>
+                )}
               </div>
 
               {/* Error Display */}
@@ -221,7 +519,12 @@ export default function TestTranslatePage() {
               {/* Translate Button */}
               <Button 
                 onClick={handleTranslate}
-                disabled={isTranslating || !sourceText.trim()}
+                disabled={
+                  isTranslating || 
+                  !sourceText.trim() || 
+                  !user || 
+                  (profile !== null && profile.currentCredits < estimatedCredits)
+                }
                 className="w-full btn-primary-enhanced text-lg py-3 h-auto rounded-xl shadow-glow hover:shadow-glow-lg transform hover:scale-105 transition-all duration-300"
               >
                 {isTranslating ? (
@@ -232,7 +535,7 @@ export default function TestTranslatePage() {
                 ) : (
                   <>
                     <Sparkles className="h-5 w-5" />
-                    Translate Text
+                    Translate Text ({estimatedCredits} credits)
                     <ArrowRight className="h-5 w-5" />
                   </>
                 )}
@@ -309,6 +612,13 @@ export default function TestTranslatePage() {
                     <span className="text-muted-foreground">Tone applied:</span>
                     <span className="font-medium">{tones.find(t => t.value === tone)?.label}</span>
                   </div>
+                  {/* Show updated credit balance after translation */}
+                  {profile && (
+                    <div className="flex items-center justify-between text-sm border-t pt-3">
+                      <span className="text-muted-foreground">Remaining credits:</span>
+                      <span className="font-medium text-accent">{profile.currentCredits}</span>
+                    </div>
+                  )}
                 </div>
               )}
             </CardContent>
@@ -342,15 +652,39 @@ export default function TestTranslatePage() {
                 </div>
                 <div className="text-center">
                   <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-500 rounded-xl flex items-center justify-center mx-auto mb-3">
-                    <CheckCircle className="h-6 w-6 text-white" />
+                    <CreditCard className="h-6 w-6 text-white" />
                   </div>
-                  <h3 className="font-semibold mb-2">Credit Estimation</h3>
-                  <p className="text-sm text-muted-foreground">Real-time credit calculation before translation</p>
+                  <h3 className="font-semibold mb-2">Credit System</h3>
+                  <p className="text-sm text-muted-foreground">Real-time credit calculation and automatic deduction</p>
                 </div>
               </div>
             </CardContent>
           </Card>
         </div>
+
+        {/* Credit Purchase CTA */}
+        {user && profile && profile.currentCredits < 10 && (
+          <div className="mt-12 text-center">
+            <Card className="modern-card max-w-2xl mx-auto border-primary/20">
+              <CardContent className="py-8">
+                <div className="space-y-4">
+                  <CreditCard className="h-12 w-12 text-primary mx-auto" />
+                  <h3 className="text-2xl font-bold">Running Low on Credits?</h3>
+                  <p className="text-muted-foreground">
+                    You have {profile.currentCredits} credits remaining. Purchase more to continue translating.
+                  </p>
+                  <Button 
+                    onClick={() => window.location.href = '/pricing'}
+                    className="btn-primary-enhanced px-8 py-3 rounded-xl shadow-glow hover:shadow-glow-lg transform hover:scale-105 transition-all duration-300"
+                  >
+                    <CreditCard className="h-5 w-5 mr-2" />
+                    Purchase Credits
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        )}
       </div>
     </div>
   )

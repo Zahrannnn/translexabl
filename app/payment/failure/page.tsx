@@ -1,13 +1,14 @@
 'use client'
 
+import { Suspense } from 'react'
 import { useEffect, useState } from 'react'
 import { useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { XCircle, CreditCard, ArrowLeft, RefreshCw } from 'lucide-react'
+import { XCircle, CreditCard, ArrowLeft, RefreshCw, Loader2 } from 'lucide-react'
 import Link from 'next/link'
 
-export default function PaymentFailurePage() {
+function PaymentFailureContent() {
   const searchParams = useSearchParams()
   const [paymentDetails, setPaymentDetails] = useState({
     transaction_id: '',
@@ -132,5 +133,27 @@ export default function PaymentFailurePage() {
         </Button>
       </div>
     </div>
+  )
+}
+
+function PaymentFailureLoading() {
+  return (
+    <div className="container mx-auto p-6 max-w-2xl">
+      <div className="text-center mb-8">
+        <div className="flex justify-center mb-4">
+          <Loader2 className="w-16 h-16 text-gray-400 animate-spin" />
+        </div>
+        <h1 className="text-3xl font-bold text-gray-600 mb-2">Processing Payment...</h1>
+        <p className="text-gray-500">Please wait while we check your payment status</p>
+      </div>
+    </div>
+  )
+}
+
+export default function PaymentFailurePage() {
+  return (
+    <Suspense fallback={<PaymentFailureLoading />}>
+      <PaymentFailureContent />
+    </Suspense>
   )
 } 

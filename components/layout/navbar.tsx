@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { Menu, X, Sparkles, Zap, User, LogOut, Settings, Shield } from "lucide-react"
+import { Menu, X, Sparkles, Zap, User, LogOut, Settings, Shield, ChevronDown, FileText, File, Sparkles as SparklesIcon } from "lucide-react"
 
 interface UserInfo {
   userId: number
@@ -58,11 +58,15 @@ export function Navbar() {
 
   const navItems = [
     { name: "Features", href: "#features" },
-    { name: "Pricing", href: "#pricing" },
-    // { name: "Blog", href: "/blogs" },
-    { name: "Test Translation", href: "/test-translate-gemini" },
+    { name: "Pricing", href: "/pricing" },
+    { name: "Blog", href: "/blogs" },
     { name: "About", href: "/about" },
-    { name: "Contact", href: "/contact" },
+  ]
+
+  const translationItems = [
+    { name: "Text Translation", href: "/translate-txt", icon: <FileText className="h-4 w-4" /> },
+    { name: "Document Translation", href: "/translate-docs", icon: <File className="h-4 w-4" /> },
+    { name: "Free Translation", href: "/test-translate-gemini", icon: <SparklesIcon className="h-4 w-4" /> },
   ]
 
   return (
@@ -95,6 +99,27 @@ export function Navbar() {
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-accent transition-all duration-300 group-hover:w-full rounded-full" />
               </Link>
             ))}
+            
+            {/* Translations Dropdown */}
+            <DropdownMenu
+              trigger={
+                <button className="flex items-center space-x-1 text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105 relative group">
+                  <span>Translations</span>
+                  <ChevronDown className="h-4 w-4" />
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-accent transition-all duration-300 group-hover:w-full rounded-full" />
+                </button>
+              }
+            >
+              {translationItems.map((item) => (
+                <DropdownMenuItem
+                  key={item.name}
+                  onClick={() => router.push(item.href)}
+                  icon={item.icon}
+                >
+                  {item.name}
+                </DropdownMenuItem>
+              ))}
+            </DropdownMenu>
           </div>
 
           {/* Desktop Actions */}
@@ -197,6 +222,23 @@ export function Navbar() {
                   {item.name}
                 </Link>
               ))}
+              
+              {/* Mobile Translations Section */}
+              <div className="px-3 py-2">
+                <div className="text-sm font-medium text-foreground mb-2">Translations</div>
+                {translationItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    className="flex items-center space-x-2 px-2 py-2 rounded-lg text-sm text-muted-foreground hover:text-primary hover:bg-primary/10 transition-all duration-300"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {item.icon}
+                    <span>{item.name}</span>
+                  </Link>
+                ))}
+              </div>
+              
               <div className="pt-4 space-y-3 border-t border-border/20">
                 {user ? (
                   // User is logged in - show user menu items

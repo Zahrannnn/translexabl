@@ -154,8 +154,11 @@ export async function POST(request: NextRequest) {
     await writeFile(translatedFilePath, Buffer.from(translatedBuffer))
 
     // Calculate credits used (from status response)
-    const creditsUsed = Math.ceil((statusData.billed_characters || file.size / 100) / 700)
-    const estimatedPages = Math.ceil((statusData.billed_characters || file.size / 100) / 2000)
+    // DeepL has minimum billing of 50,000 characters per document
+    const MINIMUM_CHARACTERS_PER_DOCUMENT = 50000
+    const actualCharacters = statusData.billed_characters || MINIMUM_CHARACTERS_PER_DOCUMENT
+    const creditsUsed = Math.ceil(actualCharacters / 700)
+    const estimatedPages = Math.ceil(actualCharacters / 2000)
 
     return NextResponse.json({
       success: true,
