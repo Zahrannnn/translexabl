@@ -1,10 +1,11 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useState, useEffect } from "react"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { User, LogOut } from "lucide-react"
+import { LogOut, User } from "lucide-react"
+import { notifyAuthStateChange } from "@/lib/auth-utils"
 import Link from "next/link"
 
 interface UserInfo {
@@ -53,6 +54,9 @@ export default function DashboardPage() {
     } catch (error) {
       console.error('Logout error:', error)
     } finally {
+      // Notify other components about auth state change
+      notifyAuthStateChange()
+      
       // Redirect to login regardless of API call result
       router.push('/login')
     }

@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
 import { Menu, X, Sparkles, Zap, User, LogOut, Settings, Shield, ChevronDown, FileText, File, Sparkles as SparklesIcon } from "lucide-react"
+import { getUserFromCookie, notifyAuthStateChange } from "@/lib/auth-utils"
 
 interface UserInfo {
   userId: number
@@ -19,25 +20,39 @@ export function Navbar() {
   const [user, setUser] = useState<UserInfo | null>(null)
   const router = useRouter()
 
+  // Function to check user authentication from cookie
+  const checkAuthStatus = () => {
+    const userData = getUserFromCookie()
+    setUser(userData)
+  }
+
   useEffect(() => {
-    // Check if user is logged in by reading the cookie
-    const getUserFromCookie = () => {
-      const cookies = document.cookie.split(';')
-      const userCookie = cookies.find(cookie => cookie.trim().startsWith('user='))
-      
-      if (userCookie) {
-        try {
-          const userValue = userCookie.split('=')[1]
-          const userData = JSON.parse(decodeURIComponent(userValue))
-          setUser(userData)
-        } catch (error) {
-          console.error('Error parsing user cookie:', error)
-          setUser(null)
-        }
-      }
+    // Check initial auth status
+    checkAuthStatus()
+
+    // Listen for custom auth events
+    const handleAuthChange = () => {
+      // Small delay to ensure cookie is set
+      setTimeout(() => {
+        checkAuthStatus()
+      }, 100)
     }
 
-    getUserFromCookie()
+    // Add event listeners for auth changes
+    window.addEventListener('authStateChanged', handleAuthChange)
+    window.addEventListener('storage', handleAuthChange) // For cross-tab support
+
+    // Periodic check as fallback (every 30 seconds)
+    const interval = setInterval(() => {
+      checkAuthStatus()
+    }, 30000)
+
+    // Cleanup event listeners and interval
+    return () => {
+      window.removeEventListener('authStateChanged', handleAuthChange)
+      window.removeEventListener('storage', handleAuthChange)
+      clearInterval(interval)
+    }
   }, [])
 
   const handleLogout = async () => {
@@ -47,17 +62,25 @@ export function Navbar() {
         method: 'POST',
       })
       setUser(null)
+      
+      // Notify other components about auth state change
+      notifyAuthStateChange()
+      
       router.push('/login')
     } catch (error) {
       console.error('Logout error:', error)
       // Still redirect even if API call fails
       setUser(null)
+      
+      // Notify other components about auth state change
+      notifyAuthStateChange()
+      
       router.push('/login')
     }
   }
 
   const navItems = [
-    { name: "Features", href: "#features" },
+    { name: "Features", href: "/#features" },
     { name: "Pricing", href: "/pricing" },
     { name: "Blog", href: "/blogs" },
     { name: "About", href: "/about" },

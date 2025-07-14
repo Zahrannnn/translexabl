@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Eye, EyeOff, Mail, Lock, CheckCircle, AlertCircle } from "lucide-react"
+import { notifyAuthStateChange } from "@/lib/auth-utils"
 
 function LoginContent() {
   const [email, setEmail] = useState("")
@@ -69,6 +70,9 @@ function LoginContent() {
       }
 
       // Login successful - redirect to dashboard
+      // Dispatch custom event to notify navbar and other components
+      notifyAuthStateChange()
+      
       router.push("/")
       
     } catch (error) {

@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
   FileText, 
   Globe, 
@@ -9,8 +9,7 @@ import {
   Star,
   ArrowRight,
   Sparkles,
-  MessageCircle,
-  Brain,
+ 
   Zap,
   TrendingUp,
   Award,
@@ -58,95 +57,7 @@ export default function HomePage() {
     }
   ]
 
-  const pricingPlans = [
-    {
-      name: "Starter",
-      description: "Perfect for individuals and small projects",
-      price: "$7",
-      period: "per month",
-      credits: "100 credits",
-      features: [
-        "100 translation credits (~70K characters)",
-        "Text and document translation",
-        "Basic tone selection",
-        "Grammar checking",
-        "Email support"
-      ],
-      popular: false,
-      cta: "Start Free Trial",
-      gradient: "from-gray-500 to-gray-600"
-    },
-    {
-      name: "Professional",
-      description: "Ideal for businesses and frequent users",
-      price: "$35",
-      period: "per month",
-      credits: "500 credits",
-      features: [
-        "500 translation credits (~350K characters)",
-        "All document formats (PDF, DOCX, PPT, SRT)",
-        "Advanced tone selection",
-        "Custom glossary terms",
-        "Grammar checking",
-        "Priority support",
-        "Human review (limited)"
-      ],
-      popular: true,
-      cta: "Get Started",
-      gradient: "from-primary to-accent"
-    },
-    {
-      name: "Enterprise",
-      description: "For large organizations with custom needs",
-      price: "$140",
-      period: "per month",
-      credits: "2,000 credits",
-      features: [
-        "2,000 translation credits (~1.4M characters)",
-        "All features included",
-        "Unlimited human reviews",
-        "Custom API integration",
-        "Dedicated account manager",
-        "Advanced analytics",
-        "SLA guarantee",
-        "24/7 phone support"
-      ],
-      popular: false,
-      cta: "Contact Sales",
-      gradient: "from-purple-600 to-pink-600"
-    }
-  ]
-
-  const testimonials = [
-    {
-      name: "Sarah Chen",
-      role: "Marketing Director",
-      company: "TechGlobal Inc.",
-      avatar: "SC",
-      content: "TransleXable has revolutionized our international marketing campaigns. The tone selection feature ensures our brand voice remains consistent across all languages.",
-      rating: 5,
-      gradient: "from-pink-500 to-rose-500"
-    },
-    {
-      name: "Miguel Rodriguez",
-      role: "Content Manager",
-      company: "EduPrime",
-      avatar: "MR",
-      content: "The document translation feature is incredible. We can translate entire course materials while maintaining formatting - it's a game changer for our global expansion.",
-      rating: 5,
-      gradient: "from-blue-500 to-indigo-500"
-    },
-    {
-      name: "Dr. Amina Hassan",
-      role: "Research Director",
-      company: "MedResearch",
-      avatar: "AH",
-      content: "The human review option gives us confidence when translating critical research papers. The accuracy and attention to detail is outstanding.",
-      rating: 5,
-      gradient: "from-green-500 to-emerald-500"
-    }
-  ]
-
+ 
   const useCases = [
     {
       title: "Global Business",
@@ -359,185 +270,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* Pricing Section */}
-      <section id="pricing" className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5" />
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-          <div className="text-center mb-20">
-            <div className="inline-flex items-center space-x-2 modern-card rounded-full px-4 py-2 mb-6">
-              <Award className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-primary">Pricing</span>
-            </div>
-            <h2 className="text-4xl lg:text-6xl font-bold mb-6">
-              Simple, Transparent{" "}
-              <span className="gradient-text">Pricing</span>
-            </h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Pay only for what you use with our credit-based system. 1 credit = 700 characters.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {pricingPlans.map((plan, index) => (
-              <Card 
-                key={index} 
-                className={`modern-card hover-lift relative rounded-3xl border-0 ${
-                  plan.popular 
-                    ? 'scale-105 shadow-glow-lg ring-2 ring-primary/20' 
-                    : ''
-                }`}
-              >
-                {plan.popular && (
-                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
-                    <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
-                      Most Popular
-                    </div>
-                  </div>
-                )}
-                
-                <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${plan.gradient} opacity-10 rounded-full blur-2xl`} />
-                
-                <CardHeader className="text-center relative z-10 pb-8">
-                  <CardTitle className="text-2xl font-bold">{plan.name}</CardTitle>
-                  <CardDescription className="text-base">{plan.description}</CardDescription>
-                  <div className="mt-6">
-                    <span className="text-5xl font-bold gradient-text">{plan.price}</span>
-                    <span className="text-muted-foreground text-lg">/{plan.period}</span>
-                  </div>
-                  <div className={`inline-flex items-center bg-gradient-to-r ${plan.gradient} text-white rounded-full px-4 py-2 mt-4 text-sm font-medium`}>
-                    {plan.credits}
-                  </div>
-                </CardHeader>
-                
-                <CardContent className="relative z-10">
-                  <ul className="space-y-4">
-                    {plan.features.map((feature, featureIndex) => (
-                      <li key={featureIndex} className="flex items-start space-x-3">
-                        <CheckCircle className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
-                        <span className="text-sm leading-relaxed">{feature}</span>
-                      </li>
-                    ))}
-                  </ul>
-                </CardContent>
-                
-                <CardFooter className="relative z-10 pt-8">
-                  <Button 
-                    className={`w-full rounded-xl py-3 font-semibold transition-all duration-300 ${
-                      plan.popular 
-                        ? 'btn-primary-enhanced shadow-glow' 
-                        : 'border-2 border-primary/30 hover:border-primary hover:bg-primary/5 hover-lift'
-                    }`}
-                    variant={plan.popular ? "default" : "outline"}
-                    asChild
-                  >
-                    <Link href="/register">{plan.cta}</Link>
-                  </Button>
-                </CardFooter>
-              </Card>
-            ))}
-          </div>
-          
-          <div className="text-center mt-16">
-            <p className="text-muted-foreground mb-6 text-lg">
-              Need custom pricing for your organization?
-            </p>
-            <Button variant="outline" size="lg" asChild className="modern-card border-primary/30 hover:border-primary hover:bg-primary/5 px-8 py-3 rounded-xl hover-lift">
-              <Link href="/contact">Contact Sales</Link>
-            </Button>
-          </div>
-        </div>
-      </section>
+    
 
-      {/* Testimonials Section */}
-      {/* <section className="py-32 bg-gradient-to-br from-muted/20 to-card">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-20">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6">What Our Customers Say</h2>
-            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              Join thousands of satisfied customers who trust TransleXable for their translation needs.
-            </p>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="modern-card hover-lift rounded-2xl border-0 overflow-hidden group">
-                <div className={`absolute top-0 right-0 w-24 h-24 bg-gradient-to-br ${testimonial.gradient} opacity-10 rounded-full blur-xl group-hover:scale-150 transition-transform`} />
-                
-                <CardHeader className="relative z-10">
-                  <div className="flex items-center space-x-4 mb-4">
-                    <div className={`w-14 h-14 bg-gradient-to-br ${testimonial.gradient} rounded-full flex items-center justify-center shadow-lg`}>
-                      <span className="font-bold text-white text-lg">{testimonial.avatar}</span>
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-lg">{testimonial.name}</h4>
-                      <p className="text-sm text-muted-foreground">{testimonial.role}</p>
-                      <p className="text-sm text-muted-foreground font-medium">{testimonial.company}</p>
-                    </div>
-                  </div>
-                  <div className="flex space-x-1">
-                    {[...Array(testimonial.rating)].map((_, i) => (
-                      <Star key={i} className="h-5 w-5 fill-yellow-400 text-yellow-400" />
-                    ))}
-                  </div>
-                </CardHeader>
-                <CardContent className="relative z-10">
-                  <p className="text-muted-foreground italic leading-relaxed text-lg">
-                    &ldquo;{testimonial.content}&rdquo;
-                  </p>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
-        </div>
-      </section> */}
-
-      {/* Enhanced CTA Section */}
-      <section className="py-32 relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-r from-primary via-accent to-primary animate-gradient-x" />
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/20 to-transparent" />
-        
-        {/* Enhanced floating elements */}
-        <div className="absolute top-10 left-10 w-20 h-20 bg-white/10 rounded-full blur-xl animate-float" />
-        <div className="absolute top-20 right-20 w-32 h-32 bg-white/10 rounded-full blur-2xl animate-float" style={{ animationDelay: '2s' }} />
-        <div className="absolute bottom-10 left-1/4 w-28 h-28 bg-white/10 rounded-full blur-xl animate-float" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-20 right-1/3 w-24 h-24 bg-white/10 rounded-full blur-xl animate-float" style={{ animationDelay: '3s' }} />
-        
-        <div className="relative max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 text-center z-10">
-          <div className="space-y-8">
-            <h2 className="text-4xl lg:text-6xl font-bold text-white mb-8">
-              Ready to Start Translating?
-            </h2>
-            <p className="text-xl lg:text-2xl text-white/90 max-w-3xl mx-auto leading-relaxed">
-              Join thousands of professionals who trust TransleXable for accurate, 
-              professional translations. Start your free trial today.
-            </p>
-            <div className="flex flex-col sm:flex-row gap-6 justify-center items-center">
-              <Button 
-                size="lg" 
-                variant="secondary" 
-                asChild 
-                className="text-lg px-10 py-4 h-auto bg-white text-primary hover:bg-white/90 shadow-2xl rounded-xl hover-lift font-semibold"
-              >
-                <Link href="/" className="flex items-center space-x-2">
-                  <span>Start Free Trial</span>
-                  <ArrowRight className="h-5 w-5" />
-                </Link>
-              </Button>
-              <Button 
-                size="lg" 
-                variant="outline" 
-                asChild 
-                className="text-lg px-10 py-4 h-auto border-2 border-white/30 text-white hover:bg-white/10 hover:border-white glass rounded-xl hover-lift"
-              >
-                <Link href="/" className="flex items-center space-x-2">
-                  <MessageCircle className="h-5 w-5" />
-                  <span>Book a Demo</span>
-                </Link>
-              </Button>
-            </div>
-          </div>
-        </div>
-      </section>
+    
     </div>
   )
 }

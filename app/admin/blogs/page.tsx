@@ -282,7 +282,7 @@ export default function AdminBlogsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-20">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -342,19 +342,7 @@ export default function AdminBlogsPage() {
                   />
                 </div>
               </div>
-              <div className="sm:w-48">
-                <label htmlFor="status-filter" className="sr-only">Filter by status</label>
-                <select
-                  id="status-filter"
-                  value={statusFilter}
-                  onChange={(e) => setStatusFilter(e.target.value)}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
-                >
-                  <option value="ALL">All Status</option>
-                  <option value="published">Published</option>
-                  <option value="draft">Draft</option>
-                </select>
-              </div>
+             
             </div>
           </CardContent>
         </Card>
@@ -374,9 +362,7 @@ export default function AdminBlogsPage() {
                       <span>{blog.author}</span>
                     </div>
                   </div>
-                  <div className="ml-4">
-                    {getStatusBadge(blog.published)}
-                  </div>
+               
                 </div>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -419,10 +405,7 @@ export default function AdminBlogsPage() {
                     <Edit className="h-4 w-4 mr-1" />
                     Edit
                   </Button>
-                  <Button variant="outline" size="sm" className="flex-1">
-                    <Eye className="h-4 w-4 mr-1" />
-                    View
-                  </Button>
+                 
                   <Button 
                     variant="outline" 
                     size="sm" 
@@ -460,7 +443,7 @@ export default function AdminBlogsPage() {
 
         {/* Create/Edit Blog Modal */}
         {(showCreateModal || editingBlog) && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+          <div className="fixed inset-0 bg-black/20 backdrop-blur-sm bg-opacity-50 flex items-center justify-center z-50 p-4">
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
               <div className="flex items-center justify-between mb-4">
                 <h2 className="text-xl font-semibold text-gray-900 dark:text-white">
@@ -558,18 +541,11 @@ export default function AdminBlogsPage() {
                 <Button 
                   onClick={() => handleSubmitBlog(false)}
                   disabled={isSubmitting}
-                  variant="outline"
                   className="flex-1"
                 >
-                  {isSubmitting ? 'Saving...' : 'Save as Draft'}
+                  {isSubmitting ? 'Saving...' : 'Save '}
                 </Button>
-                <Button 
-                  onClick={() => handleSubmitBlog(true)}
-                  disabled={isSubmitting}
-                  className="flex-1"
-                >
-                  {isSubmitting ? 'Publishing...' : 'Publish'}
-                </Button>
+               
               </div>
             </div>
           </div>
@@ -577,7 +553,7 @@ export default function AdminBlogsPage() {
 
         {/* Delete Confirmation Modal */}
         {deleteId && (
-          <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50">
             <div className="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
               <h2 className="text-xl font-semibold text-gray-900 dark:text-white mb-4">
                 Confirm Delete
@@ -595,7 +571,7 @@ export default function AdminBlogsPage() {
                   Cancel
                 </Button>
                 <Button 
-                  variant="destructive"
+                 
                   onClick={() => handleDeleteBlog(deleteId)}
                   disabled={isDeleting}
                   className="flex-1"
