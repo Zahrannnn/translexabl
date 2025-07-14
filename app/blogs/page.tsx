@@ -8,69 +8,12 @@ import {
   ArrowRight, 
   BookOpen, 
   User,
-  Search
+  Search,
+  RefreshCw
 } from "lucide-react"
 import Link from "next/link"
-import { useEffect, useState } from "react"
-
-interface BlogPost {
-  id: number
-  title: string
-  content: string
-  summary: string
-  author: string
-  publishedAt: string | null
-  updatedAt: string
-  tags: string[]
-  category: string
-  published: boolean
-}
-
-async function getBlogPosts(): Promise<BlogPost[]> {
-  try {
-    console.log('Fetching blog posts from API proxy...')
-    const response = await fetch('/api/blogs', {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'Accept': 'application/json',
-      },
-    })
-    
-    console.log('Proxy response status:', response.status)
-    console.log('Proxy response ok:', response.ok)
-    
-    if (!response.ok) {
-      const errorData = await response.json()
-      throw new Error(errorData.message || `Failed to fetch blog posts: ${response.status}`)
-    }
-    
-    const data = await response.json()
-    console.log('Fetched blog posts:', data)
-    console.log('Number of posts:', data.length)
-    
-    // Show all posts regardless of published status
-    return data
-  } catch (error) {
-    console.error('Error fetching blog posts:', error)
-    
-    // Return mock data for testing when API is unavailable
-    return [
-      {
-        id: 1,
-        title: "API Connection Error - Mock Data",
-        content: "This is mock content to test the UI when the API is unavailable. The actual content would come from your backend API.",
-        summary: "This is a mock blog post displayed when the API is unavailable. Check the console for error details.",
-        author: "System",
-        publishedAt: null,
-        updatedAt: new Date().toISOString(),
-        tags: ["test", "mock"],
-        category: "System",
-        published: false
-      }
-    ]
-  }
-}
+import { useState, useMemo } from "react"
+import { useBlogPosts } from "@/hooks/useBlogPosts"
 
 function formatDate(dateString: string | null): string {
   if (!dateString) return 'Draft'
@@ -90,45 +33,33 @@ function calculateReadTime(content: string): string {
 }
 
 export default function BlogsPage() {
-  const [blogPosts, setBlogPosts] = useState<BlogPost[]>([])
-  const [loading, setLoading] = useState(true)
   const [searchQuery, setSearchQuery] = useState('')
   const [selectedCategory, setSelectedCategory] = useState('All')
-
-  useEffect(() => {
-    const fetchPosts = async () => {
-      try {
-        setLoading(true)
-        const posts = await getBlogPosts()
-        setBlogPosts(posts)
-      } catch (error) {
-        console.error('Error loading blog posts:', error)
-      } finally {
-        setLoading(false)
-      }
-    }
-
-    fetchPosts()
-  }, [])
+  
+  const { data: blogPosts = [], isLoading, error, refetch, isFetching } = useBlogPosts()
 
   // Get unique categories from the fetched posts
-  const categories = ["All", ...Array.from(new Set(blogPosts.map(post => post.category)))]
+  const categories = useMemo(() => {
+    return ["All", ...Array.from(new Set(blogPosts.map(post => post.category)))]
+  }, [blogPosts])
 
   // Filter posts based on search query and selected category
-  const filteredPosts = blogPosts.filter(post => {
-    const matchesSearch = searchQuery === '' || 
-      post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
-    
-    const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory
-    
-    return matchesSearch && matchesCategory
-  })
+  const filteredPosts = useMemo(() => {
+    return blogPosts.filter(post => {
+      const matchesSearch = searchQuery === '' || 
+        post.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.summary.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.author.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        post.tags.some(tag => tag.toLowerCase().includes(searchQuery.toLowerCase()))
+      
+      const matchesCategory = selectedCategory === 'All' || post.category === selectedCategory
+      
+      return matchesSearch && matchesCategory
+    })
+  }, [blogPosts, searchQuery, selectedCategory])
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="flex flex-col min-h-screen bg-gradient-to-br from-background to-primary/5">
         <div className="flex items-center justify-center min-h-screen">
@@ -202,20 +133,51 @@ export default function BlogsPage() {
 
       {/* Blog Posts Grid */}
       <section className="py-16 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="mb-12">
-          <h2 className="text-3xl lg:text-4xl font-bold mb-4">Latest Articles</h2>
-          <p className="text-muted-foreground text-lg">
-            {searchQuery || selectedCategory !== 'All' ? (
-              <>
-                {filteredPosts.length} result{filteredPosts.length !== 1 ? 's' : ''} found
-                {searchQuery && ` for "${searchQuery}"`}
-                {selectedCategory !== 'All' && ` in ${selectedCategory}`}
-              </>
-            ) : (
-              'Explore our comprehensive collection of translation insights and expert guidance.'
-            )}
-          </p>
+        <div className="mb-12 flex justify-between items-center">
+          <div>
+            <h2 className="text-3xl lg:text-4xl font-bold mb-4">Latest Articles</h2>
+            <p className="text-muted-foreground text-lg">
+              {searchQuery || selectedCategory !== 'All' ? (
+                <>
+                  {filteredPosts.length} result{filteredPosts.length !== 1 ? 's' : ''} found
+                  {searchQuery && ` for "${searchQuery}"`}
+                  {selectedCategory !== 'All' && ` in ${selectedCategory}`}
+                </>
+              ) : (
+                'Explore our comprehensive collection of translation insights and expert guidance.'
+              )}
+            </p>
+          </div>
+          
+          {/* Refresh button */}
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => refetch()}
+            disabled={isFetching}
+            className="flex items-center gap-2"
+          >
+            <RefreshCw className={`h-4 w-4 ${isFetching ? 'animate-spin' : ''}`} />
+            {isFetching ? 'Refreshing...' : 'Refresh'}
+          </Button>
         </div>
+
+        {/* Error message */}
+        {error && (
+          <div className="mb-8 p-4 bg-destructive/10 border border-destructive/20 rounded-lg">
+            <p className="text-destructive text-sm">
+              Failed to load blog posts. Showing cached data or mock content. 
+              <Button 
+                variant="link" 
+                size="sm" 
+                onClick={() => refetch()}
+                className="ml-2 h-auto p-0 text-destructive underline"
+              >
+                Try again
+              </Button>
+            </p>
+          </div>
+        )}
 
         {filteredPosts.length > 0 ? (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">

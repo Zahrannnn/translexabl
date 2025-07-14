@@ -4,6 +4,7 @@ import "./globals.css";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Toaster } from "sonner";
+import Providers from "./providers";
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -37,12 +38,14 @@ export default function RootLayout({
       <body
         className={`${outfit.variable} ${firaCode.variable} antialiased min-h-screen flex flex-col`}
       >
-        <Navbar />
-        <main className="flex-1">
-          {children}
-        </main>
-        <Footer />
-        <Toaster />
+        <Providers>
+          <Navbar />
+          <main className="flex-1">
+            {children}
+          </main>
+          <Footer />
+          <Toaster />
+        </Providers>
       </body>
     </html>
   );
