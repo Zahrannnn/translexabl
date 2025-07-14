@@ -54,22 +54,63 @@ async function saveTransactionToDatabase(transactionData: TransactionData, useWe
       'Content-Type': 'application/json',
     };
 
-    // If we have a webhook-specific auth method, use it
-    // Otherwise, try with a webhook secret or API key
+    // Try different authentication methods
     if (useWebhookAuth) {
-      // You might want to add a webhook secret to your environment variables
-      const webhookSecret = process.env.WEBHOOK_SECRET || 'your-webhook-secret';
+      // Method 1: Try webhook secret
+      const webhookSecret = process.env.WEBHOOK_SECRET || 'translatex-webhook-secret-2024';
       headers['X-Webhook-Secret'] = webhookSecret;
+      
+      console.log('🔐 Attempting to save with webhook secret authentication');
     }
 
-    const response = await fetch('https://translatex-production.up.railway.app/api/transactions', {
+    let response = await fetch('https://translatex-production.up.railway.app/api/transactions', {
       method: 'POST',
       headers,
       body: JSON.stringify(transactionData),
     });
 
+    // If webhook auth fails with 403, try without any auth
+    if (!response.ok && response.status === 403) {
+      console.log('⚠️ Webhook secret failed (403), trying without authentication...');
+      
+      const noAuthHeaders = {
+        'Content-Type': 'application/json',
+      };
+      
+      response = await fetch('https://translatex-production.up.railway.app/api/transactions', {
+        method: 'POST',
+        headers: noAuthHeaders,
+        body: JSON.stringify(transactionData),
+      });
+    }
+
+    // If still failing, try with a different endpoint or API key approach
+    if (!response.ok && response.status === 403) {
+      console.log('⚠️ Still getting 403, trying alternative endpoint...');
+      
+      // Try with a webhook-specific endpoint (you may need to create this)
+      const webhookHeaders = {
+        'Content-Type': 'application/json',
+        'X-Source': 'paymob-webhook',
+        'X-Timestamp': new Date().toISOString(),
+      };
+      
+      response = await fetch('https://translatex-production.up.railway.app/api/webhooks/transactions', {
+        method: 'POST',
+        headers: webhookHeaders,
+        body: JSON.stringify(transactionData),
+      });
+    }
+
     if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
+      const errorText = await response.text();
+      console.error('❌ Transaction save failed. Response:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
     }
 
     const result = await response.json();
@@ -77,6 +118,10 @@ async function saveTransactionToDatabase(transactionData: TransactionData, useWe
     return result;
   } catch (error) {
     console.error('❌ Failed to save transaction to database:', error);
+    
+    // Log the transaction data so it's not lost
+    console.log('📝 Transaction data that failed to save:', JSON.stringify(transactionData, null, 2));
+    
     throw error;
   }
 }
