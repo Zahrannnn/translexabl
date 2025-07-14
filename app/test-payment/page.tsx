@@ -30,6 +30,26 @@ interface UserInfo {
   role: string
 }
 
+// Add full profile interface
+interface UserProfile {
+  id: number
+  email: string
+  username: string
+  firstName: string
+  lastName: string
+  phoneNumber: string
+  role: string
+  currentCredits: number
+  reservedCredits: number
+  availableCredits: number
+  totalCreditsUsed: number
+  totalCreditsPurchased: number
+  freeGlossaryQuota: number
+  freeGlossaryUsed: number
+  accountAge: number
+  emailVerified: boolean
+}
+
 interface PaymentResult {
   success: boolean
   data: {
@@ -60,6 +80,7 @@ export default function TestPaymentPage() {
   const [showIframe, setShowIframe] = useState(false)
   const [iframeUrl, setIframeUrl] = useState('')
   const [user, setUser] = useState<UserInfo | null>(null)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
 
   // Test billing data
   const [billingData, setBillingData] = useState<BillingData>({
@@ -79,7 +100,7 @@ export default function TestPaymentPage() {
 
   const [amount, setAmount] = useState('10000') // 100 EGP in cents
 
-  // Get user info from cookie
+  // Get user info from cookie and fetch full profile
   useEffect(() => {
     const getUserFromCookie = () => {
       const cookies = document.cookie.split(';')
@@ -91,11 +112,8 @@ export default function TestPaymentPage() {
           const userData = JSON.parse(decodeURIComponent(userValue))
           setUser(userData)
           
-          // Update billing data with user's actual email
-          setBillingData(prev => ({
-            ...prev,
-            email: userData.email
-          }))
+          // Fetch full profile data for complete billing information
+          fetchUserProfile()
         } catch (error) {
           console.error('Error parsing user cookie:', error)
           setUser(null)
@@ -105,6 +123,37 @@ export default function TestPaymentPage() {
 
     getUserFromCookie()
   }, [])
+
+  // Fetch full user profile for complete billing data
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        console.error('Failed to fetch user profile:', response.statusText)
+        return
+      }
+
+      const profileData = await response.json()
+      setProfile(profileData)
+      
+      // Update billing data with complete user information
+      setBillingData(prev => ({
+        ...prev,
+        email: profileData.email,
+        first_name: profileData.firstName || profileData.username?.split(' ')[0] || 'Test',
+        last_name: profileData.lastName || profileData.username?.split(' ')[1] || 'User',
+        phone_number: profileData.phoneNumber || '+201234567890'
+      }))
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+    }
+  }
 
   // Check Paymob configuration
   const checkConfig = async () => {

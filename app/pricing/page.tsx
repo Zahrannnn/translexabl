@@ -2,9 +2,8 @@
 
 import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Badge } from '@/components/ui/badge'
 import { Check, CreditCard, Zap, Crown } from 'lucide-react'
 
 interface BillingData {
@@ -29,14 +28,24 @@ interface UserInfo {
   role: string
 }
 
-interface PaymentResult {
-  success: boolean
-  data: {
-    order_id: string
-    payment_token: string
-    iframe_url: string
-  }
-  error?: string
+// Add full profile interface
+interface UserProfile {
+  id: number
+  email: string
+  username: string
+  firstName: string
+  lastName: string
+  phoneNumber: string
+  role: string
+  currentCredits: number
+  reservedCredits: number
+  availableCredits: number
+  totalCreditsUsed: number
+  totalCreditsPurchased: number
+  freeGlossaryQuota: number
+  freeGlossaryUsed: number
+  accountAge: number
+  emailVerified: boolean
 }
 
 interface CreditPackage {
@@ -64,47 +73,48 @@ const creditPackages: CreditPackage[] = [
       '500 translation credits',
       '350,000 characters total',
       'All language pairs',
-      'API access'
+     
     ]
   },
   {
     id: 'popular',
     name: 'Popular Pack',
-    credits: 2000,
-    price: 7000, // 2000 * 3.5 EGP
-    priceInCents: 700000, // 7000 * 100
+    credits: 1500,
+    price: 5250, // 1500 * 3.5 EGP
+    priceInCents: 525000, // 5250 * 100
     description: 'Most popular choice',
     popular: true,
     icon: <CreditCard className="w-6 h-6" />,
     features: [
-      '2,000 translation credits',
-      '1,400,000 characters total',
+      '1,500 translation credits',
+      '1,050,000 characters total',
       'All language pairs',
-      'API access',
+  
       'Priority support'
     ]
   },
   {
     id: 'premium',
     name: 'Premium Pack',
-    credits: 5000,
-    price: 17500, // 5000 * 3.5 EGP
-    priceInCents: 1750000, // 17500 * 100
+    credits: 3000,
+    price: 10500, // 3000 * 3.5 EGP
+    priceInCents: 1050000, // 10500 * 100
     description: 'Best value for heavy users',
     icon: <Crown className="w-6 h-6" />,
     features: [
-      '5,000 translation credits',
-      '3,500,000 characters total',
+      '3,000 translation credits',
+      '2,100,000 characters total',
       'All language pairs',
-      'API access',
+  
       'Priority support',
-      'Bulk translation tools'
+      
     ]
   }
 ]
 
 export default function PricingPage() {
   const [user, setUser] = useState<UserInfo | null>(null)
+  const [profile, setProfile] = useState<UserProfile | null>(null)
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string>('')
@@ -116,18 +126,18 @@ export default function PricingPage() {
     email: '',
     first_name: '',
     last_name: '',
-    phone_number: '+20',
+    phone_number: '+201234567890',
     country: 'Egypt',
     city: 'Cairo',
     state: 'Cairo',
-    street: '',
-    building: '',
-    floor: '',
-    apartment: '',
-    postal_code: ''
+    street: '123 Main Street',
+    building: '1',
+    floor: '1',
+    apartment: '1',
+    postal_code: '12345'
   })
 
-  // Get user info from cookie
+  // Get user info from cookie and fetch full profile
   useEffect(() => {
     const getUserFromCookie = () => {
       const cookies = document.cookie.split(';')
@@ -139,13 +149,8 @@ export default function PricingPage() {
           const userData = JSON.parse(decodeURIComponent(userValue))
           setUser(userData)
           
-          // Update billing data with user's actual email and basic info
-          setBillingData(prev => ({
-            ...prev,
-            email: userData.email,
-            first_name: userData.username?.split(' ')[0] || userData.username || '',
-            last_name: userData.username?.split(' ')[1] || ''
-          }))
+          // Fetch full profile data for complete billing information
+          fetchUserProfile()
         } catch (error) {
           console.error('Error parsing user cookie:', error)
           setUser(null)
@@ -156,9 +161,73 @@ export default function PricingPage() {
     getUserFromCookie()
   }, [])
 
+  // Fetch full user profile for complete billing data
+  const fetchUserProfile = async () => {
+    try {
+      const response = await fetch('/api/user/profile', {
+        method: 'GET',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      })
+
+      if (!response.ok) {
+        console.error('Failed to fetch user profile:', response.statusText)
+        // Fallback to user data from cookie if profile fetch fails
+        if (user) {
+          setBillingData(prev => ({
+            ...prev,
+            email: user.email,
+            first_name: user.username?.split(' ')[0] || 'User',
+            last_name: user.username?.split(' ')[1] || 'Name'
+          }))
+        }
+        return
+      }
+
+      const profileData = await response.json()
+      setProfile(profileData)
+      
+      // Log user credit information
+      console.log('User profile loaded:', {
+        credits: profileData.currentCredits,
+        email: profileData.email,
+        name: `${profileData.firstName} ${profileData.lastName}`
+      })
+      
+      // Update billing data with complete user information
+      setBillingData(prev => ({
+        ...prev,
+        email: profileData.email || user?.email || '',
+        first_name: profileData.firstName || user?.username?.split(' ')[0] || 'User',
+        last_name: profileData.lastName || user?.username?.split(' ')[1] || 'Name',
+        phone_number: profileData.phoneNumber || '+201234567890'
+      }))
+    } catch (error) {
+      console.error('Error fetching user profile:', error)
+      // Fallback to user data from cookie if profile fetch fails
+      if (user) {
+        setBillingData(prev => ({
+          ...prev,
+          email: user.email,
+          first_name: user.username?.split(' ')[0] || 'User',
+          last_name: user.username?.split(' ')[1] || 'Name'
+        }))
+      }
+    }
+  }
+
   const initiatePayment = async (creditPackage: CreditPackage) => {
     if (!user) {
       setError('Please login to purchase credits')
+      return
+    }
+
+    // Check if billing data is properly populated
+    if (!billingData.email || !billingData.first_name || !billingData.last_name) {
+      setError('Please wait while we load your profile information...')
+      // Try to fetch profile again
+      await fetchUserProfile()
       return
     }
 
@@ -170,6 +239,12 @@ export default function PricingPage() {
     try {
       // Create merchant_order_id with userId for webhook extraction
       const merchantOrderId = `user-${user.userId}-${Date.now()}`
+      
+      console.log('Initiating payment with billing data:', {
+        billingData,
+        user,
+        profile
+      });
       
       const response = await fetch('/api/paymob/initiate', {
         method: 'POST',
@@ -200,7 +275,8 @@ export default function PricingPage() {
       } else {
         setError(data.error || 'Payment initiation failed')
       }
-    } catch (_) {
+    } catch (error) {
+      console.error('Payment initiation error:', error)
       setError('Network error occurred. Please try again.')
     } finally {
       setIsLoading(false)
@@ -208,193 +284,241 @@ export default function PricingPage() {
   }
 
   return (
-    <div className="container mx-auto p-6 max-w-6xl">
-      {/* Header */}
-      <div className="text-center mb-12">
-        <h1 className="text-4xl font-bold mb-4">💳 Translation Credits</h1>
-        <p className="text-xl text-gray-600 mb-2">
-          Choose your credit package and start translating
-        </p>
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 inline-block">
-          <p className="text-blue-800">
-            <strong>💡 Note:</strong> Each credit gives you <strong>700 characters</strong> of translation
-          </p>
-        </div>
-      </div>
+    <div className="flex flex-col overflow-hidden">
+      {/* Hero Section - Matching home page style */}
+    
 
-      {/* User Status */}
+      {/* User Status Alert */}
       {!user && (
-        <Alert className="mb-8">
-          <AlertDescription className="text-orange-600">
-            ⚠️ Please login to purchase credits and see your current balance
-          </AlertDescription>
-        </Alert>
+        <section className="py-8 bg-gradient-to-r from-orange-500/10 to-yellow-500/10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Alert className="modern-card border-orange-200">
+              <AlertDescription className="text-orange-600 text-center">
+                ⚠️ Please login to purchase credits and see your current balance
+              </AlertDescription>
+            </Alert>
+          </div>
+        </section>
       )}
 
-      {/* Pricing Cards */}
-      <div className="grid md:grid-cols-3 gap-8 mb-8">
-        {creditPackages.map((pkg) => (
-          <Card 
-            key={pkg.id} 
-            className={`relative hover:shadow-lg transition-shadow ${
-              pkg.popular ? 'border-2 border-blue-500 scale-105' : ''
-            }`}
-          >
-            {pkg.popular && (
-              <Badge className="absolute -top-3 left-1/2 transform -translate-x-1/2 bg-blue-500">
-                Most Popular
-              </Badge>
-            )}
-            
-            <CardHeader className="text-center pb-2">
-              <div className="flex justify-center mb-2 text-blue-600">
-                {pkg.icon}
-              </div>
-              <CardTitle className="text-2xl">{pkg.name}</CardTitle>
-              <CardDescription>{pkg.description}</CardDescription>
-            </CardHeader>
-
-            <CardContent className="text-center">
-              {/* Price */}
-              <div className="mb-6">
-                <div className="text-4xl font-bold text-gray-900 mb-1">
-                  {pkg.price.toLocaleString()} EGP
-                </div>
-                <div className="text-sm text-gray-500">
-                  {(pkg.price / pkg.credits).toFixed(2)} EGP per credit
-                </div>
-              </div>
-
-              {/* Credits */}
-              <div className="bg-gray-50 rounded-lg p-4 mb-6">
-                <div className="text-3xl font-bold text-blue-600 mb-1">
-                  {pkg.credits.toLocaleString()}
-                </div>
-                <div className="text-sm text-gray-600">
-                  Translation Credits
-                </div>
-                <div className="text-xs text-gray-500 mt-1">
-                  = {(pkg.credits * 700).toLocaleString()} characters
-                </div>
-              </div>
-
-              {/* Features */}
-              <div className="space-y-2 mb-6 text-left">
-                {pkg.features.map((feature, index) => (
-                  <div key={index} className="flex items-center text-sm">
-                    <Check className="w-4 h-4 text-green-500 mr-2 flex-shrink-0" />
-                    <span>{feature}</span>
-                  </div>
-                ))}
-              </div>
-
-              {/* Buy Button */}
-              <Button
-                onClick={() => initiatePayment(pkg)}
-                disabled={isLoading || !user}
-                className="w-full"
-                size="lg"
+      {/* Pricing Section - Matching home page style */}
+      <section className="py-32 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-primary/5 via-transparent to-accent/5" />
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
+            {creditPackages.map((pkg) => (
+              <Card 
+                key={pkg.id} 
+                className={`modern-card hover-lift relative rounded-3xl border-0 ${
+                  pkg.popular 
+                    ? 'scale-105 shadow-glow-lg ring-2 ring-primary/20' 
+                    : ''
+                }`}
               >
-                {isLoading && selectedPackage?.id === pkg.id ? (
-                  'Processing...'
-                ) : (
-                  `Buy ${pkg.name}`
+                {pkg.popular && (
+                  <div className="absolute -top-4 left-1/2 transform -translate-x-1/2 z-20">
+                    <div className="bg-gradient-to-r from-purple-600 to-pink-600 text-white px-6 py-2 rounded-full text-sm font-bold shadow-lg">
+                      Most Popular
+                    </div>
+                  </div>
                 )}
-              </Button>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                
+                <div className={`absolute top-0 right-0 w-32 h-32 bg-gradient-to-br ${pkg.id === 'starter' ? 'from-gray-500 to-gray-600' : pkg.id === 'popular' ? 'from-primary to-accent' : 'from-purple-600 to-pink-600'} opacity-10 rounded-full blur-2xl`} />
+                
+                <CardHeader className="text-center relative z-10 pb-8">
+                  <div className="flex justify-center mb-4 text-primary">
+                    {pkg.icon}
+                  </div>
+                  <CardTitle className="text-2xl font-bold">{pkg.name}</CardTitle>
+                  <CardDescription className="text-base">{pkg.description}</CardDescription>
+                  <div className="mt-6">
+                    <span className="text-5xl font-bold gradient-text">{pkg.price.toLocaleString()}</span>
+                    <span className="text-muted-foreground text-lg"> EGP</span>
+                  </div>
+                  <div className={`inline-flex items-center bg-gradient-to-r ${pkg.id === 'starter' ? 'from-gray-500 to-gray-600' : pkg.id === 'popular' ? 'from-primary to-accent' : 'from-purple-600 to-pink-600'} text-white rounded-full px-4 py-2 mt-4 text-sm font-medium`}>
+                    {pkg.credits.toLocaleString()} credits
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-2">
+                    = {(pkg.credits * 700).toLocaleString()} characters
+                  </div>
+                </CardHeader>
+                
+                <CardContent className="relative z-10">
+                  <ul className="space-y-4">
+                    {pkg.features.map((feature, featureIndex) => (
+                      <li key={featureIndex} className="flex items-start space-x-3">
+                        <Check className="h-5 w-5 text-primary mt-1 flex-shrink-0" />
+                        <span className="text-sm leading-relaxed">{feature}</span>
+                      </li>
+                    ))}
+                  </ul>
+                </CardContent>
+                
+                <CardFooter className="relative z-10 pt-8">
+                  <Button 
+                    onClick={() => initiatePayment(pkg)}
+                    disabled={isLoading || !user}
+                    className={`w-full rounded-xl py-3 font-semibold transition-all duration-300 ${
+                      pkg.popular 
+                        ? 'btn-primary-enhanced shadow-glow' 
+                        : 'border-2 border-primary/30 hover:border-primary hover:bg-primary/5 hover-lift'
+                    }`}
+                    variant={pkg.popular ? "default" : "outline"}
+                  >
+                    {isLoading && selectedPackage?.id === pkg.id ? (
+                      'Processing...'
+                    ) : (
+                      `Buy ${pkg.name}`
+                    )}
+                  </Button>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+          
+          <div className="text-center mt-16">
+            <p className="text-muted-foreground mb-6 text-lg">
+              Need custom pricing for your organization?
+            </p>
+            <Button variant="outline" size="lg" className="modern-card border-primary/30 hover:border-primary hover:bg-primary/5 px-8 py-3 rounded-xl hover-lift">
+              Contact Sales
+            </Button>
+          </div>
+        </div>
+      </section>
 
       {/* Error Display */}
       {error && (
-        <Alert className="mb-6">
-          <AlertDescription className="text-red-600">
-            ❌ {error}
-          </AlertDescription>
-        </Alert>
+        <section className="py-8 bg-gradient-to-r from-red-500/10 to-pink-500/10">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Alert className="modern-card border-red-200">
+              <AlertDescription className="text-red-600 text-center">
+                ❌ {error}
+              </AlertDescription>
+            </Alert>
+          </div>
+        </section>
       )}
 
       {/* Payment Iframe */}
       {showIframe && iframeUrl && selectedPackage && (
-        <Card className="mb-6">
-          <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <CreditCard className="w-5 h-5" />
-              Complete Your Purchase - {selectedPackage.name}
-            </CardTitle>
-            <CardDescription>
-              Secure payment powered by Paymob
-            </CardDescription>
-          </CardHeader>
-          <CardContent>
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-              <div className="grid grid-cols-2 gap-4 text-sm">
-                <div><strong>Package:</strong> {selectedPackage.name}</div>
-                <div><strong>Credits:</strong> {selectedPackage.credits.toLocaleString()}</div>
-                <div><strong>Characters:</strong> {(selectedPackage.credits * 700).toLocaleString()}</div>
-                <div><strong>Total:</strong> {selectedPackage.price.toLocaleString()} EGP</div>
-              </div>
-            </div>
-            
-            <div className="border rounded-lg overflow-hidden">
-              <iframe
-                src={iframeUrl}
-                width="100%"
-                height="600"
-                frameBorder="0"
-                title="Payment Iframe"
-              />
-            </div>
-            
-            <div className="mt-4 flex gap-2">
-              <Button
-                onClick={() => setShowIframe(false)}
-                variant="outline"
-              >
-                Close Payment
-              </Button>
-            </div>
-          </CardContent>
-        </Card>
+        <section className="py-16 bg-gradient-to-br from-card to-muted/20">
+          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
+            <Card className="modern-card rounded-3xl border-0 overflow-hidden">
+              <CardHeader className="text-center">
+                <CardTitle className="flex items-center justify-center gap-2 text-3xl">
+                  <CreditCard className="w-8 h-8 text-primary" />
+                  Complete Your Purchase
+                </CardTitle>
+                <CardDescription className="text-lg">
+                  {selectedPackage.name} - Secure payment powered by Paymob
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-2xl p-6 mb-6">
+                  <div className="grid grid-cols-2 gap-4 text-sm">
+                    <div><strong>Package:</strong> {selectedPackage.name}</div>
+                    <div><strong>Credits:</strong> {selectedPackage.credits.toLocaleString()}</div>
+                    <div><strong>Characters:</strong> {(selectedPackage.credits * 700).toLocaleString()}</div>
+                    <div><strong>Total:</strong> {selectedPackage.price.toLocaleString()} EGP</div>
+                  </div>
+                </div>
+                
+                <div className="border rounded-2xl overflow-hidden shadow-lg">
+                  <iframe
+                    src={iframeUrl}
+                    width="100%"
+                    height="600"
+                    frameBorder="0"
+                    title="Payment Iframe"
+                  />
+                </div>
+                
+                <div className="mt-6 flex gap-2 justify-center">
+                  <Button
+                    onClick={() => setShowIframe(false)}
+                    variant="outline"
+                    className="rounded-xl hover-lift"
+                  >
+                    Close Payment
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+        </section>
       )}
 
       {/* Information Section */}
-      <Card>
-        <CardHeader>
-          <CardTitle>📋 How It Works</CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="grid md:grid-cols-2 gap-6">
-            <div>
-              <h4 className="font-semibold mb-2">💳 Payment Process</h4>
-              <ul className="space-y-1 text-sm text-gray-600">
-                <li>• Secure payment via Paymob</li>
-                <li>• Supports Visa, MasterCard, and local payment methods</li>
-                <li>• Credits added automatically after payment</li>
-                <li>• Instant activation</li>
-              </ul>
-            </div>
-            
-            <div>
-              <h4 className="font-semibold mb-2">⚡ Credit Usage</h4>
-              <ul className="space-y-1 text-sm text-gray-600">
-                <li>• 1 credit = 700 characters of translation</li>
-                <li>• Works with all supported language pairs</li>
-                <li>• Credits never expire</li>
-                <li>• Use via web interface or API</li>
-              </ul>
-            </div>
-          </div>
-          
-          <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
-            <p className="text-sm text-yellow-800">
-              <strong>💡 Tip:</strong> The Popular Pack offers the best value for regular users, 
-              while the Premium Pack is perfect for businesses with high translation volumes.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <section className="py-32 bg-gradient-to-br from-muted/20 to-card">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <Card className="modern-card rounded-3xl border-0 overflow-hidden">
+            <CardHeader className="text-center">
+              <CardTitle className="text-3xl">📋 How It Works</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-6">
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="modern-card p-6 rounded-2xl hover-lift">
+                  <h4 className="font-semibold mb-3 text-xl flex items-center gap-2">
+                    <CreditCard className="w-5 h-5 text-primary" />
+                    Payment Process
+                  </h4>
+                  <ul className="space-y-2 text-muted-foreground">
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      Secure payment via Paymob
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      Supports Visa, MasterCard, and local payment methods
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      Credits added automatically after payment
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      Instant activation
+                    </li>
+                  </ul>
+                </div>
+                
+                <div className="modern-card p-6 rounded-2xl hover-lift">
+                  <h4 className="font-semibold mb-3 text-xl flex items-center gap-2">
+                    <Zap className="w-5 h-5 text-accent" />
+                    Credit Usage
+                  </h4>
+                  <ul className="space-y-2 text-muted-foreground">
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      1 credit = 700 characters of translation
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      Works with all supported language pairs
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      Credits never expire
+                    </li>
+                    <li className="flex items-center gap-2">
+                      <Check className="w-4 h-4 text-green-500" />
+                      Use via web interface or API
+                    </li>
+                  </ul>
+                </div>
+              </div>
+              
+              <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 border border-yellow-200 rounded-2xl p-6 modern-card">
+                <p className="text-center">
+                  <strong className="text-primary">💡 Tip:</strong> The Popular Pack offers the best value for regular users, 
+                  while the Premium Pack is perfect for businesses with high translation volumes.
+                </p>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+      </section>
     </div>
   )
 } 

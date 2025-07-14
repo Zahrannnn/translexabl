@@ -166,13 +166,27 @@ export class PaymobService {
           currency: currency,
           integration_id: parseInt(this.integrationId),
           // Add success and failure URLs
-          success_url: `https://stage-translexabl.vercel.app/payment/success?order_id=${orderId}&amount=${amountCents}&currency=${currency}`,
-          failure_url: `https://stage-translexabl.vercel.app/payment/failure?order_id=${orderId}&amount=${amountCents}&currency=${currency}`,
+          success_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/payment/success?order_id=${orderId}&amount=${amountCents}&currency=${currency}`,
+          failure_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/payment/failure?order_id=${orderId}&amount=${amountCents}&currency=${currency}`,
         }),
       });
 
       if (!response.ok) {
-        throw new Error(`Payment key generation failed: ${response.statusText}`);
+        const errorText = await response.text();
+        console.error('Paymob payment key generation error:', {
+          status: response.status,
+          statusText: response.statusText,
+          body: errorText,
+          requestData: {
+            auth_token: authToken ? 'present' : 'missing',
+            amount_cents: amountCents,
+            order_id: orderId,
+            integration_id: parseInt(this.integrationId),
+            billing_data: billingData,
+            currency: currency
+          }
+        });
+        throw new Error(`Payment key generation failed: ${response.statusText} - ${errorText}`);
       }
 
       const data: PaymobPaymentKeyResponse = await response.json();

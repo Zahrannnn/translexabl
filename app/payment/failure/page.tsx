@@ -1,243 +1,136 @@
-/* eslint-disable react/no-unescaped-entities */
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client"
+'use client'
 
-import { useEffect, useState, Suspense } from "react"
-import { useSearchParams, useRouter } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { Button } from "@/components/ui/button"
-import { XCircle, CreditCard, RefreshCw, Home, AlertTriangle } from "lucide-react"
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { XCircle, CreditCard, ArrowLeft, RefreshCw } from 'lucide-react'
+import Link from 'next/link'
 
-function PaymentFailureContent() {
-  const [errorDetails, setErrorDetails] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+export default function PaymentFailurePage() {
   const searchParams = useSearchParams()
-  const router = useRouter()
-
-  const orderId = searchParams.get('order_id')
-  const transactionId = searchParams.get('transaction_id')
-  const amount = searchParams.get('amount')
-  const currency = searchParams.get('currency')
-  const errorMessage = searchParams.get('error')
+  const [paymentDetails, setPaymentDetails] = useState({
+    transaction_id: '',
+    order_id: '',
+    amount: '',
+    currency: '',
+    merchant_order_id: '',
+    error: ''
+  })
 
   useEffect(() => {
-    // Fetch transaction details if transaction ID is provided
-    if (transactionId) {
-      fetchTransactionDetails(transactionId)
-    } else {
-      setLoading(false)
-    }
-  }, [transactionId])
+    // Get payment details from URL parameters
+    setPaymentDetails({
+      transaction_id: searchParams.get('transaction_id') || '',
+      order_id: searchParams.get('order_id') || '',
+      amount: searchParams.get('amount') || '0',
+      currency: searchParams.get('currency') || 'EGP',
+      merchant_order_id: searchParams.get('merchant_order_id') || '',
+      error: searchParams.get('error') || 'Payment failed'
+    })
+  }, [searchParams])
 
-  const fetchTransactionDetails = async (txId: string) => {
-    try {
-      const response = await fetch(`/api/paymob/transaction/${txId}`)
-      if (response.ok) {
-        const data = await response.json()
-        setErrorDetails(data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch transaction details:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-  const handleRetry = () => {
- 
-    router.push('/test-payment')
-  }
-
-  const handleGoHome = () => {
-    router.push('/')
-  }
-
-  const handleContactSupport = () => {
-    window.open('mailto:support@translexabl.com?subject=Payment Failed&body=Order ID: ' + orderId, '_blank')
-  }
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-red-600 mx-auto mb-4"></div>
-              <p>Loading payment details...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+  const amountInEGP = parseFloat(paymentDetails.amount) / 100
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 ">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="text-center pb-4">
-          <div className="mx-auto mb-4 w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-            <XCircle className="w-8 h-8 text-red-600" />
-          </div>
-          <CardTitle className="text-2xl font-bold text-red-800">Payment Failed</CardTitle>
-          <CardDescription className="text-red-600">
-            We couldn't process your payment
+    <div className="container mx-auto p-6 max-w-2xl">
+      <div className="text-center mb-8">
+        <div className="flex justify-center mb-4">
+          <XCircle className="w-16 h-16 text-red-500" />
+        </div>
+        <h1 className="text-3xl font-bold text-red-600 mb-2">Payment Failed</h1>
+        <p className="text-gray-600">Your payment could not be processed</p>
+      </div>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2 text-red-600">
+            <CreditCard className="w-5 h-5" />
+            Payment Details
+          </CardTitle>
+          <CardDescription>
+            Transaction was unsuccessful
           </CardDescription>
         </CardHeader>
-        
-        <CardContent className="space-y-6">
-          {/* Error Summary */}
-          <div className="bg-red-50 rounded-lg p-4 border border-red-200">
-            <h3 className="font-semibold text-red-800 mb-3 flex items-center">
-              <AlertTriangle className="w-4 h-4 mr-2" />
-              Error Details
-            </h3>
-            <div className="space-y-2 text-sm">
-              {orderId && (
-                <div className="flex justify-between">
-                  <span className="text-red-700">Order ID:</span>
-                  <span className="font-mono text-red-800">{orderId}</span>
-                </div>
-              )}
-              {transactionId && (
-                <div className="flex justify-between">
-                  <span className="text-red-700">Transaction ID:</span>
-                  <span className="font-mono text-red-800">{transactionId}</span>
-                </div>
-              )}
-              {amount && (
-                <div className="flex justify-between">
-                  <span className="text-red-700">Amount:</span>
-                  <span className="font-semibold text-red-800">
-                    {(parseInt(amount) / 100).toFixed(2)} {currency || 'EGP'}
-                  </span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-red-700">Status:</span>
-                <span className="font-semibold text-red-800">Failed</span>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-sm text-gray-500">Attempted Amount</div>
+                <div className="font-semibold text-lg">{amountInEGP.toLocaleString()} {paymentDetails.currency}</div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-red-700">Date:</span>
-                <span className="text-red-800">{new Date().toLocaleString()}</span>
+              <div>
+                <div className="text-sm text-gray-500">Status</div>
+                <div className="font-semibold text-lg text-red-600">Failed</div>
               </div>
             </div>
-          </div>
-
-          {/* Error Message */}
-          {errorMessage && (
-            <div className="bg-yellow-50 rounded-lg p-4 border border-yellow-200">
-              <h3 className="font-semibold text-yellow-800 mb-2">Error Message:</h3>
-              <p className="text-sm text-yellow-700">{errorMessage}</p>
-            </div>
-          )}
-
-          {/* Transaction Details */}
-          {errorDetails && (
-            <div className="bg-gray-50 rounded-lg p-4 border">
-              <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
-                <CreditCard className="w-4 h-4 mr-2" />
-                Transaction Details
-              </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-700">Payment Method:</span>
-                  <span className="text-gray-800">{errorDetails.source_data?.type || 'Card'}</span>
-                </div>
-                {errorDetails.source_data?.pan && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-700">Card:</span>
-                    <span className="text-gray-800">**** {errorDetails.source_data.pan}</span>
-                  </div>
-                )}
-                {errorDetails.error_occured && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-700">Error:</span>
-                    <span className="text-red-600">{errorDetails.error_occured}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Common Issues */}
-          <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
-            <h3 className="font-semibold text-blue-800 mb-3">Common Issues:</h3>
-            <ul className="text-sm text-blue-700 space-y-1">
-              <li>• Insufficient funds in your account</li>
-              <li>• Incorrect card details</li>
-              <li>• Card expired or blocked</li>
-              <li>• Network connection issues</li>
-              <li>• Bank declined the transaction</li>
-            </ul>
-          </div>
-
-          {/* Action Buttons */}
-          <div className="space-y-3">
-            <Button 
-              onClick={handleRetry}
-              className="w-full bg-blue-600 hover:bg-blue-700"
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Try Again
-            </Button>
             
-            <div className="grid grid-cols-2 gap-3">
-              <Button 
-                onClick={handleGoHome}
-                variant="outline" 
-                className="border-gray-300 text-gray-600 hover:bg-gray-50"
-              >
-                <Home className="w-4 h-4 mr-2" />
-                Go Home
-              </Button>
-              
-              <Button 
-                onClick={handleContactSupport}
-                variant="outline" 
-                className="border-red-600 text-red-600 hover:bg-red-50"
-              >
-                Contact Support
-              </Button>
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              {paymentDetails.transaction_id && (
+                <div>
+                  <div className="text-gray-500">Transaction ID</div>
+                  <div className="font-mono">{paymentDetails.transaction_id}</div>
+                </div>
+              )}
+              {paymentDetails.order_id && (
+                <div>
+                  <div className="text-gray-500">Order ID</div>
+                  <div className="font-mono">{paymentDetails.order_id}</div>
+                </div>
+              )}
             </div>
-          </div>
 
-          {/* Support Info */}
-          <div className="text-center pt-4 border-t">
-            <p className="text-xs text-gray-500">
-              Need immediate help? Contact our support team at{" "}
-              <a href="mailto:support@translexabl.com" className="text-red-600 hover:underline">
-                support@translexabl.com
-              </a>
-            </p>
+            {paymentDetails.error && (
+              <div className="bg-red-50 border border-red-200 rounded-lg p-3">
+                <div className="text-sm text-red-600">
+                  <strong>Error:</strong> {paymentDetails.error}
+                </div>
+              </div>
+            )}
           </div>
         </CardContent>
       </Card>
-    </div>
-  )
-}
 
-function LoadingFallback() {
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center pb-4">
-          <div className="mx-auto mb-4 w-16 h-16 bg-red-100 rounded-full flex items-center justify-center">
-            <XCircle className="w-8 h-8 text-red-600" />
-          </div>
-          <CardTitle className="text-2xl font-bold text-red-800">Payment Failed</CardTitle>
-          <CardDescription className="text-red-600">
-            Loading payment details...
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    </div>
-  )
-}
+      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
+        <h3 className="font-semibold text-yellow-800 mb-2">Common Reasons for Payment Failure</h3>
+        <ul className="text-sm text-yellow-700 space-y-1">
+          <li>• Insufficient funds in your account</li>
+          <li>• Incorrect card details entered</li>
+          <li>• Card expired or blocked</li>
+          <li>• Network connection issues</li>
+          <li>• Transaction declined by bank</li>
+        </ul>
+      </div>
 
-export default function PaymentFailurePage() {
-  return (
-    <Suspense fallback={<LoadingFallback />}>
-      <PaymentFailureContent />
-    </Suspense>
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <h3 className="font-semibold text-blue-800 mb-2">What to do next?</h3>
+        <ul className="text-sm text-blue-700 space-y-1">
+          <li>• Check your card details and try again</li>
+          <li>• Contact your bank if the card should work</li>
+          <li>• Try a different payment method</li>
+          <li>• Contact our support if the problem persists</li>
+        </ul>
+      </div>
+
+      <div className="flex gap-4 justify-center">
+        <Button asChild>
+          <Link href="/pricing">
+            <RefreshCw className="w-4 h-4 mr-2" />
+            Try Again
+          </Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href="/dashboard">
+            Go to Dashboard
+          </Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href="/pricing">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Pricing
+          </Link>
+        </Button>
+      </div>
+    </div>
   )
 } 

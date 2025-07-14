@@ -1,174 +1,110 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-"use client"
+'use client'
 
-import { useEffect, useState, Suspense } from "react"
-import { useSearchParams } from "next/navigation"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
-import { CheckCircle, CreditCard, Receipt } from "lucide-react"
+import { useEffect, useState } from 'react'
+import { useSearchParams } from 'next/navigation'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { CheckCircle, CreditCard, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 
-function PaymentSuccessContent() {
-  const [transactionDetails, setTransactionDetails] = useState<any>(null)
-  const [loading, setLoading] = useState(true)
+export default function PaymentSuccessPage() {
   const searchParams = useSearchParams()
-
-  const orderId = searchParams.get('order_id')
-  const transactionId = searchParams.get('transaction_id')
-  const amount = searchParams.get('amount')
-  const currency = searchParams.get('currency')
+  const [paymentDetails, setPaymentDetails] = useState({
+    transaction_id: '',
+    order_id: '',
+    amount: '',
+    currency: '',
+    merchant_order_id: ''
+  })
 
   useEffect(() => {
-    // Fetch transaction details if transaction ID is provided
-    if (transactionId) {
-      fetchTransactionDetails(transactionId)
-    } else {
-      setLoading(false)
-    }
-  }, [transactionId])
+    // Get payment details from URL parameters
+    setPaymentDetails({
+      transaction_id: searchParams.get('transaction_id') || '',
+      order_id: searchParams.get('order_id') || '',
+      amount: searchParams.get('amount') || '0',
+      currency: searchParams.get('currency') || 'EGP',
+      merchant_order_id: searchParams.get('merchant_order_id') || ''
+    })
+  }, [searchParams])
 
-  const fetchTransactionDetails = async (txId: string) => {
-    try {
-      const response = await fetch(`/api/paymob/transaction/${txId}`)
-      if (response.ok) {
-        const data = await response.json()
-        setTransactionDetails(data)
-      }
-    } catch (error) {
-      console.error('Failed to fetch transaction details:', error)
-    } finally {
-      setLoading(false)
-    }
-  }
-
-
-
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center p-4">
-        <Card className="w-full max-w-md">
-          <CardContent className="p-6">
-            <div className="text-center">
-              <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-green-600 mx-auto mb-4"></div>
-              <p>Loading payment details...</p>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-    )
-  }
+  const amountInEGP = parseFloat(paymentDetails.amount) / 100
+  const creditsReceived = Math.floor(parseFloat(paymentDetails.amount) / 350) // 3.5 EGP per credit
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-4 ">
-      <Card className="w-full max-w-md shadow-lg">
-        <CardHeader className="text-center pb-4">
-          <div className="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-8 h-8 text-green-600" />
-          </div>
-          <CardTitle className="text-2xl font-bold text-green-800">Payment Successful!</CardTitle>
-          <CardDescription className="text-green-600">
+    <div className="container mx-auto p-6 max-w-2xl">
+      <div className="text-center mb-8">
+        <div className="flex justify-center mb-4">
+          <CheckCircle className="w-16 h-16 text-green-500" />
+        </div>
+        <h1 className="text-3xl font-bold text-green-600 mb-2">Payment Successful!</h1>
+        <p className="text-gray-600">Your credits have been added to your account</p>
+      </div>
+
+      <Card className="mb-6">
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <CreditCard className="w-5 h-5" />
+            Payment Details
+          </CardTitle>
+          <CardDescription>
             Your payment has been processed successfully
           </CardDescription>
         </CardHeader>
-        
-        <CardContent className="space-y-6">
-          {/* Payment Summary */}
-          <div className="bg-green-50 rounded-lg p-4 border border-green-200">
-            <h3 className="font-semibold text-green-800 mb-3 flex items-center">
-              <CreditCard className="w-4 h-4 mr-2" />
-              Payment Summary
-            </h3>
-            <div className="space-y-2 text-sm">
-              {orderId && (
-                <div className="flex justify-between">
-                  <span className="text-green-700">Order ID:</span>
-                  <span className="font-mono text-green-800">{orderId}</span>
-                </div>
-              )}
-              {transactionId && (
-                <div className="flex justify-between">
-                  <span className="text-green-700">Transaction ID:</span>
-                  <span className="font-mono text-green-800">{transactionId}</span>
-                </div>
-              )}
-              {amount && (
-                <div className="flex justify-between">
-                  <span className="text-green-700">Amount:</span>
-                  <span className="font-semibold text-green-800">
-                    {(parseInt(amount) / 100).toFixed(2)} {currency || 'EGP'}
-                  </span>
-                </div>
-              )}
-              <div className="flex justify-between">
-                <span className="text-green-700">Status:</span>
-                <span className="font-semibold text-green-800">Completed</span>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div>
+                <div className="text-sm text-gray-500">Amount Paid</div>
+                <div className="font-semibold text-lg">{amountInEGP.toLocaleString()} {paymentDetails.currency}</div>
               </div>
-              <div className="flex justify-between">
-                <span className="text-green-700">Date:</span>
-                <span className="text-green-800">{new Date().toLocaleString()}</span>
+              <div>
+                <div className="text-sm text-gray-500">Credits Received</div>
+                <div className="font-semibold text-lg text-blue-600">{creditsReceived.toLocaleString()} credits</div>
               </div>
             </div>
-          </div>
-
-          {/* Transaction Details */}
-          {transactionDetails && (
-            <div className="bg-gray-50 rounded-lg p-4 border">
-              <h3 className="font-semibold text-gray-800 mb-3 flex items-center">
-                <Receipt className="w-4 h-4 mr-2" />
-                Transaction Details
-              </h3>
-              <div className="space-y-2 text-sm">
-                <div className="flex justify-between">
-                  <span className="text-gray-700">Payment Method:</span>
-                  <span className="text-gray-800">{transactionDetails.source_data?.type || 'Card'}</span>
-                </div>
-                {transactionDetails.source_data?.pan && (
-                  <div className="flex justify-between">
-                    <span className="text-gray-700">Card:</span>
-                    <span className="text-gray-800">**** {transactionDetails.source_data.pan}</span>
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Success Message */}
-          <div className="text-center py-4">
-            <p className="text-gray-600 mb-2">
-              Thank you for your payment! Your transaction has been processed successfully.
-            </p>
             
+            <div className="grid grid-cols-2 gap-4 text-sm">
+              {paymentDetails.transaction_id && (
+                <div>
+                  <div className="text-gray-500">Transaction ID</div>
+                  <div className="font-mono">{paymentDetails.transaction_id}</div>
+                </div>
+              )}
+              {paymentDetails.order_id && (
+                <div>
+                  <div className="text-gray-500">Order ID</div>
+                  <div className="font-mono">{paymentDetails.order_id}</div>
+                </div>
+              )}
+            </div>
           </div>
-
-          
-
-      
         </CardContent>
       </Card>
-    </div>
-  )
-}
 
-function LoadingFallback() {
-  return (
-    <div className="min-h-screen flex items-center justify-center p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="text-center pb-4">
-          <div className="mx-auto mb-4 w-16 h-16 bg-green-100 rounded-full flex items-center justify-center">
-            <CheckCircle className="w-8 h-8 text-green-600" />
-          </div>
-          <CardTitle className="text-2xl font-bold text-green-800">Payment Successful!</CardTitle>
-          <CardDescription className="text-green-600">
-            Loading payment details...
-          </CardDescription>
-        </CardHeader>
-      </Card>
-    </div>
-  )
-}
+      <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+        <h3 className="font-semibold text-green-800 mb-2">What&apos;s Next?</h3>
+        <ul className="text-sm text-green-700 space-y-1">
+          <li>• Your credits are now available in your account</li>
+          <li>• Each credit gives you 700 characters of translation</li>
+          <li>• You can start translating immediately</li>
+          <li>• Credits never expire</li>
+        </ul>
+      </div>
 
-export default function PaymentSuccessPage() {
-  return (
-    <Suspense fallback={<LoadingFallback />}>
-      <PaymentSuccessContent />
-    </Suspense>
+      <div className="flex gap-4 justify-center">
+        <Button asChild>
+          <Link href="/dashboard">
+            Go to Dashboard
+          </Link>
+        </Button>
+        <Button variant="outline" asChild>
+          <Link href="/pricing">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Back to Pricing
+          </Link>
+        </Button>
+      </div>
+    </div>
   )
 } 
