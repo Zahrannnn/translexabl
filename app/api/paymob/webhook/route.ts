@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
 import PaymobService from '@/lib/paymob';
-import { cookies } from 'next/headers';
 
 interface TransactionData {
   userId: number;
@@ -34,25 +33,6 @@ interface PaymobCallbackData {
   created_at: string;
 }
 
-interface UserProfile {
-  id: number;
-  email: string;
-  username: string;
-  firstName: string;
-  lastName: string;
-  phoneNumber: string;
-  role: string;
-  currentCredits: number;
-  reservedCredits: number;
-  availableCredits: number;
-  totalCreditsUsed: number;
-  totalCreditsPurchased: number;
-  freeGlossaryQuota: number;
-  freeGlossaryUsed: number;
-  accountAge: number;
-  emailVerified: boolean;
-}
-
 // Helper function to extract userId from merchant_order_id
 function extractUserIdFromMerchantOrderId(merchantOrderId: string): number | null {
   // Expected format: "user-{userId}-{timestamp}" or similar
@@ -67,39 +47,24 @@ function extractUserIdFromMerchantOrderId(merchantOrderId: string): number | nul
   return null;
 }
 
-// Helper function to get user profile and extract userId
-async function getUserId(accessToken: string): Promise<number | null> {
+// Helper function to save transaction to external database without authentication
+async function saveTransactionToDatabase(transactionData: TransactionData, useWebhookAuth: boolean = false) {
   try {
-    const response = await fetch('https://translatex-production.up.railway.app/api/user/profile', {
-      method: 'GET',
-      headers: {
-        'Authorization': `Bearer ${accessToken}`,
-        'Content-Type': 'application/json',
-      },
-    });
+    const headers: Record<string, string> = {
+      'Content-Type': 'application/json',
+    };
 
-    if (!response.ok) {
-      console.error('Failed to fetch user profile:', response.status);
-      return null;
+    // If we have a webhook-specific auth method, use it
+    // Otherwise, try with a webhook secret or API key
+    if (useWebhookAuth) {
+      // You might want to add a webhook secret to your environment variables
+      const webhookSecret = process.env.WEBHOOK_SECRET || 'your-webhook-secret';
+      headers['X-Webhook-Secret'] = webhookSecret;
     }
 
-    const profile: UserProfile = await response.json();
-    return profile.id;
-  } catch (error) {
-    console.error('Error fetching user profile:', error);
-    return null;
-  }
-}
-
-// Helper function to save transaction to external database
-async function saveTransactionToDatabase(transactionData: TransactionData, accessToken: string) {
-  try {
     const response = await fetch('https://translatex-production.up.railway.app/api/transactions', {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${accessToken}`,
-      },
+      headers,
       body: JSON.stringify(transactionData),
     });
 
@@ -181,95 +146,43 @@ export async function POST(request: NextRequest) {
       merchant_order_id: callbackData.order?.merchant_order_id,
     });
 
-    // Get access token from cookies
-    const cookieStore = await cookies();
-    const accessToken = cookieStore.get('accessToken')?.value;
+    // Extract userId from merchant_order_id (primary method for webhooks)
+    const merchantOrderId = callbackData.order?.merchant_order_id;
+    let userId: number | null = null;
+    
+    if (merchantOrderId) {
+      userId = extractUserIdFromMerchantOrderId(merchantOrderId);
+      console.log('🔍 Extracting userId from merchant_order_id:', {
+        merchantOrderId,
+        extractedUserId: userId
+      });
+    }
 
-    console.log('🔍 Debugging webhook cookies and access:', {
-      hasCookies: !!cookieStore,
-      accessToken: accessToken ? `${accessToken.slice(0, 10)}...` : 'NOT_FOUND',
-      cookieNames: Array.from(cookieStore.getAll().map(cookie => cookie.name))
-    });
-
-    if (!accessToken) {
-      console.error('❌ No access token found in cookies - webhook called by Paymob servers, not user browser');
-      
-      // Try to extract userId from merchant_order_id as fallback
-      const merchantOrderId = callbackData.order?.merchant_order_id;
-      let userId: number | null = null;
-      
-      if (merchantOrderId) {
-        userId = extractUserIdFromMerchantOrderId(merchantOrderId);
-        console.log('🔍 Attempting to extract userId from merchant_order_id:', {
-          merchantOrderId,
-          extractedUserId: userId
-        });
-      }
-      
-      if (!userId) {
-        console.log('📝 Transaction data that would have been saved (but missing userId):', {
-          transactionId: callbackData.id,
-          orderId: callbackData.order?.id,
-          merchantOrderId: callbackData.order?.merchant_order_id,
-          amountCents: callbackData.amount_cents,
-          currency: callbackData.currency,
-          status: getTransactionStatus(callbackData),
-          paymentMethod: callbackData.source_data?.type || 'card',
-          cardType: callbackData.source_data?.sub_type || '',
-          cardLastFour: getCardLastFour(callbackData.source_data?.pan),
-        });
-        
-        console.log('💡 Suggestion: Modify payment initiation to include userId in merchant_order_id format: user-{userId}-{timestamp}');
-        
-        // Continue processing but don't save to database
-        return NextResponse.json({ success: true });
-      }
-      
-      // If we found userId from merchant_order_id, prepare transaction data
-      const transactionData: TransactionData = {
-        userId: userId,
-        transactionId: callbackData.id?.toString(),
-        orderId: callbackData.order?.id?.toString() || '',
-        merchantOrderId: callbackData.order?.merchant_order_id || '',
+    if (!userId) {
+      console.error('❌ Could not extract userId from merchant_order_id:', merchantOrderId);
+      console.log('📝 Transaction data that cannot be saved (missing userId):', {
+        transactionId: callbackData.id,
+        orderId: callbackData.order?.id,
+        merchantOrderId: callbackData.order?.merchant_order_id,
         amountCents: callbackData.amount_cents,
-        currency: callbackData.currency || 'EGP',
+        currency: callbackData.currency,
         status: getTransactionStatus(callbackData),
         paymentMethod: callbackData.source_data?.type || 'card',
         cardType: callbackData.source_data?.sub_type || '',
         cardLastFour: getCardLastFour(callbackData.source_data?.pan),
-      };
+      });
       
-      console.log('🎯 Attempting to save transaction with userId from merchant_order_id:', transactionData);
+      console.log('💡 Make sure merchant_order_id follows format: user-{userId}-{timestamp}');
       
-      // Try to save transaction without access token (might need to modify the API)
-      try {
-        // Note: This might fail because we don't have an access token
-        // You might need to create a webhook-specific endpoint that doesn't require auth
-        await saveTransactionToDatabase(transactionData, 'webhook-fallback');
-      } catch (error) {
-        console.error('❌ Failed to save transaction from webhook (expected - no access token):', error);
-        console.log('💡 Consider creating a webhook-specific transaction endpoint that uses API key instead of user token');
-      }
-      
-      return NextResponse.json({ success: true });
-    }
-
-    console.log('✅ Access token found, attempting to get userId...');
-
-    // Get userId from profile API (same way as profile page)
-    const userId = await getUserId(accessToken);
-    
-    if (!userId) {
-      console.error('❌ Failed to retrieve userId from profile');
       // Continue processing but don't save to database
       return NextResponse.json({ success: true });
     }
 
-    console.log('✅ Retrieved userId from profile:', userId);
+    console.log('✅ Successfully extracted userId from merchant_order_id:', userId);
 
     // Prepare transaction data for the external API
     const transactionData: TransactionData = {
-      userId: userId, // Now dynamically retrieved from profile API
+      userId: userId,
       transactionId: callbackData.id?.toString(),
       orderId: callbackData.order?.id?.toString() || '',
       merchantOrderId: callbackData.order?.merchant_order_id || '',
@@ -281,52 +194,44 @@ export async function POST(request: NextRequest) {
       cardLastFour: getCardLastFour(callbackData.source_data?.pan),
     };
 
-    // Process payment result
+    console.log('🎯 Transaction data to save:', transactionData);
+
+    // Process payment result and save transaction
     if (callbackData.success === 'true' || callbackData.success === true) {
       console.log(`✅ Payment successful for order ${callbackData.order?.id}`);
       
       // Save successful transaction to database
       try {
-        await saveTransactionToDatabase(transactionData, accessToken);
+        await saveTransactionToDatabase(transactionData, true);
+        console.log('✅ Successfully saved successful transaction to database');
       } catch (error) {
-        console.error('Failed to save successful transaction to database:', error);
+        console.error('❌ Failed to save successful transaction to database:', error);
+        // Continue processing even if database save fails
       }
-      
-      // Here you would typically:
-      // 1. Update your database with the successful payment ✅ DONE
-      // 2. Send confirmation email to user
-      // 3. Update user's credit balance (if applicable)
-      // 4. Log the successful transaction ✅ DONE
       
     } else if (callbackData.success === 'false' || callbackData.success === false) {
       console.log(`❌ Payment failed for order ${callbackData.order?.id}`);
       
       // Save failed transaction to database
       try {
-        await saveTransactionToDatabase(transactionData, accessToken);
+        await saveTransactionToDatabase(transactionData, true);
+        console.log('✅ Successfully saved failed transaction to database');
       } catch (error) {
-        console.error('Failed to save failed transaction to database:', error);
+        console.error('❌ Failed to save failed transaction to database:', error);
+        // Continue processing even if database save fails
       }
-      
-      // Here you would typically:
-      // 1. Update your database with the failed payment ✅ DONE
-      // 2. Send failure notification to user
-      // 3. Log the failed transaction ✅ DONE
       
     } else {
       console.log(`⏳ Payment pending for order ${callbackData.order?.id}`);
       
       // Save pending transaction to database
       try {
-        await saveTransactionToDatabase(transactionData, accessToken);
+        await saveTransactionToDatabase(transactionData, true);
+        console.log('✅ Successfully saved pending transaction to database');
       } catch (error) {
-        console.error('Failed to save pending transaction to database:', error);
+        console.error('❌ Failed to save pending transaction to database:', error);
+        // Continue processing even if database save fails
       }
-      
-      // Here you would typically:
-      // 1. Update your database with the pending payment ✅ DONE
-      // 2. Keep monitoring the payment status
-      
     }
 
     // Always return success to acknowledge receipt
