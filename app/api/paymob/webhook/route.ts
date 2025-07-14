@@ -47,80 +47,96 @@ function extractUserIdFromMerchantOrderId(merchantOrderId: string): number | nul
   return null;
 }
 
-// Helper function to save transaction to external database without authentication
-async function saveTransactionToDatabase(transactionData: TransactionData, useWebhookAuth: boolean = false) {
+// Helper function to save transaction to external database (no authentication required)
+async function saveTransactionToDatabase(transactionData: TransactionData) {
   try {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-    };
-
-    // Try different authentication methods
-    if (useWebhookAuth) {
-      // Method 1: Try webhook secret
-      const webhookSecret = process.env.WEBHOOK_SECRET || 'translatex-webhook-secret-2024';
-      headers['X-Webhook-Secret'] = webhookSecret;
-      
-      console.log('🔐 Attempting to save with webhook secret authentication');
-    }
-
-    let response = await fetch('https://translatex-production.up.railway.app/api/transactions', {
+    console.log('💾 Attempting to save transaction to database...');
+    
+    const response = await fetch('https://translatex-production.up.railway.app/api/transactions', {
       method: 'POST',
-      headers,
+      headers: {
+        'Content-Type': 'application/json',
+      },
       body: JSON.stringify(transactionData),
     });
 
-    // If webhook auth fails with 403, try without any auth
-    if (!response.ok && response.status === 403) {
-      console.log('⚠️ Webhook secret failed (403), trying without authentication...');
-      
-      const noAuthHeaders = {
-        'Content-Type': 'application/json',
-      };
-      
-      response = await fetch('https://translatex-production.up.railway.app/api/transactions', {
-        method: 'POST',
-        headers: noAuthHeaders,
-        body: JSON.stringify(transactionData),
-      });
-    }
-
-    // If still failing, try with a different endpoint or API key approach
-    if (!response.ok && response.status === 403) {
-      console.log('⚠️ Still getting 403, trying alternative endpoint...');
-      
-      // Try with a webhook-specific endpoint (you may need to create this)
-      const webhookHeaders = {
-        'Content-Type': 'application/json',
-        'X-Source': 'paymob-webhook',
-        'X-Timestamp': new Date().toISOString(),
-      };
-      
-      response = await fetch('https://translatex-production.up.railway.app/api/webhooks/transactions', {
-        method: 'POST',
-        headers: webhookHeaders,
-        body: JSON.stringify(transactionData),
-      });
-    }
-
-    if (!response.ok) {
+    if (response.ok) {
+      const result = await response.json();
+      console.log('✅ Transaction saved to database successfully:', result);
+      return result;
+    } else {
       const errorText = await response.text();
-      console.error('❌ Transaction save failed. Response:', {
+      console.error('❌ Transaction save failed:', {
         status: response.status,
         statusText: response.statusText,
         body: errorText,
         headers: Object.fromEntries(response.headers.entries())
       });
+      
       throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
     }
 
-    const result = await response.json();
-    console.log('✅ Transaction saved to database:', result);
-    return result;
   } catch (error) {
     console.error('❌ Failed to save transaction to database:', error);
     
     // Log the transaction data so it's not lost
     console.log('📝 Transaction data that failed to save:', JSON.stringify(transactionData, null, 2));
+    
+    throw error;
+  }
+}
+
+// Helper function to add credits to user after successful payment
+async function addCreditsToUser(userId: number, amountCents: number) {
+  try {
+    // Convert cents to credits based on pricing structure
+    // Pricing: 3.5 EGP per credit = 350 cents per credit
+    // Examples: 
+    // - 175000 cents (1750 EGP) = 500 credits (Starter Pack)
+    // - 700000 cents (7000 EGP) = 2000 credits (Popular Pack)
+    // - 1750000 cents (17500 EGP) = 5000 credits (Premium Pack)
+    const creditAmount = Math.floor(amountCents / 350);
+    
+    console.log(`💰 Attempting to add ${creditAmount} credits to user ${userId} (paid ${amountCents} cents = ${amountCents/100} EGP)...`);
+    
+    const response = await fetch('https://translatex-production.up.railway.app/api/credits/add', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        userId: userId,
+        amount: creditAmount
+      }),
+    });
+
+    if (response.ok) {
+      const result = await response.json();
+      console.log(`✅ Successfully added ${creditAmount} credits to user ${userId}:`, result);
+      return result;
+    } else {
+      const errorText = await response.text();
+      console.error('❌ Failed to add credits:', {
+        status: response.status,
+        statusText: response.statusText,
+        body: errorText,
+        userId,
+        creditAmount,
+        headers: Object.fromEntries(response.headers.entries())
+      });
+      
+      throw new Error(`HTTP error! status: ${response.status}, body: ${errorText}`);
+    }
+
+  } catch (error) {
+    console.error('❌ Failed to add credits to user:', error);
+    
+    // Log the credit data so it's not lost
+    console.log('📝 Credit addition that failed:', {
+      userId,
+      amountCents,
+      creditAmount: Math.floor(amountCents / 350)
+    });
     
     throw error;
   }
@@ -247,11 +263,20 @@ export async function POST(request: NextRequest) {
       
       // Save successful transaction to database
       try {
-        await saveTransactionToDatabase(transactionData, true);
+        await saveTransactionToDatabase(transactionData);
         console.log('✅ Successfully saved successful transaction to database');
       } catch (error) {
         console.error('❌ Failed to save successful transaction to database:', error);
         // Continue processing even if database save fails
+      }
+      
+      // Add credits to user after successful payment
+      try {
+        await addCreditsToUser(userId, callbackData.amount_cents);
+        console.log('✅ Successfully added credits to user after payment');
+      } catch (error) {
+        console.error('❌ Failed to add credits to user after payment:', error);
+        // Log error but don't fail the webhook - transaction was still successful
       }
       
     } else if (callbackData.success === 'false' || callbackData.success === false) {
@@ -259,7 +284,7 @@ export async function POST(request: NextRequest) {
       
       // Save failed transaction to database
       try {
-        await saveTransactionToDatabase(transactionData, true);
+        await saveTransactionToDatabase(transactionData);
         console.log('✅ Successfully saved failed transaction to database');
       } catch (error) {
         console.error('❌ Failed to save failed transaction to database:', error);
@@ -271,7 +296,7 @@ export async function POST(request: NextRequest) {
       
       // Save pending transaction to database
       try {
-        await saveTransactionToDatabase(transactionData, true);
+        await saveTransactionToDatabase(transactionData);
         console.log('✅ Successfully saved pending transaction to database');
       } catch (error) {
         console.error('❌ Failed to save pending transaction to database:', error);
