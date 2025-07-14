@@ -53,6 +53,20 @@ interface UserProfile {
   emailVerified: boolean;
 }
 
+// Helper function to extract userId from merchant_order_id
+function extractUserIdFromMerchantOrderId(merchantOrderId: string): number | null {
+  // Expected format: "user-{userId}-{timestamp}" or similar
+  // For now, try to extract from patterns like "user-123-1234567890"
+  const userIdMatch = merchantOrderId.match(/user-(\d+)-/);
+  if (userIdMatch) {
+    return parseInt(userIdMatch[1], 10);
+  }
+  
+  // Could also check for other patterns
+  // Add more patterns as needed based on your merchant_order_id format
+  return null;
+}
+
 // Helper function to get user profile and extract userId
 async function getUserId(accessToken: string): Promise<number | null> {
   try {
@@ -171,11 +185,76 @@ export async function POST(request: NextRequest) {
     const cookieStore = await cookies();
     const accessToken = cookieStore.get('accessToken')?.value;
 
+    console.log('🔍 Debugging webhook cookies and access:', {
+      hasCookies: !!cookieStore,
+      accessToken: accessToken ? `${accessToken.slice(0, 10)}...` : 'NOT_FOUND',
+      cookieNames: Array.from(cookieStore.getAll().map(cookie => cookie.name))
+    });
+
     if (!accessToken) {
-      console.error('❌ No access token found in cookies');
-      // Continue processing but don't save to database
+      console.error('❌ No access token found in cookies - webhook called by Paymob servers, not user browser');
+      
+      // Try to extract userId from merchant_order_id as fallback
+      const merchantOrderId = callbackData.order?.merchant_order_id;
+      let userId: number | null = null;
+      
+      if (merchantOrderId) {
+        userId = extractUserIdFromMerchantOrderId(merchantOrderId);
+        console.log('🔍 Attempting to extract userId from merchant_order_id:', {
+          merchantOrderId,
+          extractedUserId: userId
+        });
+      }
+      
+      if (!userId) {
+        console.log('📝 Transaction data that would have been saved (but missing userId):', {
+          transactionId: callbackData.id,
+          orderId: callbackData.order?.id,
+          merchantOrderId: callbackData.order?.merchant_order_id,
+          amountCents: callbackData.amount_cents,
+          currency: callbackData.currency,
+          status: getTransactionStatus(callbackData),
+          paymentMethod: callbackData.source_data?.type || 'card',
+          cardType: callbackData.source_data?.sub_type || '',
+          cardLastFour: getCardLastFour(callbackData.source_data?.pan),
+        });
+        
+        console.log('💡 Suggestion: Modify payment initiation to include userId in merchant_order_id format: user-{userId}-{timestamp}');
+        
+        // Continue processing but don't save to database
+        return NextResponse.json({ success: true });
+      }
+      
+      // If we found userId from merchant_order_id, prepare transaction data
+      const transactionData: TransactionData = {
+        userId: userId,
+        transactionId: callbackData.id?.toString(),
+        orderId: callbackData.order?.id?.toString() || '',
+        merchantOrderId: callbackData.order?.merchant_order_id || '',
+        amountCents: callbackData.amount_cents,
+        currency: callbackData.currency || 'EGP',
+        status: getTransactionStatus(callbackData),
+        paymentMethod: callbackData.source_data?.type || 'card',
+        cardType: callbackData.source_data?.sub_type || '',
+        cardLastFour: getCardLastFour(callbackData.source_data?.pan),
+      };
+      
+      console.log('🎯 Attempting to save transaction with userId from merchant_order_id:', transactionData);
+      
+      // Try to save transaction without access token (might need to modify the API)
+      try {
+        // Note: This might fail because we don't have an access token
+        // You might need to create a webhook-specific endpoint that doesn't require auth
+        await saveTransactionToDatabase(transactionData, 'webhook-fallback');
+      } catch (error) {
+        console.error('❌ Failed to save transaction from webhook (expected - no access token):', error);
+        console.log('💡 Consider creating a webhook-specific transaction endpoint that uses API key instead of user token');
+      }
+      
       return NextResponse.json({ success: true });
     }
+
+    console.log('✅ Access token found, attempting to get userId...');
 
     // Get userId from profile API (same way as profile page)
     const userId = await getUserId(accessToken);

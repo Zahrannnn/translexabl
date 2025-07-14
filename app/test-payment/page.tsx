@@ -1,6 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -22,13 +23,43 @@ interface BillingData {
   postal_code?: string
 }
 
+interface UserInfo {
+  userId: number
+  username: string
+  email: string
+  role: string
+}
+
+interface PaymentResult {
+  success: boolean
+  data: {
+    order_id: string
+    payment_token: string
+    iframe_url: string
+  }
+  error?: string
+}
+
+interface PaymobConfig {
+  configured: boolean
+  config: {
+    api_key: string
+    integration_id: string
+    iframe_id: string
+    hmac_key: string
+  }
+  webhook_url: string
+  ngrok_webhook_url: string
+}
+
 export default function TestPaymentPage() {
   const [isLoading, setIsLoading] = useState(false)
-  const [result, setResult] = useState<any>(null)
+  const [result, setResult] = useState<PaymentResult | null>(null)
   const [error, setError] = useState<string>('')
-  const [config, setConfig] = useState<any>(null)
+  const [config, setConfig] = useState<PaymobConfig | null>(null)
   const [showIframe, setShowIframe] = useState(false)
   const [iframeUrl, setIframeUrl] = useState('')
+  const [user, setUser] = useState<UserInfo | null>(null)
 
   // Test billing data
   const [billingData, setBillingData] = useState<BillingData>({
@@ -48,24 +79,59 @@ export default function TestPaymentPage() {
 
   const [amount, setAmount] = useState('10000') // 100 EGP in cents
 
+  // Get user info from cookie
+  useEffect(() => {
+    const getUserFromCookie = () => {
+      const cookies = document.cookie.split(';')
+      const userCookie = cookies.find(cookie => cookie.trim().startsWith('user='))
+      
+      if (userCookie) {
+        try {
+          const userValue = userCookie.split('=')[1]
+          const userData = JSON.parse(decodeURIComponent(userValue))
+          setUser(userData)
+          
+          // Update billing data with user's actual email
+          setBillingData(prev => ({
+            ...prev,
+            email: userData.email
+          }))
+        } catch (error) {
+          console.error('Error parsing user cookie:', error)
+          setUser(null)
+        }
+      }
+    }
+
+    getUserFromCookie()
+  }, [])
+
   // Check Paymob configuration
   const checkConfig = async () => {
     try {
       const response = await fetch('/api/paymob/config')
       const data = await response.json()
       setConfig(data)
-    } catch (err) {
+    } catch (_) {
       setError('Failed to check configuration')
     }
   }
 
   // Test payment initiation
   const testPayment = async () => {
+    if (!user) {
+      setError('User not logged in. Please login first.')
+      return
+    }
+
     setIsLoading(true)
     setError('')
     setResult(null)
 
     try {
+      // Create merchant_order_id with userId for webhook extraction
+      const merchantOrderId = `user-${user.userId}-${Date.now()}`
+      
       const response = await fetch('/api/paymob/initiate', {
         method: 'POST',
         headers: {
@@ -74,7 +140,7 @@ export default function TestPaymentPage() {
         body: JSON.stringify({
           amount_cents: parseInt(amount),
           currency: 'EGP',
-          merchant_order_id: `test-${Date.now()}`,
+          merchant_order_id: merchantOrderId, // Now includes userId
           billing_data: billingData,
           items: [
             {
@@ -95,7 +161,7 @@ export default function TestPaymentPage() {
       } else {
         setError(data.error || 'Payment initiation failed')
       }
-    } catch (err) {
+    } catch (_) {
       setError('Network error occurred')
     } finally {
       setIsLoading(false)
@@ -109,7 +175,7 @@ export default function TestPaymentPage() {
       const data = await response.json()
       console.log('Transaction details:', data)
       alert('Check console for transaction details')
-    } catch (err) {
+    } catch (_) {
       alert('Failed to fetch transaction')
     }
   }
@@ -294,7 +360,7 @@ export default function TestPaymentPage() {
             <div className="mt-4 p-4 bg-yellow-50 rounded">
               <p className="text-sm text-yellow-800">
                 <strong>Note:</strong> This is a test payment iframe. You can use test card numbers provided by Paymob for testing.
-                Since webhooks won't work locally, you'll need to manually check the transaction status.
+                Since webhooks won&apos;t work locally, you&apos;ll need to manually check the transaction status.
               </p>
             </div>
           </CardContent>
