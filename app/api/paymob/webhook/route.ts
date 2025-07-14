@@ -1,5 +1,123 @@
 import { NextRequest, NextResponse } from 'next/server';
 import PaymobService from '@/lib/paymob';
+import { cookies } from 'next/headers';
+
+interface TransactionData {
+  userId: number;
+  transactionId: string;
+  orderId: string;
+  merchantOrderId: string;
+  amountCents: number;
+  currency: string;
+  status: string;
+  paymentMethod: string;
+  cardType: string;
+  cardLastFour: string;
+}
+
+interface PaymobCallbackData {
+  id: string | number;
+  order?: {
+    id: string | number;
+    merchant_order_id: string;
+  };
+  amount_cents: number;
+  currency: string;
+  success: string | boolean;
+  pending: boolean;
+  error_occured: boolean;
+  source_data?: {
+    type: string;
+    sub_type: string;
+    pan: string;
+  };
+  created_at: string;
+}
+
+interface UserProfile {
+  id: number;
+  email: string;
+  username: string;
+  firstName: string;
+  lastName: string;
+  phoneNumber: string;
+  role: string;
+  currentCredits: number;
+  reservedCredits: number;
+  availableCredits: number;
+  totalCreditsUsed: number;
+  totalCreditsPurchased: number;
+  freeGlossaryQuota: number;
+  freeGlossaryUsed: number;
+  accountAge: number;
+  emailVerified: boolean;
+}
+
+// Helper function to get user profile and extract userId
+async function getUserId(accessToken: string): Promise<number | null> {
+  try {
+    const response = await fetch('https://translatex-production.up.railway.app/api/user/profile', {
+      method: 'GET',
+      headers: {
+        'Authorization': `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    if (!response.ok) {
+      console.error('Failed to fetch user profile:', response.status);
+      return null;
+    }
+
+    const profile: UserProfile = await response.json();
+    return profile.id;
+  } catch (error) {
+    console.error('Error fetching user profile:', error);
+    return null;
+  }
+}
+
+// Helper function to save transaction to external database
+async function saveTransactionToDatabase(transactionData: TransactionData, accessToken: string) {
+  try {
+    const response = await fetch('https://translatex-production.up.railway.app/api/transactions', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${accessToken}`,
+      },
+      body: JSON.stringify(transactionData),
+    });
+
+    if (!response.ok) {
+      throw new Error(`HTTP error! status: ${response.status}`);
+    }
+
+    const result = await response.json();
+    console.log('✅ Transaction saved to database:', result);
+    return result;
+  } catch (error) {
+    console.error('❌ Failed to save transaction to database:', error);
+    throw error;
+  }
+}
+
+// Helper function to extract card last four digits from PAN
+function getCardLastFour(pan: string | undefined): string {
+  if (!pan) return '';
+  return pan.slice(-4);
+}
+
+// Helper function to determine transaction status
+function getTransactionStatus(callbackData: PaymobCallbackData): string {
+  if (callbackData.success === 'true' || callbackData.success === true) {
+    return 'success';
+  } else if (callbackData.success === 'false' || callbackData.success === false) {
+    return 'failed';
+  } else {
+    return 'pending';
+  }
+}
 
 export async function POST(request: NextRequest) {
   try {
@@ -31,7 +149,7 @@ export async function POST(request: NextRequest) {
       console.log('⚠️ No HMAC signature provided');
     }
 
-    const callbackData = body.obj;
+    const callbackData: PaymobCallbackData = body.obj;
     
     // Log transaction details
     console.log('Transaction callback details:', {
@@ -49,29 +167,85 @@ export async function POST(request: NextRequest) {
       merchant_order_id: callbackData.order?.merchant_order_id,
     });
 
+    // Get access token from cookies
+    const cookieStore = await cookies();
+    const accessToken = cookieStore.get('accessToken')?.value;
+
+    if (!accessToken) {
+      console.error('❌ No access token found in cookies');
+      // Continue processing but don't save to database
+      return NextResponse.json({ success: true });
+    }
+
+    // Get userId from profile API (same way as profile page)
+    const userId = await getUserId(accessToken);
+    
+    if (!userId) {
+      console.error('❌ Failed to retrieve userId from profile');
+      // Continue processing but don't save to database
+      return NextResponse.json({ success: true });
+    }
+
+    console.log('✅ Retrieved userId from profile:', userId);
+
+    // Prepare transaction data for the external API
+    const transactionData: TransactionData = {
+      userId: userId, // Now dynamically retrieved from profile API
+      transactionId: callbackData.id?.toString(),
+      orderId: callbackData.order?.id?.toString() || '',
+      merchantOrderId: callbackData.order?.merchant_order_id || '',
+      amountCents: callbackData.amount_cents,
+      currency: callbackData.currency || 'EGP',
+      status: getTransactionStatus(callbackData),
+      paymentMethod: callbackData.source_data?.type || 'card',
+      cardType: callbackData.source_data?.sub_type || '',
+      cardLastFour: getCardLastFour(callbackData.source_data?.pan),
+    };
+
     // Process payment result
     if (callbackData.success === 'true' || callbackData.success === true) {
       console.log(`✅ Payment successful for order ${callbackData.order?.id}`);
       
+      // Save successful transaction to database
+      try {
+        await saveTransactionToDatabase(transactionData, accessToken);
+      } catch (error) {
+        console.error('Failed to save successful transaction to database:', error);
+      }
+      
       // Here you would typically:
-      // 1. Update your database with the successful payment
+      // 1. Update your database with the successful payment ✅ DONE
       // 2. Send confirmation email to user
       // 3. Update user's credit balance (if applicable)
-      // 4. Log the successful transaction
+      // 4. Log the successful transaction ✅ DONE
       
     } else if (callbackData.success === 'false' || callbackData.success === false) {
       console.log(`❌ Payment failed for order ${callbackData.order?.id}`);
       
+      // Save failed transaction to database
+      try {
+        await saveTransactionToDatabase(transactionData, accessToken);
+      } catch (error) {
+        console.error('Failed to save failed transaction to database:', error);
+      }
+      
       // Here you would typically:
-      // 1. Update your database with the failed payment
+      // 1. Update your database with the failed payment ✅ DONE
       // 2. Send failure notification to user
-      // 3. Log the failed transaction
+      // 3. Log the failed transaction ✅ DONE
       
     } else {
       console.log(`⏳ Payment pending for order ${callbackData.order?.id}`);
       
+      // Save pending transaction to database
+      try {
+        await saveTransactionToDatabase(transactionData, accessToken);
+      } catch (error) {
+        console.error('Failed to save pending transaction to database:', error);
+      }
+      
       // Here you would typically:
-      // 1. Update your database with the pending payment
+      // 1. Update your database with the pending payment ✅ DONE
       // 2. Keep monitoring the payment status
       
     }
