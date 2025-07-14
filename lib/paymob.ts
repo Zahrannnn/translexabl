@@ -299,10 +299,14 @@ export class PaymobService {
    */
   async getTransaction(transactionId: string): Promise<any> {
     try {
+      // Get authentication token first
+      const authToken = await this.authenticate();
+      
       const response = await fetch(`${this.baseUrl}/acceptance/transactions/${transactionId}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer ${authToken}`,
         },
       });
 
