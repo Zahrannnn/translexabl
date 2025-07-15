@@ -117,8 +117,6 @@ export default function PricingPage() {
   const [selectedPackage, setSelectedPackage] = useState<CreditPackage | null>(null)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string>('')
-  const [showIframe, setShowIframe] = useState(false)
-  const [iframeUrl, setIframeUrl] = useState('')
 
   // Default billing data - will be populated with user data
   const [billingData, setBillingData] = useState<BillingData>({
@@ -233,7 +231,6 @@ export default function PricingPage() {
     setSelectedPackage(creditPackage)
     setIsLoading(true)
     setError('')
-    setShowIframe(false)
 
     try {
       // Create merchant_order_id with userId for webhook extraction
@@ -269,8 +266,9 @@ export default function PricingPage() {
       const data = await response.json()
       
       if (data.success) {
-        setIframeUrl(data.data.iframe_url)
-        setShowIframe(true)
+        // Open payment iframe in new tab instead of showing inline
+        window.open(data.data.iframe_url, '_blank', 'width=800,height=600,scrollbars=yes,resizable=yes')
+        toast.success('Payment page opened in new tab. Complete your payment there.')
       } else {
         setError(data.error || 'Payment initiation failed')
       }
@@ -420,55 +418,6 @@ export default function PricingPage() {
                 ❌ {error}
               </AlertDescription>
             </Alert>
-          </div>
-        </section>
-      )}
-
-      {/* Payment Iframe */}
-      {showIframe && iframeUrl && selectedPackage && (
-        <section className="py-16 bg-gradient-to-br from-card to-muted/20">
-          <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-            <Card className="modern-card rounded-3xl border-0 overflow-hidden">
-              <CardHeader className="text-center">
-                <CardTitle className="flex items-center justify-center gap-2 text-3xl">
-                  <CreditCard className="w-8 h-8 text-primary" />
-                  Complete Your Purchase
-                </CardTitle>
-                <CardDescription className="text-lg">
-                  {selectedPackage.name} - Secure payment powered by Paymob
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <div className="bg-gradient-to-r from-primary/10 to-accent/10 border border-primary/20 rounded-2xl p-6 mb-6">
-                  <div className="grid grid-cols-2 gap-4 text-sm">
-                    <div><strong>Package:</strong> {selectedPackage.name}</div>
-                    <div><strong>Credits:</strong> {selectedPackage.credits.toLocaleString()}</div>
-                    <div><strong>Characters:</strong> {(selectedPackage.credits * 700).toLocaleString()}</div>
-                    <div><strong>Total:</strong> {selectedPackage.price.toLocaleString()} EGP</div>
-                  </div>
-                </div>
-                
-                <div className="border rounded-2xl overflow-hidden shadow-lg">
-                  <iframe
-                    src={iframeUrl}
-                    width="100%"
-                    height="600"
-                    frameBorder="0"
-                    title="Payment Iframe"
-                  />
-                </div>
-                
-                <div className="mt-6 flex gap-2 justify-center">
-                  <Button
-                    onClick={() => setShowIframe(false)}
-                    variant="outline"
-                    className="rounded-xl hover-lift"
-                  >
-                    Close Payment
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
           </div>
         </section>
       )}

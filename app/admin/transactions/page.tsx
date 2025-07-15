@@ -488,11 +488,11 @@ export default function AdminTransactionsPage() {
                   onChange={(e) => setStatusFilter(e.target.value)}
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                 >
-                  <option value="ALL">All Status</option>
-                  <option value="success">Success</option>
-                  <option value="failed">Failed</option>
-                  <option value="pending">Pending</option>
-                  <option value="refunded">Refunded</option>
+                  <option className="text-gray-500" value="ALL">All Status</option>
+                  <option className="text-gray-500" value="success">Success</option>
+                  <option className="text-gray-500" value="failed">Failed</option>
+                  <option className="text-gray-500" value="pending">Pending</option>
+                  <option className="text-gray-500" value="refunded">Refunded</option>
                 </select>
               </div>
             </div>

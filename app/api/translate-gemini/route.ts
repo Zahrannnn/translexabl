@@ -16,7 +16,7 @@ interface TranslateRequest {
 
 // Simple in-memory storage for demo purposes
 // In production, use Redis, database, or persistent storage
-const dailyUsageTracker = new Map<string, { date: string; count: number }>()
+const dailyUsageTracker = new Map<string, { date: string; charactersUsed: number }>()
 
 function getUserIpHash(request: NextRequest): string {
   // Get IP address for tracking (in production, use user ID)
@@ -25,19 +25,30 @@ function getUserIpHash(request: NextRequest): string {
   return Buffer.from(ip).toString('base64').substring(0, 10) // Simple hash for demo
 }
 
-function checkAndUpdateDailyUsage(userHash: string): { canUseFree: boolean; usageCount: number } {
+function checkAndUpdateDailyUsage(userHash: string, characterCount: number): { canUseFree: boolean; dailyCharactersUsed: number; remainingFreeCharacters: number } {
   const today = new Date().toISOString().split('T')[0] // YYYY-MM-DD format
   const userUsage = dailyUsageTracker.get(userHash)
+  const DAILY_FREE_LIMIT = 600
   
   if (!userUsage || userUsage.date !== today) {
     // New day or new user
-    dailyUsageTracker.set(userHash, { date: today, count: 1 })
-    return { canUseFree: true, usageCount: 1 }
+    const newUsage = characterCount
+    dailyUsageTracker.set(userHash, { date: today, charactersUsed: newUsage })
+    return { 
+      canUseFree: newUsage <= DAILY_FREE_LIMIT, 
+      dailyCharactersUsed: newUsage,
+      remainingFreeCharacters: Math.max(0, DAILY_FREE_LIMIT - newUsage)
+    }
   } else {
-    // Same day, increment count
-    userUsage.count += 1
+    // Same day, add to existing usage
+    const newTotalUsage = userUsage.charactersUsed + characterCount
+    userUsage.charactersUsed = newTotalUsage
     dailyUsageTracker.set(userHash, userUsage)
-    return { canUseFree: userUsage.count <= 3, usageCount: userUsage.count }
+    return { 
+      canUseFree: newTotalUsage <= DAILY_FREE_LIMIT, 
+      dailyCharactersUsed: newTotalUsage,
+      remainingFreeCharacters: Math.max(0, DAILY_FREE_LIMIT - newTotalUsage)
+    }
   }
 }
 
@@ -65,12 +76,10 @@ export async function POST(request: NextRequest) {
     // Calculate credits and check free usage
     const characterCount = text.length
     const userHash = getUserIpHash(request)
-    const { canUseFree, usageCount } = checkAndUpdateDailyUsage(userHash)
+    const { canUseFree, dailyCharactersUsed, remainingFreeCharacters } = checkAndUpdateDailyUsage(userHash, characterCount)
     
     // Determine if translation is free
-    const isFreeByLength = characterCount < 600
-    const isFreeByDailyLimit = canUseFree
-    const isFree = isFreeByLength || isFreeByDailyLimit
+    const isFree = canUseFree
     const creditsUsed = isFree ? 0 : Math.ceil(characterCount / 700)
 
     // Initialize Gemini AI
@@ -178,9 +187,9 @@ ${text}`
         api_provider: "Google Gemini AI",
         // Free usage tracking
         is_free: isFree,
-        free_reason: isFreeByLength ? "under_600_characters" : (isFreeByDailyLimit ? "daily_free_usage" : null),
-        daily_usage_count: usageCount,
-        remaining_free_translations: Math.max(0, 3 - usageCount)
+        free_reason: isFree ? "daily_free_usage" : null,
+        daily_usage_count: dailyCharactersUsed,
+        remaining_free_characters: remainingFreeCharacters
       })
 
     } catch (geminiError) {

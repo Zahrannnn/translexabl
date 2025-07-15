@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { 
@@ -18,13 +18,36 @@ import {
   Plus,
   X,
   BookOpen,
-  Trash2
+  Clock,
+  Shield,
 } from "lucide-react"
+import { 
+  getDailyUsage, 
+  updateDailyUsage, 
+  getRemainingCharacters, 
+  canTranslate, 
+  getDailyLimit 
+} from "@/lib/daily-limit-utils"
 
 interface GlossaryTerm {
   id: string
   source: string
   target: string
+}
+
+interface TranslationInfo {
+  translated_text: string
+  detected_source_language: string
+  characters_used: number
+  credits_used: number
+  tone_applied: string
+  glossary_terms_used: number
+  model_used: string
+  api_provider: string
+  is_free: boolean
+  free_reason: string | null
+  daily_usage_count: number
+  remaining_free_characters: number
 }
 
 export default function TestTranslateGeminiPage() {
@@ -37,13 +60,24 @@ export default function TestTranslateGeminiPage() {
   const [copied, setCopied] = useState(false)
   const [error, setError] = useState("")
   const [estimatedCredits, setEstimatedCredits] = useState(0)
-  const [translationInfo, setTranslationInfo] = useState<any>(null)
+  const [translationInfo, setTranslationInfo] = useState<TranslationInfo | null>(null)
+  
+  // Daily usage state
+  const [dailyUsage, setDailyUsage] = useState({ count: 0, date: "" })
+  const [remainingChars, setRemainingChars] = useState(600)
   
   // Glossary state
   const [glossaryTerms, setGlossaryTerms] = useState<GlossaryTerm[]>([])
   const [newSourceTerm, setNewSourceTerm] = useState("")
   const [newTargetTerm, setNewTargetTerm] = useState("")
   const [showGlossary, setShowGlossary] = useState(false)
+
+  // Load daily usage on component mount
+  useEffect(() => {
+    const usage = getDailyUsage()
+    setDailyUsage(usage)
+    setRemainingChars(getRemainingCharacters())
+  }, [])
 
   const languages = [
     { code: "auto", name: "Auto-detect" },
@@ -76,11 +110,8 @@ export default function TestTranslateGeminiPage() {
     { value: "friendly", label: "Friendly", description: "Warm and approachable", icon: CheckCircle }
   ]
 
-  // Calculate estimated credits (1 credit = 700 characters, but free if < 600 characters)
+  // Calculate estimated credits (1 credit = 700 characters, but free if within daily 600 char limit)
   const calculateCredits = (text: string) => {
-    if (text.length < 600) {
-      return 0 // Free for texts under 600 characters
-    }
     return Math.ceil(text.length / 700)
   }
 
@@ -89,6 +120,11 @@ export default function TestTranslateGeminiPage() {
     setSourceText(text)
     setEstimatedCredits(calculateCredits(text))
     setError("")
+    
+    // Check if text length exceeds remaining daily limit
+    if (text.length > remainingChars && remainingChars > 0) {
+      setError(`Text length (${text.length}) exceeds your remaining daily limit of ${remainingChars} characters`)
+    }
   }
 
   // Glossary functions
@@ -112,6 +148,12 @@ export default function TestTranslateGeminiPage() {
   const handleTranslate = async () => {
     if (!sourceText.trim()) {
       setError("Please enter text to translate")
+      return
+    }
+
+    // Check daily limit before translation
+    if (!canTranslate(sourceText.length)) {
+      setError(`Daily limit exceeded! You can translate up to ${getDailyLimit()} characters per day. You have ${remainingChars} characters remaining. Limit resets at midnight.`)
       return
     }
 
@@ -141,6 +183,12 @@ export default function TestTranslateGeminiPage() {
 
       setTranslatedText(data.translated_text)
       setTranslationInfo(data)
+      
+      // Update daily usage after successful translation
+      const newUsage = updateDailyUsage(sourceText.length)
+      setDailyUsage(newUsage)
+      setRemainingChars(getRemainingCharacters())
+      
     } catch (err) {
       setError(err instanceof Error ? err.message : "Translation failed")
     } finally {
@@ -170,8 +218,8 @@ export default function TestTranslateGeminiPage() {
             </h1>
           </div>
           <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-            Test text translation powered by Google's Gemini AI with advanced reasoning, natural language understanding, and custom glossary support.
-            <span className="text-green-600 font-medium block mt-2">✨ Free: Under 600 characters or 3 translations daily!</span>
+            Test text translation powered by Google&apos;s Gemini AI with advanced reasoning, natural language understanding, and custom glossary support.
+            <span className="text-green-600 font-medium block mt-2">✨ Free: Up to 600 characters per day!</span>
           </p>
         </div>
 
@@ -353,13 +401,48 @@ export default function TestTranslateGeminiPage() {
                 />
                 <div className="flex justify-between text-sm text-muted-foreground mt-2">
                   <span>{sourceText.length} characters</span>
-                  <div className="flex items-center space-x-2">
-                    {sourceText.length < 600 ? (
-                      <span className="text-green-600 font-medium">FREE (under 600 chars)</span>
-                    ) : (
-                      <span>~{estimatedCredits} credits</span>
-                    )}
+                  <div className="flex items-center space-x-4">
+                    <div className="flex items-center space-x-1">
+                      <Clock className="h-3 w-3" />
+                      <span className={remainingChars > 0 ? "text-green-600" : "text-red-600"}>
+                        {remainingChars}/{getDailyLimit()} remaining today
+                      </span>
+                    </div>
+                    <span>~{estimatedCredits} credits</span>
                   </div>
+                </div>
+
+                {/* Daily Usage Status */}
+                <div className={`p-3 rounded-lg border ${
+                  remainingChars > 100 
+                    ? 'bg-gray-600 border-green-200' 
+                    : remainingChars > 0 
+                      ? 'bg-gray-600 border-orange-200'
+                      : 'bg-gray-600 border-red-200'
+                }`}>
+                  <div className="flex items-center space-x-2">
+                    <Shield className="h-4 w-4" />
+                    <span className="text-sm font-medium">
+                      Daily Usage: {dailyUsage.count}/{getDailyLimit()} characters
+                    </span>
+                  </div>
+                  <div className="w-full bg-gray-200 rounded-full h-2 mt-2">
+                    <div 
+                      className={`h-2 rounded-full transition-all duration-300 ${
+                        remainingChars > 100 
+                          ? 'bg-green-500' 
+                          : remainingChars > 0 
+                            ? 'bg-orange-500'
+                            : 'bg-red-500'
+                      }`}
+                      style={{ width: `${Math.min(100, (dailyUsage.count / getDailyLimit()) * 100)}%` }}
+                    ></div>
+                  </div>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    {remainingChars <= 0 
+                      ? "Daily limit reached. Resets at midnight." 
+                      : `${remainingChars} characters remaining today`}
+                  </p>
                 </div>
               </div>
 
@@ -374,13 +457,18 @@ export default function TestTranslateGeminiPage() {
               {/* Translate Button */}
               <Button 
                 onClick={handleTranslate}
-                disabled={isTranslating || !sourceText.trim()}
-                className="w-full btn-primary-enhanced text-lg py-3 h-auto rounded-xl shadow-glow hover:shadow-glow-lg transform hover:scale-105 transition-all duration-300"
+                disabled={isTranslating || !sourceText.trim() || !canTranslate(sourceText.length)}
+                className="w-full btn-primary-enhanced text-lg py-3 h-auto rounded-xl shadow-glow hover:shadow-glow-lg transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed disabled:transform-none"
               >
                 {isTranslating ? (
                   <>
                     <Loader2 className="h-5 w-5 animate-spin" />
                     Translating with Gemini AI...
+                  </>
+                ) : !canTranslate(sourceText.length) ? (
+                  <>
+                    <Shield className="h-5 w-5" />
+                    Daily Limit Exceeded
                   </>
                 ) : (
                   <>
@@ -444,24 +532,24 @@ export default function TestTranslateGeminiPage() {
               {/* Translation Info */}
               {translationInfo && (
                 <div className="space-y-4">
-                  {/* Free Usage Status */}
-                  {translationInfo.is_free && (
-                    <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                      <div className="flex items-center space-x-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span className="text-sm font-medium text-green-800">
-                          {translationInfo.free_reason === "under_600_characters" 
-                            ? "FREE - Text under 600 characters" 
-                            : `FREE - Daily usage (${translationInfo.daily_usage_count}/3)`}
-                        </span>
-                      </div>
-                      {translationInfo.free_reason === "daily_free_usage" && (
-                        <p className="text-xs text-green-700 mt-1">
-                          {translationInfo.remaining_free_translations} free translations remaining today
-                        </p>
-                      )}
+                  {/* Current Daily Usage Status */}
+                  <div className={`p-3 border rounded-lg ${
+                    remainingChars > 0 
+                      ? 'bg-green-50 border-green-200' 
+                      : 'bg-red-50 border-red-200'
+                  }`}>
+                    <div className="flex items-center space-x-2">
+                      <CheckCircle className={`h-4 w-4 ${remainingChars > 0 ? 'text-green-600' : 'text-red-600'}`} />
+                      <span className={`text-sm font-medium ${remainingChars > 0 ? 'text-green-800' : 'text-red-800'}`}>
+                        Daily Usage: {dailyUsage.count}/{getDailyLimit()} characters
+                      </span>
                     </div>
-                  )}
+                    <p className={`text-xs mt-1 ${remainingChars > 0 ? 'text-green-700' : 'text-red-700'}`}>
+                      {remainingChars > 0 
+                        ? `${remainingChars} free characters remaining today`
+                        : `Daily limit reached. Resets at midnight.`}
+                    </p>
+                  </div>
                   
                   {/* Translation Details Grid */}
                   <div className="grid grid-cols-2 gap-4 text-sm">
@@ -473,7 +561,7 @@ export default function TestTranslateGeminiPage() {
                       <span className="text-muted-foreground">Credits Used:</span>
                       <div className="font-medium flex items-center space-x-1">
                         <span>{translationInfo.credits_used}</span>
-                        {translationInfo.is_free && <span className="text-green-600 text-xs">(FREE)</span>}
+                        <span className="text-green-600 text-xs">(FREE)</span>
                       </div>
                     </div>
                     <div className="bg-muted/30 p-3 rounded-lg">
@@ -489,8 +577,8 @@ export default function TestTranslateGeminiPage() {
                       <div className="font-medium">{translationInfo.glossary_terms_used || 0}</div>
                     </div>
                     <div className="bg-muted/30 p-3 rounded-lg">
-                      <span className="text-muted-foreground">Daily Usage:</span>
-                      <div className="font-medium">{translationInfo.daily_usage_count}/3 free</div>
+                      <span className="text-muted-foreground">Daily Remaining:</span>
+                      <div className="font-medium">{remainingChars} chars</div>
                     </div>
                   </div>
                 </div>
@@ -546,7 +634,7 @@ export default function TestTranslateGeminiPage() {
                 </p>
                 <div className="mt-3 p-3 bg-green-50 border border-green-200 rounded-lg">
                   <p className="text-sm text-green-800">
-                    <strong>🎉 Free Usage:</strong> Translations under 600 characters are always free! Plus, enjoy 3 free translations daily regardless of length.
+                    <strong>🎉 Free Usage:</strong> Up to 600 characters per day are completely free!
                   </p>
                 </div>
               </div>

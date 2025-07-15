@@ -3,14 +3,60 @@
 import { useState } from "react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { z } from "zod"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Eye, EyeOff, Mail, Lock, User, Phone, AlertCircle, CheckCircle } from "lucide-react"
 
+// Zod validation schema
+const registerSchema = z.object({
+  email: z
+    .string()
+    .min(1, "Email is required")
+    .email("Please enter a valid email address")
+    .max(255, "Email must be less than 255 characters"),
+  username: z
+    .string()
+    .min(1, "Username is required")
+    .min(3, "Username must be at least 3 characters long")
+    .max(30, "Username must be less than 30 characters")
+    .regex(/^[a-zA-Z0-9_-]+$/, "Username can only contain letters, numbers, hyphens, and underscores"),
+  firstName: z
+    .string()
+    .min(1, "First name is required")
+    .min(2, "First name must be at least 2 characters long")
+    .max(50, "First name must be less than 50 characters")
+    .regex(/^[a-zA-Z\s]+$/, "First name can only contain letters and spaces"),
+  lastName: z
+    .string()
+    .min(1, "Last name is required")
+    .min(2, "Last name must be at least 2 characters long")
+    .max(50, "Last name must be less than 50 characters")
+    .regex(/^[a-zA-Z\s]+$/, "Last name can only contain letters and spaces"),
+  phoneNumber: z
+    .string()
+    .min(1, "Phone number is required")
+    .regex(/^0\d{10}$/, "Please enter a valid phone number"),
+  password: z
+    .string()
+    .min(1, "Password is required")
+    .min(8, "Password must be at least 8 characters long")
+    .regex(/^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/, "Password must contain at least one uppercase letter, one lowercase letter, and one number"),
+  confirmPassword: z
+    .string()
+    .min(1, "Please confirm your password")
+}).refine((data) => data.password === data.confirmPassword, {
+  message: "Passwords do not match",
+  path: ["confirmPassword"],
+})
+
+type FormData = z.infer<typeof registerSchema>
+type FieldErrors = Partial<Record<keyof FormData, string>>
+
 export default function RegisterPage() {
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<FormData>({
     email: "",
     username: "",
     firstName: "",
@@ -23,6 +69,7 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState("")
+  const [fieldErrors, setFieldErrors] = useState<FieldErrors>({})
   const [success, setSuccess] = useState(false)
   const router = useRouter()
 
@@ -32,26 +79,72 @@ export default function RegisterPage() {
       ...prev,
       [name]: value
     }))
-    // Clear error when user starts typing
+    // Clear general error when user starts typing
     if (error) setError("")
+    // Clear field-specific error when user starts typing
+    if (fieldErrors[name as keyof FormData]) {
+      setFieldErrors(prev => ({
+        ...prev,
+        [name]: undefined
+      }))
+    }
   }
 
-  const validateForm = () => {
-    if (formData.password !== formData.confirmPassword) {
-      setError("Passwords do not match")
+  const validateField = (fieldName: keyof FormData, value: string) => {
+    try {
+      const fieldSchema = registerSchema.shape[fieldName]
+      if (fieldName === 'confirmPassword') {
+        // For confirmPassword, we need to validate against the entire object
+        registerSchema.parse(formData)
+      } else {
+        fieldSchema.parse(value)
+      }
+      // Clear error if validation passes
+      setFieldErrors(prev => ({
+        ...prev,
+        [fieldName]: undefined
+      }))
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const errorMessage = err.issues[0]?.message || "Invalid input"
+        setFieldErrors(prev => ({
+          ...prev,
+          [fieldName]: errorMessage
+        }))
+      }
+    }
+  }
+
+  const handleBlur = (e: React.FocusEvent<HTMLInputElement>) => {
+    const { name, value } = e.target
+    validateField(name as keyof FormData, value)
+  }
+
+  const validateForm = (): boolean => {
+    try {
+      registerSchema.parse(formData)
+      setFieldErrors({})
+      return true
+    } catch (err) {
+      if (err instanceof z.ZodError) {
+        const errors: FieldErrors = {}
+        err.issues.forEach((issue) => {
+          const field = issue.path[0] as keyof FormData
+          if (field && !errors[field]) {
+            errors[field] = issue.message
+          }
+        })
+        setFieldErrors(errors)
+      }
       return false
     }
-    if (formData.password.length < 6) {
-      setError("Password must be at least 6 characters long")
-      return false
-    }
-    return true
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     setError("")
     setSuccess(false)
+    setFieldErrors({}) // Clear any existing field errors
     
     if (!validateForm()) {
       return
@@ -85,12 +178,70 @@ export default function RegisterPage() {
         try {
           const errorData = JSON.parse(errorText)
           errorMessage = errorData.message || errorMessage
+          
+          // Handle specific field validation errors from backend
+          if (errorMessage.toLowerCase().includes('email') && errorMessage.toLowerCase().includes('already')) {
+            setFieldErrors(prev => ({
+              ...prev,
+              email: "This email address is already registered"
+            }))
+            return
+          }
+          
+          if (errorMessage.toLowerCase().includes('username') && errorMessage.toLowerCase().includes('already')) {
+            setFieldErrors(prev => ({
+              ...prev,
+              username: "This username is already taken"
+            }))
+            return
+          }
+          
+          // Handle cases where the message mentions both email and username exist
+          if (errorMessage.toLowerCase().includes('email') && errorMessage.toLowerCase().includes('username')) {
+            if (errorMessage.toLowerCase().includes('already')) {
+              setFieldErrors(prev => ({
+                ...prev,
+                email: "This email address is already registered",
+                username: "This username is already taken"
+              }))
+              return
+            }
+          }
+          
+          // Handle other specific validation errors that might come from backend
+          if (errorMessage.toLowerCase().includes('email') && errorMessage.toLowerCase().includes('invalid')) {
+            setFieldErrors(prev => ({
+              ...prev,
+              email: "Please enter a valid email address"
+            }))
+            return
+          }
+          
+          if (errorMessage.toLowerCase().includes('username') && errorMessage.toLowerCase().includes('invalid')) {
+            setFieldErrors(prev => ({
+              ...prev,
+              username: "Please enter a valid username"
+            }))
+            return
+          }
+          
+          if (errorMessage.toLowerCase().includes('password') && errorMessage.toLowerCase().includes('weak')) {
+            setFieldErrors(prev => ({
+              ...prev,
+              password: "Password is too weak. Please use a stronger password"
+            }))
+            return
+          }
+          
+          // If no specific field error is detected, show as general error
+          setError(errorMessage)
+          
         } catch {
           // If response is not JSON, use the text or default message
           errorMessage = errorText || errorMessage
+          setError(errorMessage)
         }
         
-        setError(errorMessage)
         return
       }
 
@@ -107,6 +258,11 @@ export default function RegisterPage() {
     } finally {
       setIsLoading(false)
     }
+  }
+
+  const getInputClassName = (fieldName: keyof FormData, baseClassName: string = "") => {
+    const hasError = fieldErrors[fieldName]
+    return `${baseClassName} ${hasError ? 'border-red-500 focus:border-red-500 focus:ring-red-500' : ''}`
   }
 
   return (
@@ -149,10 +305,17 @@ export default function RegisterPage() {
                   placeholder="Enter your email"
                   value={formData.email}
                   onChange={handleInputChange}
-                  className="pl-10"
+                  onBlur={handleBlur}
+                  className={getInputClassName('email', 'pl-10')}
                   required
                 />
               </div>
+              {fieldErrors.email && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {fieldErrors.email}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -166,10 +329,17 @@ export default function RegisterPage() {
                   placeholder="Enter your username"
                   value={formData.username}
                   onChange={handleInputChange}
-                  className="pl-10"
+                  onBlur={handleBlur}
+                  className={getInputClassName('username', 'pl-10')}
                   required
                 />
               </div>
+              {fieldErrors.username && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {fieldErrors.username}
+                </p>
+              )}
             </div>
 
             <div className="grid grid-cols-2 gap-4">
@@ -182,8 +352,16 @@ export default function RegisterPage() {
                   placeholder="First name"
                   value={formData.firstName}
                   onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  className={getInputClassName('firstName')}
                   required
                 />
+                {fieldErrors.firstName && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {fieldErrors.firstName}
+                  </p>
+                )}
               </div>
               <div className="space-y-2">
                 <Label htmlFor="lastName">Last Name</Label>
@@ -194,8 +372,16 @@ export default function RegisterPage() {
                   placeholder="Last name"
                   value={formData.lastName}
                   onChange={handleInputChange}
+                  onBlur={handleBlur}
+                  className={getInputClassName('lastName')}
                   required
                 />
+                {fieldErrors.lastName && (
+                  <p className="text-sm text-red-600 flex items-center gap-1">
+                    <AlertCircle className="h-3 w-3" />
+                    {fieldErrors.lastName}
+                  </p>
+                )}
               </div>
             </div>
 
@@ -210,10 +396,17 @@ export default function RegisterPage() {
                   placeholder="Enter your phone number"
                   value={formData.phoneNumber}
                   onChange={handleInputChange}
-                  className="pl-10"
+                  onBlur={handleBlur}
+                  className={getInputClassName('phoneNumber', 'pl-10')}
                   required
                 />
               </div>
+              {fieldErrors.phoneNumber && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {fieldErrors.phoneNumber}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -227,7 +420,8 @@ export default function RegisterPage() {
                   placeholder="Create a password"
                   value={formData.password}
                   onChange={handleInputChange}
-                  className="pl-10 pr-10"
+                  onBlur={handleBlur}
+                  className={getInputClassName('password', 'pl-10 pr-10')}
                   required
                 />
                 <button
@@ -239,6 +433,12 @@ export default function RegisterPage() {
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {fieldErrors.password && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {fieldErrors.password}
+                </p>
+              )}
             </div>
 
             <div className="space-y-2">
@@ -252,7 +452,8 @@ export default function RegisterPage() {
                   placeholder="Confirm your password"
                   value={formData.confirmPassword}
                   onChange={handleInputChange}
-                  className="pl-10 pr-10"
+                  onBlur={handleBlur}
+                  className={getInputClassName('confirmPassword', 'pl-10 pr-10')}
                   required
                 />
                 <button
@@ -264,6 +465,12 @@ export default function RegisterPage() {
                   {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
+              {fieldErrors.confirmPassword && (
+                <p className="text-sm text-red-600 flex items-center gap-1">
+                  <AlertCircle className="h-3 w-3" />
+                  {fieldErrors.confirmPassword}
+                </p>
+              )}
             </div>
 
             <Button

@@ -508,10 +508,10 @@ export default function AdminBlogsPage() {
                       onChange={(e: React.ChangeEvent<HTMLSelectElement>) => setBlogFormData({...blogFormData, category: e.target.value})}
                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                     >
-                      <option value="General">General</option>
-                      <option value="Technology">Technology</option>
-                      <option value="Business">Business</option>
-                      <option value="Translation">Translation</option>
+                      <option className="text-gray-500" value="General">General</option>
+                      <option className="text-gray-500" value="Technology">Technology</option>
+                      <option className="text-gray-500" value="Business">Business</option>
+                      <option className="text-gray-500" value="Translation">Translation</option>
                     </select>
                   </div>
                 </div>
