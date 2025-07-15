@@ -1,40 +1,64 @@
 import { NextRequest, NextResponse } from "next/server"
-import { writeFile, mkdir } from "fs/promises"
-import { existsSync } from "fs"
-import path from "path"
+import { translatedFilesStore } from "@/lib/file-store"
+
+// Constants for DeepL API
+const DEEPL_PRO_ENDPOINT = "https://api.deepl.com/v2"
+const POLL_INTERVAL = 2000 // 2 seconds between status checks
+const MAX_POLL_TIME = 300000 // 5 minutes timeout
+const MIN_CHARS_PER_DOC = 50000 // DeepL minimum billing per document
+const CHARS_PER_CREDIT = 700 // Characters per credit
+
+// Content type mapping
+const CONTENT_TYPES = {
+  'pdf': 'application/pdf',
+  'docx': 'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
+  'doc': 'application/msword',
+  'pptx': 'application/vnd.openxmlformats-officedocument.presentationml.presentation',
+  'xlsx': 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet',
+  'txt': 'text/plain',
+  'srt': 'text/plain',
+  'html': 'text/html',
+  'htm': 'text/html'
+} as const
+
+// DeepL API response types
+interface DeepLDocumentUploadResponse {
+  document_id: string
+  document_key: string
+}
+
+interface DeepLDocumentStatusResponse {
+  document_id: string
+  status: 'queued' | 'translating' | 'done' | 'error'
+  seconds_remaining?: number
+  billed_characters?: number
+  detected_source_language?: string
+  message?: string
+}
 
 export async function POST(request: NextRequest) {
   try {
+    // 1. Validate request and API key
     const formData = await request.formData()
     const file = formData.get('file') as File
     const sourceLang = formData.get('source_lang') as string
     const targetLang = formData.get('target_lang') as string
     const tone = formData.get('tone') as string
 
-    if (!file) {
-      return NextResponse.json({ error: "No file uploaded" }, { status: 400 })
-    }
-
-    if (!targetLang) {
-      return NextResponse.json({ error: "Target language is required" }, { status: 400 })
-    }
-
-    // Check if DeepL API key is configured
-    const deeplApiKey = process.env.DEEPL_API_KEY
-    if (!deeplApiKey) {
+    if (!file || !targetLang) {
       return NextResponse.json(
-        { error: "DeepL API key not configured" },
-        { status: 500 }
+        { error: !file ? "No file uploaded" : "Target language is required" },
+        { status: 400 }
       )
     }
 
-    // Determine API endpoint based on key type
-    const isFreeAccount = deeplApiKey.endsWith(":fx")
-    const baseUrl = isFreeAccount 
-      ? "https://api-free.deepl.com/v2" 
-      : "https://api.deepl.com/v2"
+    const deeplApiKey = process.env.DEEPL_API_KEY
+    if (!deeplApiKey) {
+      return NextResponse.json({ error: "DeepL API key not configured" }, { status: 500 })
+    }
 
-    // Step 1: Upload document to DeepL
+    // 2. Configure API endpoint and upload document
+    const baseUrl = deeplApiKey.endsWith(":fx") ? DEEPL_PRO_ENDPOINT : DEEPL_PRO_ENDPOINT
     const uploadFormData = new FormData()
     uploadFormData.append('file', file)
     uploadFormData.append('target_lang', targetLang)
@@ -42,49 +66,28 @@ export async function POST(request: NextRequest) {
     if (sourceLang && sourceLang !== "auto") {
       uploadFormData.append('source_lang', sourceLang)
     }
-
-    // Map tone to DeepL formality parameter
+    
     if (tone && tone !== "default") {
-      switch (tone) {
-        case "formal":
-        case "business":
-          uploadFormData.append('formality', 'more')
-          break
-        case "informal":
-        case "friendly":
-          uploadFormData.append('formality', 'less')
-          break
-      }
+      uploadFormData.append('formality', ['formal', 'business'].includes(tone) ? 'more' : 'less')
     }
 
-    console.log("Uploading document to DeepL...")
     const uploadResponse = await fetch(`${baseUrl}/document`, {
       method: "POST",
-      headers: {
-        "Authorization": `DeepL-Auth-Key ${deeplApiKey}`,
-      },
+      headers: { "Authorization": `DeepL-Auth-Key ${deeplApiKey}` },
       body: uploadFormData,
     })
 
     if (!uploadResponse.ok) {
-      const errorText = await uploadResponse.text()
-      console.error("DeepL document upload error:", errorText)
-      throw new Error("Document upload failed")
+      throw new Error(`Document upload failed: ${await uploadResponse.text()}`)
     }
 
-    const uploadData = await uploadResponse.json()
-    const { document_id, document_key } = uploadData
+    // 3. Poll for translation completion
+    const { document_id, document_key } = await uploadResponse.json() as DeepLDocumentUploadResponse
+    const startTime = Date.now()
+    let statusData: DeepLDocumentStatusResponse | null = null
 
-    console.log("Document uploaded, checking status...")
-
-    // Step 2: Poll for translation completion
-    let translationComplete = false
-    let attempts = 0
-    const maxAttempts = 60 // 5 minutes max (5 second intervals)
-    let statusData: any
-
-    while (!translationComplete && attempts < maxAttempts) {
-      await new Promise(resolve => setTimeout(resolve, 5000)) // Wait 5 seconds
+    while (Date.now() - startTime < MAX_POLL_TIME) {
+      await new Promise(resolve => setTimeout(resolve, POLL_INTERVAL))
       
       const statusResponse = await fetch(`${baseUrl}/document/${document_id}`, {
         method: "POST",
@@ -92,72 +95,56 @@ export async function POST(request: NextRequest) {
           "Authorization": `DeepL-Auth-Key ${deeplApiKey}`,
           "Content-Type": "application/json",
         },
-        body: JSON.stringify({
-          document_key: document_key
-        }),
+        body: JSON.stringify({ document_key }),
       })
 
       if (!statusResponse.ok) {
         throw new Error("Failed to check translation status")
       }
 
-      statusData = await statusResponse.json()
-      console.log("Translation status:", statusData.status)
-
-      if (statusData.status === "done") {
-        translationComplete = true
-      } else if (statusData.status === "error") {
+      statusData = await statusResponse.json() as DeepLDocumentStatusResponse
+      if (statusData.status === "done") break
+      if (statusData.status === "error") {
         throw new Error(statusData.message || "Translation failed")
       }
-
-      attempts++
     }
 
-    if (!translationComplete) {
+    if (!statusData || statusData.status !== "done") {
       throw new Error("Translation timeout - please try again")
     }
 
-    // Step 3: Download the translated document
-    console.log("Downloading translated document...")
+    // 4. Download and store translated document
     const downloadResponse = await fetch(`${baseUrl}/document/${document_id}/result`, {
       method: "POST",
       headers: {
         "Authorization": `DeepL-Auth-Key ${deeplApiKey}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        document_key: document_key
-      }),
+      body: JSON.stringify({ document_key }),
     })
 
     if (!downloadResponse.ok) {
       throw new Error("Failed to download translated document")
     }
 
-    // Save the translated document
     const translatedBuffer = await downloadResponse.arrayBuffer()
-    
-    // Create upload directory if it doesn't exist
-    const uploadDir = path.join(process.cwd(), 'uploads')
-    if (!existsSync(uploadDir)) {
-      await mkdir(uploadDir, { recursive: true })
-    }
-
-    // Generate unique filename
-    const fileId = Date.now() + '-' + Math.random().toString(36).substr(2, 9)
+    const fileId = `${Date.now()}-${Math.random().toString(36).slice(2)}`
     const originalFileName = file.name
     const sanitizedFileName = originalFileName.replace(/[^a-zA-Z0-9.-]/g, '_')
     const translatedFileName = `translated_${sanitizedFileName}`
-    const translatedFilePath = path.join(uploadDir, `${fileId}_${translatedFileName}`)
+    const fileExtension = originalFileName.toLowerCase().split('.').pop() || ''
+    
+    // Store translated file in memory
+    translatedFilesStore.set(fileId, {
+      buffer: Buffer.from(translatedBuffer),
+      filename: translatedFileName,
+      contentType: CONTENT_TYPES[fileExtension as keyof typeof CONTENT_TYPES] || 'application/octet-stream',
+      originalFileName
+    })
 
-    // Save the translated document
-    await writeFile(translatedFilePath, Buffer.from(translatedBuffer))
-
-    // Calculate credits used (from status response)
-    // DeepL has minimum billing of 50,000 characters per document
-    const MINIMUM_CHARACTERS_PER_DOCUMENT = 50000
-    const actualCharacters = statusData.billed_characters || MINIMUM_CHARACTERS_PER_DOCUMENT
-    const creditsUsed = Math.ceil(actualCharacters / 700)
+    // 5. Calculate usage and return response
+    const actualCharacters = statusData.billed_characters || MIN_CHARS_PER_DOC
+    const creditsUsed = Math.ceil(actualCharacters / CHARS_PER_CREDIT)
     const estimatedPages = Math.ceil(actualCharacters / 2000)
 
     return NextResponse.json({
@@ -165,8 +152,8 @@ export async function POST(request: NextRequest) {
       file_id: fileId,
       original_filename: originalFileName,
       translated_filename: translatedFileName,
-      file_format: path.extname(file.name).replace('.', '').toUpperCase(),
-      characters_translated: statusData.billed_characters || 0,
+      file_format: fileExtension.toUpperCase(),
+      characters_translated: actualCharacters,
       credits_used: creditsUsed,
       pages_translated: estimatedPages,
       detected_source_language: statusData.detected_source_language || sourceLang,
