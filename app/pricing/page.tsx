@@ -383,19 +383,21 @@ export default function PricingPage() {
               Our Crypto Wallet address is{" "}
               <button
                 onClick={() => {
-                  navigator.clipboard.writeText("xxxxxxxx");
+                  navigator.clipboard.writeText("TBGzodu4f3dnX1YYm7YoYNkWc2cDSsfszY");
                   toast.success("Wallet address copied to clipboard!");
                 }}
                 className="text-orange-600 hover:text-orange-700 text-2xl  cursor-pointer transition-colors"
               >
-                xxxxxxxx
+                TBGzodu4f3dnX1YY******************
               </button>
               <p className="text-muted-foreground mb-6 text-lg inline mx-2">
                 click the address to copy
               </p>
-              <p className="text-green-300 mb-6 text-lg mx-2">
-                Then confirm the payment through WhatsApp and we will add the credits to your account
-              </p>
+            <p className="text-red-500 font-bold mb-6 text-lg mx-2">
+            ⚠️
+            USDT 
+            TRC20
+            </p>
             </div>
             <a href="https://wa.me/201092088922">
             <Button variant="outline" size="lg" className="modern-card border-primary/30 hover:border-primary hover:bg-primary/5 px-8 py-3 rounded-xl hover-lift">

@@ -5,7 +5,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
 import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
-import { Menu, X, Sparkles, Zap, User, LogOut, Settings, Shield, ChevronDown, FileText, File, Sparkles as SparklesIcon } from "lucide-react"
+import { Menu, X, Sparkles, Zap, User, LogOut, Settings, Shield, ChevronDown, FileText, File, Sparkles as SparklesIcon, Receipt } from "lucide-react"
 import { getUserFromCookie, notifyAuthStateChange } from "@/lib/auth-utils"
 
 interface UserInfo {
@@ -174,6 +174,12 @@ export function Navbar() {
                 >
                   Dashboard
                 </DropdownMenuItem>
+                <DropdownMenuItem 
+                  onClick={() => router.push('/history')}
+                  icon={<Receipt className="h-4 w-4" />}
+                >
+                  Transaction History
+                </DropdownMenuItem>
                 {user.role === 'ADMIN' && (
                   <DropdownMenuItem 
                     onClick={() => router.push('/admin')}
@@ -287,6 +293,16 @@ export function Navbar() {
                       <Link href="/dashboard" onClick={() => setIsOpen(false)}>
                         <Settings className="h-4 w-4 mr-2" />
                         Dashboard
+                      </Link>
+                    </Button>
+                    <Button 
+                      variant="ghost" 
+                      asChild 
+                      className="w-full justify-start text-left hover:bg-primary/10 hover:text-primary rounded-xl"
+                    >
+                      <Link href="/history" onClick={() => setIsOpen(false)}>
+                        <Receipt className="h-4 w-4 mr-2" />
+                        Transaction History
                       </Link>
                     </Button>
                     <Button 

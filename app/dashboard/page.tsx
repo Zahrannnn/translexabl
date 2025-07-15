@@ -110,10 +110,7 @@ export default function DashboardPage() {
                     <label className="text-sm font-medium text-muted-foreground">Email</label>
                     <p className="text-lg">{user.email}</p>
                   </div>
-                  <div>
-                    <label className="text-sm font-medium text-muted-foreground">User ID</label>
-                    <p className="text-lg">{user.userId}</p>
-                  </div>
+                  
                   <div>
                     <label className="text-sm font-medium text-muted-foreground">Role</label>
                     <p className="text-lg capitalize">{user.role.toLowerCase()}</p>
@@ -147,14 +144,14 @@ export default function DashboardPage() {
                   You can now access all translation features including text translation, document upload, and more.
                 </p>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Link className="w-full" href="/translate">
+                  <Link className="w-full" href="/translate-txt">
                     <Button className="w-full">
                       Start Translating
                     </Button>
                   </Link>
                   <Link className="w-full" href="/history">
                     <Button className="w-full" variant="outline">
-                      View History
+                      View Transactions History
                     </Button>
                   </Link>
                 </div>

@@ -16,7 +16,7 @@ import {
   XCircle,
   ArrowLeft,
   Coins,
-  TrendingUp,
+
   Lock,
   Shield,
   Eye,

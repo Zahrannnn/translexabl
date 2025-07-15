@@ -13,7 +13,7 @@ import {
   Plus, 
   Edit,
   Trash2,
-  Eye,
+
   Calendar,
   User,
   Filter,
@@ -58,7 +58,7 @@ export default function AdminBlogsPage() {
   const [isLoading, setIsLoading] = useState(true)
   const [error, setError] = useState("")
   const [searchTerm, setSearchTerm] = useState("")
-  const [statusFilter, setStatusFilter] = useState<string>("ALL")
+  const [statusFilter] = useState<string>("ALL")
   const [showCreateModal, setShowCreateModal] = useState(false)
   const [editingBlog, setEditingBlog] = useState<BlogPost | null>(null)
   const [blogFormData, setBlogFormData] = useState<BlogFormData>({
@@ -239,13 +239,7 @@ export default function AdminBlogsPage() {
     })
   }
 
-  const getStatusBadge = (published: boolean) => {
-    if (published) {
-      return <Badge className="bg-green-100 text-green-800">Published</Badge>
-    } else {
-      return <Badge className="bg-yellow-100 text-yellow-800">Draft</Badge>
-    }
-  }
+
 
   const truncateContent = (content: string, maxLength: number = 150) => {
     if (content.length <= maxLength) return content
@@ -282,7 +276,7 @@ export default function AdminBlogsPage() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-20">
+    <div className="min-h-screen bg-gray-50 dark:bg-gray-900 py-20 mt-10">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">

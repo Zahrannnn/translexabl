@@ -12,7 +12,7 @@ import {
   BookOpen,
   ArrowLeft,
   Shield,
-  Settings
+
 } from "lucide-react"
 import Link from "next/link"
 
@@ -99,7 +99,7 @@ export default function AdminDashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50 dark:bg-gray-900">
+    <div className="min-h-screen bg-gray-900 dark:bg-gray-900 mt-10">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="flex items-center justify-between mb-8">
@@ -120,12 +120,7 @@ export default function AdminDashboard() {
               </p>
             </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button variant="outline" size="sm">
-              <Settings className="h-4 w-4 mr-2" />
-              Settings
-            </Button>
-          </div>
+         
         </div>
 
         {/* Error Display */}
@@ -180,7 +175,7 @@ export default function AdminDashboard() {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {stats?.totalCreditsUsed?.toLocaleString() || 0}
+                {Math.abs(stats?.totalCreditsUsed || 0).toLocaleString()}
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Total credits used
@@ -188,22 +183,7 @@ export default function AdminDashboard() {
             </CardContent>
           </Card>
 
-          <Card className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium text-gray-600 dark:text-gray-400">
-                Total Payments
-              </CardTitle>
-              <DollarSign className="h-4 w-4 text-purple-600" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-gray-900 dark:text-white">
-                {stats?.totalPayments || 0}
-              </div>
-              <p className="text-xs text-gray-500 dark:text-gray-400">
-                Payment transactions
-              </p>
-            </CardContent>
-          </Card>
+        
 
           <Card className="bg-white dark:bg-gray-800 shadow-sm hover:shadow-md transition-shadow">
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
