@@ -80,19 +80,7 @@ export function useTransactions(userId: number | null, page: number = 1, limit: 
       }
       return undefined
     },
-    // Provide empty state as initial data to prevent layout shifts
-    initialData: () => ({
-      success: true,
-      data: {
-        transactions: [],
-        pagination: {
-          currentPage: 1,
-          totalPages: 1,
-          totalRecords: 0,
-          perPage: limit
-        }
-      }
-    }),
+    // Remove initialData to allow proper initial fetching
   })
 }
 
