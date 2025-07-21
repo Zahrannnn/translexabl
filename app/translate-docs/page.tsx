@@ -16,6 +16,7 @@ import {
   X,
   CreditCard,
   User,
+  AlertTriangle,
 } from "lucide-react"
 import Link from "next/link"
 
@@ -578,6 +579,22 @@ export default function TestTranslateDocsPage() {
             </CardContent>
           </Card>
         </div>
+        <div className="max-w-6xl mx-auto mb-8">
+          <Card className="modern-card border-blue-200 bg-blue-50/50 dark:bg-blue-950/30">
+            <CardContent className="py-4">
+              <div className="flex items-center space-x-3">
+                <AlertTriangle className="size-8 text-yellow-600 mt-0.5 flex-shrink-0" />
+                <p className="text-md text-slate-300">
+                 
+                You will be charged a minimum of <span className="text-red-600 font-bold">50,000</span> characters per document 
+                 (approximately <span className="text-red-600 font-bold">72</span>  credits) regardless of actual file content size. This means even a small 
+                 1-page PDF will be charged as if it contains <span className="text-red-600 font-bold">50,000</span> characters. 
+               </p>
+                
+              </div>
+            </CardContent>
+          </Card>
+        </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-6xl mx-auto">
           {/* Upload Panel */}
@@ -837,12 +854,7 @@ export default function TestTranslateDocsPage() {
                 ))}
               </div>
               <div className="mt-6 p-4 bg-muted/30 rounded-lg">
-                <p className="text-sm text-muted-foreground">
-                 
-                  <strong className="text-red-500 font-bold text-2xl"> Important:</strong> You will be charged a minimum of 50,000 characters per document 
-                  (approximately 72 credits) regardless of actual file content size. This means even a small 
-                  1-page PDF will be charged as if it contains 50,000 characters. 
-                </p>
+               
               </div>
             </CardContent>
           </Card>
