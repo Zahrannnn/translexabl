@@ -149,7 +149,7 @@ export default function HomePage() {
                 asChild 
                 className="btn-primary-enhanced text-lg px-10 py-4 h-auto rounded-xl shadow-glow-lg hover:shadow-glow-lg transform hover:scale-105 transition-all duration-300"
               >
-                <Link href="/translate" className="flex items-center space-x-2">
+                <Link href="/translate-txt" className="flex items-center space-x-2">
                   <span>Start Translating</span>
                   <ArrowRight className="h-5 w-5" />
                 </Link>
