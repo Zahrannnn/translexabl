@@ -105,7 +105,7 @@ function LoginContent() {
           {error && (
             <div className="mb-4 p-3 rounded-lg border border-red-200 bg-red-50 flex items-center gap-2">
               <AlertCircle className="h-4 w-4 text-red-600" />
-              <span className="text-sm text-red-800">{error}</span>
+              <span className="text-sm text-red-800">{error.includes("credentials") ? "Invalid email or password" : error}</span>
             </div>
           )}
 
