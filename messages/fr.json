@@ -1,0 +1,922 @@
+{
+  "app": {
+    "title": "TransleXable",
+    "description": "Plateforme de traduction professionnelle"
+  },
+  "navigation": {
+    "home": "Accueil",
+    "about": "À propos",
+    "pricing": "Tarifs",
+    "blogs": "Blogs",
+    "dashboard": "Tableau de bord",
+    "profile": "Profil",
+    "login": "Connexion",
+    "register": "Inscription",
+    "logout": "Déconnexion"
+  },
+  "home": {
+    "hero": {
+      "title": "Plateforme de traduction professionnelle",
+      "subtitle": "Traduisez des textes et des documents avec précision en utilisant DeepL API et Gemini AI.",
+      "cta": "Commencer"
+    },
+    "features": {
+      "title": "Fonctionnalités",
+      "subtitle": "Tout ce dont vous avez besoin pour une traduction professionnelle"
+    },
+    "useCases": {
+      "title": "Cas d'utilisation",
+      "subtitle": "Parfait pour chaque industrie"
+    }
+  },
+  "blogs": {
+    "loading": "Chargement des articles de blog...",
+    "hero": {
+      "badge": "Aperçus de la Traduction",
+      "titleStart": "Centre de",
+      "titleHighlight": "Connaissances en Traduction",
+      "description": "Découvrez des informations d'experts, les meilleures pratiques et les dernières tendances en matière de technologie de traduction basée sur l'IA."
+    },
+    "search": {
+      "placeholder": "Rechercher des articles...",
+      "for": "pour",
+      "in": "dans"
+    },
+    "latestArticles": "Derniers articles",
+    "exploreCollection": "Explorez notre collection complète d'aperçus sur la traduction et de conseils d'experts.",
+    "refresh": "Actualiser",
+    "refreshing": "Actualisation...",
+    "resultFound": "résultat trouvé",
+    "resultsFound": "résultats trouvés",
+    "error": {
+      "loadFailed": "Échec du chargement des articles de blog. Affichage des données en cache ou du contenu factice.",
+      "tryAgain": "Réessayer"
+    },
+    "noArticlesFound": "Aucun article trouvé",
+    "noMatchingArticles": "Aucun article ne correspond à vos critères de recherche. Essayez d'autres mots-clés ou sélectionnez une catégorie différente.",
+    "clearFilters": "Effacer les filtres",
+    "noBlogPosts": "Aucun article de blog trouvé",
+    "noPostsAvailable": "Aucun article de blog n'est disponible pour le moment. Revenez plus tard pour du nouveau contenu.",
+    "loadMore": "Charger plus d'articles",
+    "newsletter": {
+      "title": "Restez informé des aperçus de traduction",
+      "description": "Recevez les derniers articles, conseils et mises à jour de l'industrie directement dans votre boîte de réception.",
+      "emailPlaceholder": "Entrez votre e-mail",
+      "subscribe": "S'abonner"
+    }
+  },
+  "blogPost": {
+    "loading": "Chargement de l'article de blog...",
+    "notFound": {
+      "title": "Article de blog introuvable",
+      "description": "L'article de blog que vous recherchez n'existe pas."
+    },
+    "error": {
+      "loadFailed": "Échec du chargement de l'article de blog."
+    },
+    "breadcrumb": {
+      "home": "Accueil",
+      "blog": "Blog"
+    },
+    "refresh": "Actualiser",
+    "refreshing": "Actualisation...",
+    "tryAgain": "Réessayer",
+    "backToBlog": "Retour au blog",
+    "relatedArticles": {
+      "title": "Articles similaires",
+      "description": "Plus d'informations de la catégorie {category}"
+    },
+    "shareArticle": "Cet article vous a plu ? Partagez-le avec votre réseau !",
+    "published": "Publié"
+  },
+  "dashboard": {
+    "title": "Tableau de bord",
+    "userInfo": {
+      "title": "Informations utilisateur",
+      "description": "Vos détails et informations de compte",
+      "username": "Nom d'utilisateur",
+      "email": "E-mail",
+      "role": "Rôle",
+      "viewProfile": "Afficher le profil complet"
+    },
+    "welcome": {
+      "title": "Bienvenue sur TransleXable",
+      "description": "Votre plateforme de traduction est prête à l'emploi",
+      "message": "Vous pouvez maintenant accéder à toutes les fonctionnalités de traduction, y compris la traduction de texte, le téléchargement de documents, et plus encore.",
+      "startTranslating": "Commencer à traduire",
+      "viewHistory": "Afficher l'historique des transactions"
+    }
+  },
+  "login": {
+    "title": "Bienvenue de nouveau",
+    "description": "Connectez-vous à votre compte pour continuer",
+    "emailVerified": "E-mail vérifié avec succès ! Vous pouvez maintenant vous connecter.",
+    "forgotPassword": "Mot de passe oublié ?",
+    "noAccount": "Vous n'avez pas de compte ?",
+    "signUp": "S'inscrire",
+    "form": {
+      "email": "E-mail",
+      "emailPlaceholder": "Entrez votre e-mail",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Entrez votre mot de passe",
+      "togglePassword": "Afficher/masquer le mot de passe",
+      "rememberMe": "Se souvenir de moi",
+      "signIn": "Se connecter",
+      "signingIn": "Connexion en cours..."
+    },
+    "errors": {
+      "default": "Échec de la connexion. Veuillez vérifier vos identifiants.",
+      "network": "Erreur réseau. Veuillez vérifier votre connexion et réessayer.",
+      "invalidCredentials": "E-mail ou mot de passe invalide"
+    }
+  },
+  "forgotPassword": {
+    "backToLogin": "Retour à la connexion",
+    "email": {
+      "title": "Mot de passe oublié ?",
+      "description": "Entrez votre adresse e-mail et nous vous enverrons un code de réinitialisation",
+      "emailAddress": "Adresse e-mail",
+      "emailPlaceholder": "Entrez votre e-mail",
+      "sendResetCode": "Envoyer le code de réinitialisation",
+      "sending": "Envoi en cours..."
+    },
+    "code": {
+      "title": "Entrez le code de réinitialisation",
+      "description": "Nous avons envoyé un code de réinitialisation à {email}. Entrez le code et votre nouveau mot de passe ci-dessous.",
+      "resetCode": "Code de réinitialisation",
+      "resetCodePlaceholder": "Entrez le code de réinitialisation",
+      "newPassword": "Nouveau mot de passe",
+      "newPasswordPlaceholder": "Entrez le nouveau mot de passe",
+      "confirmPassword": "Confirmer le nouveau mot de passe",
+      "confirmPasswordPlaceholder": "Confirmez le nouveau mot de passe",
+      "resetPassword": "Réinitialiser le mot de passe",
+      "resetting": "Réinitialisation en cours...",
+      "noCode": "Vous n'avez pas reçu le code ? Vérifiez votre dossier de spam ou",
+      "tryAgain": "réessayez"
+    },
+    "success": {
+      "title": "Réinitialisation du mot de passe réussie",
+      "description": "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe."
+    },
+    "errors": {
+      "sendCode": "Échec de l'envoi du code de réinitialisation",
+      "resetPassword": "Échec de la réinitialisation du mot de passe",
+      "network": "Erreur réseau. Veuillez réessayer.",
+      "passwordMismatch": "Les mots de passe ne correspondent pas",
+      "passwordLength": "Le mot de passe doit contenir au moins 8 caractères"
+    }
+  },
+  "history": {
+    "title": "Historique des transactions",
+    "subtitle": "Consultez toutes vos transactions de paiement et achats de crédits",
+    "backToDashboard": "Retour au tableau de bord",
+    "refresh": "Actualiser",
+    "loading": {
+      "auth": "Vérification de l'authentification...",
+      "transactions": "Chargement de votre historique de transactions..."
+    },
+    "accountInfo": {
+      "title": "Informations sur le compte",
+      "email": "E-mail"
+    },
+    "summary": {
+      "title": "Résumé des transactions",
+      "totalTransactions": "Total des transactions",
+      "successful": "Réussi",
+      "totalSpent": "Total dépensé"
+    },
+    "transactions": {
+      "title": "Transactions récentes",
+      "noTransactions": "Aucune transaction trouvée",
+      "noTransactionsDesc": "Vous n'avez pas encore effectué de transactions.",
+      "purchaseCredits": "Acheter des crédits",
+      "id": "ID",
+      "orderId": "ID de commande",
+      "merchantOrder": "Commande du commerçant"
+    },
+    "pagination": {
+      "showing": "Affichage de {from} à {to} sur {total} transactions",
+      "previous": "Précédent",
+      "next": "Suivant"
+    }
+  },
+  "pricing": {
+    "credits": "crédits",
+    "characters": "caractères",
+    "page": "page",
+    "important": "Note importante",
+    "characterConversion": {
+      "note": "Pour référence :",
+      "example": "Cela signifie que le Pack de démarrage peut traduire environ 1 page, le Pack populaire ~3 pages, et le Pack premium ~6 pages"
+    },
+    "packages": {
+      "mostPopular": "Le plus populaire",
+      "starter": {
+        "name": "Pack de démarrage",
+        "description": "Parfait pour débuter",
+        "features": {
+          "0": "500 crédits de traduction",
+          "1": "350 000 caractères au total",
+          "2": "Toutes les paires de langues"
+        }
+      },
+      "popular": {
+        "name": "Pack Populaire",
+        "description": "Choix le plus populaire",
+        "features": {
+          "0": "1 500 crédits de traduction",
+          "1": "1 050 000 caractères au total",
+          "2": "Toutes les paires de langues",
+          "3": "Support prioritaire"
+        }
+      },
+      "premium": {
+        "name": "Pack Premium",
+        "description": "Meilleur rapport qualité-prix pour les gros utilisateurs",
+        "features": {
+          "0": "3 000 crédits de traduction",
+          "1": "2 100 000 caractères au total",
+          "2": "Toutes les paires de langues",
+          "3": "Support prioritaire"
+        }
+      },
+      "custom": {
+        "name": "Pack Personnalisé",
+        "description": "Choisissez votre montant exact de crédits",
+        "inputLabel": "Nombre de crédits dont vous avez besoin",
+        "totalPrice": "Prix Total",
+        "pricePerCredit": "3,5 EGP par crédit",
+        "features": {
+          "0": "Montant personnalisé de crédits de traduction",
+          "1": "Toutes les paires de langues supportées",
+          "2": "N'expire jamais"
+        }
+      }
+    },
+    "payment": {
+      "buy": "Acheter {name}",
+      "buyCustom": "Acheter {credits} Crédits pour {price} EGP",
+      "processing": "Traitement...",
+      "success": "Page de paiement ouverte dans un nouvel onglet. Veuillez y compléter votre paiement.",
+      "failed": "Échec de l'initialisation du paiement"
+    },
+    "alerts": {
+      "loginRequired": "Veuillez vous connecter pour acheter des crédits et voir votre solde actuel"
+    },
+    "customPricing": {
+      "needCustom": "Besoin d'une tarification personnalisée pour votre organisation ? Ou",
+      "crypto": "Paiements en crypto-monnaie ?",
+      "walletAddress": "Notre adresse de portefeuille Crypto est",
+      "clickToCopy": "cliquez sur l'adresse pour copier",
+      "copied": "Adresse du portefeuille copiée dans le presse-papiers !",
+      "contactSales": "Contacter les ventes"
+    },
+    "howItWorks": {
+      "title": "📋 Comment ça marche",
+      "payment": {
+        "title": "Processus de paiement",
+        "secure": "Paiement sécurisé via Paymob",
+        "methods": "Prend en charge Visa, MasterCard et les méthodes de paiement locales",
+        "automatic": "Crédits ajoutés automatiquement après le paiement",
+        "instant": "Activation instantanée"
+      },
+      "usage": {
+        "title": "Utilisation des crédits",
+        "creditValue": "1 crédit = 700 caractères de traduction",
+        "languages": "Fonctionne avec toutes les paires de langues prises en charge",
+        "noExpiration": "Les crédits n'expirent jamais",
+        "interface": "Utilisation via l'interface web ou l'API"
+      }
+    },
+    "tip": {
+      "title": "Conseil :",
+      "description": "Le Pack Populaire offre le meilleur rapport qualité-prix pour les utilisateurs réguliers, tandis que le Pack Premium est parfait pour les entreprises avec des volumes de traduction élevés."
+    },
+    "errors": {
+      "loginRequired": "Veuillez vous connecter pour acheter des crédits",
+      "loadingProfile": "Veuillez patienter pendant le chargement des informations de votre profil...",
+      "network": "Une erreur réseau s'est produite. Veuillez réessayer."
+    }
+  },
+  "profile": {
+    "loading": "Chargement du profil...",
+    "backToDashboard": "Retour au tableau de bord",
+    "personalInfo": {
+      "title": "Informations personnelles",
+      "verified": "Vérifié",
+      "notVerified": "Non vérifié",
+      "accountAge": "Âge du compte",
+      "days": "jours"
+    },
+    "credits": {
+      "title": "Aperçu des crédits",
+      "current": "Crédits actuels"
+    },
+    "resetPassword": {
+      "button": "Réinitialiser le mot de passe",
+      "sendCode": {
+        "title": "Envoyer le code de vérification",
+        "description": "Entrez votre adresse e-mail pour recevoir un code de vérification.",
+        "emailLabel": "Adresse e-mail",
+        "emailPlaceholder": "Entrez votre e-mail",
+        "send": "Envoyer le code",
+        "sending": "Envoi en cours..."
+      },
+      "resetPassword": {
+        "title": "Réinitialiser le mot de passe",
+        "description": "Entrez le code de vérification envoyé à votre e-mail et votre nouveau mot de passe.",
+        "emailLabel": "Adresse e-mail",
+        "emailPlaceholder": "Entrez votre e-mail",
+        "codeSent": "Code de vérification envoyé à votre e-mail",
+        "codeLabel": "Code de vérification",
+        "codePlaceholder": "Entrez le code à 6 chiffres",
+        "newPasswordLabel": "Nouveau mot de passe",
+        "newPasswordPlaceholder": "Entrez le nouveau mot de passe",
+        "confirmPasswordLabel": "Confirmer le nouveau mot de passe",
+        "confirmPasswordPlaceholder": "Confirmer le nouveau mot de passe",
+        "togglePassword": "Afficher/masquer le mot de passe",
+        "toggleConfirmPassword": "Afficher/masquer la confirmation du mot de passe",
+        "back": "Retour",
+        "reset": "Réinitialiser le mot de passe",
+        "resetting": "Réinitialisation en cours..."
+      },
+      "success": {
+        "title": "Mot de passe réinitialisé avec succès !",
+        "description": "Votre mot de passe a été réinitialisé avec succès. Vous pouvez maintenant utiliser votre nouveau mot de passe pour vous connecter."
+      },
+      "errors": {
+        "sendCode": "Échec de l'envoi du code de vérification",
+        "resetFailed": "Échec de la réinitialisation du mot de passe",
+        "network": "Erreur réseau. Veuillez réessayer.",
+        "passwordMismatch": "Les mots de passe ne correspondent pas",
+        "passwordLength": "Le mot de passe doit contenir au moins 6 caractères",
+        "codeLength": "Le code de vérification doit contenir 6 chiffres"
+      }
+    },
+    "errors": {
+      "fetchFailed": "Échec de la récupération du profil",
+      "loadFailed": "Échec du chargement du profil"
+    }
+  },
+  "register": {
+    "title": "Créer un compte",
+    "description": "Inscrivez-vous pour commencer à traduire facilement",
+    "success": "Compte créé avec succès ! Veuillez vérifier votre e-mail pour la vérification...",
+    "haveAccount": "Vous avez déjà un compte ?",
+    "signIn": "Se connecter",
+    "form": {
+      "email": "E-mail",
+      "emailPlaceholder": "Entrez votre e-mail",
+      "username": "Nom d'utilisateur",
+      "usernamePlaceholder": "Entrez votre nom d'utilisateur",
+      "firstName": "Prénom",
+      "firstNamePlaceholder": "Prénom",
+      "lastName": "Nom de famille",
+      "lastNamePlaceholder": "Nom de famille",
+      "phoneNumber": "Numéro de téléphone",
+      "phoneNumberPlaceholder": "Entrez votre numéro de téléphone",
+      "password": "Mot de passe",
+      "passwordPlaceholder": "Créer un mot de passe",
+      "togglePassword": "Afficher/masquer le mot de passe",
+      "confirmPassword": "Confirmer le mot de passe",
+      "confirmPasswordPlaceholder": "Confirmez votre mot de passe",
+      "toggleConfirmPassword": "Afficher/masquer la confirmation du mot de passe",
+      "create": "Créer un compte",
+      "creating": "Création du compte..."
+    },
+    "errors": {
+      "default": "Échec de l'inscription. Veuillez réessayer.",
+      "network": "Erreur réseau. Veuillez vérifier votre connexion et réessayer.",
+      "invalidInput": "Saisie invalide",
+      "emailExists": "Cette adresse e-mail est déjà enregistrée",
+      "usernameExists": "Ce nom d'utilisateur est déjà pris",
+      "invalidEmail": "Veuillez entrer une adresse e-mail valide",
+      "invalidUsername": "Veuillez entrer un nom d'utilisateur valide",
+      "weakPassword": "Le mot de passe est trop faible. Veuillez utiliser un mot de passe plus fort"
+    }
+  },
+  "resetPassword": {
+    "title": "Réinitialiser le mot de passe",
+    "description": "Entrez le code de vérification et votre nouveau mot de passe",
+    "backToLogin": "Retour à la connexion",
+    "success": {
+      "title": "Mot de passe réinitialisé avec succès",
+      "description": "Votre mot de passe a été réinitialisé. Vous pouvez maintenant vous connecter avec votre nouveau mot de passe.",
+      "continueToLogin": "Continuer vers la connexion"
+    },
+    "form": {
+      "email": "Adresse e-mail",
+      "emailPlaceholder": "Entrez votre e-mail",
+      "code": "Code de vérification",
+      "codePlaceholder": "Entrez le code à 6 chiffres",
+      "newPassword": "Nouveau mot de passe",
+      "newPasswordPlaceholder": "Entrez le nouveau mot de passe",
+      "confirmPassword": "Confirmer le nouveau mot de passe",
+      "confirmPasswordPlaceholder": "Confirmer le nouveau mot de passe",
+      "togglePassword": "Afficher/masquer le mot de passe",
+      "toggleConfirmPassword": "Afficher/masquer la confirmation du mot de passe",
+      "reset": "Réinitialiser le mot de passe",
+      "resetting": "Réinitialisation en cours..."
+    }
+  },
+  "about": {
+    "hero": {
+      "badge": "À propos de TransleXable",
+      "title": "Briser les barrières linguistiques",
+      "description": "Notre mission est de rendre la communication mondiale transparente grâce à la technologie de traduction basée sur l'IA. Notre plateforme permet aux individus et aux entreprises de se connecter au-delà des langues avec une précision et une facilité sans précédent.",
+      "getStarted": "Commencer",
+      "learnMore": "En savoir plus"
+    },
+    "stats": {
+      "languages": "Langues prises en charge",
+      "users": "Utilisateurs satisfaits",
+      "documents": "Documents traduits",
+      "accuracy": "Taux de précision"
+    },
+    "mission": {
+      "title": "Notre Mission",
+      "paragraph1": "Chez TransleXable, nous croyons que la langue ne devrait jamais être un obstacle à la connexion humaine, à la croissance des entreprises ou au partage des connaissances. Notre technologie de traduction IA de pointe est conçue pour préserver la nuance, le contexte et l'émotion de la communication humaine.",
+      "paragraph2": "Nous ne nous contentons pas de traduire des mots – nous rapprochons les cultures, permettons la collaboration mondiale et ouvrons des portes à de nouvelles opportunités pour des millions de personnes dans le monde entier.",
+      "trusted": "Approuvé par plus de 10 000 utilisateurs dans le monde",
+      "impact": {
+        "title": "Impact mondial",
+        "description": "Connecter plus de 50 langues et permettre une communication fluide à travers les continents."
+      }
+    },
+    "values": {
+      "title": "Nos Valeurs",
+      "description": "Les principes qui guident tout ce que nous faisons et nous poussent à créer la meilleure expérience de traduction possible.",
+      "innovation": {
+        "title": "L'innovation d'abord",
+        "description": "Nous repoussons constamment les limites de la technologie de traduction IA pour offrir des solutions de pointe."
+      },
+      "userCentric": {
+        "title": "Centré sur l'utilisateur",
+        "description": "Chaque fonctionnalité est conçue en pensant à nos utilisateurs, garantissant des expériences intuitives et puissantes."
+      },
+      "privacy": {
+        "title": "Confidentialité et sécurité",
+        "description": "La sécurité et la confidentialité de vos données sont primordiales. Nous utilisons des mesures de sécurité de niveau entreprise."
+      },
+      "connection": {
+        "title": "Connexion mondiale",
+        "description": "Briser les barrières linguistiques pour connecter les personnes et les cultures à travers le monde."
+      }
+    },
+    "cta": {
+      "title": "Prêt à découvrir l'avenir de la traduction ?",
+      "description": "Rejoignez des milliers d'utilisateurs qui font confiance à TransleXable pour leurs besoins de traduction. Commencez à briser les barrières linguistiques dès aujourd'hui.",
+      "getStarted": "Commencer gratuitement",
+      "viewPricing": "Voir les tarifs"
+    }
+  },
+  "admin": {
+    "blogs": {
+      "title": "Gestion des blogs",
+      "subtitle": "Créer, modifier et gérer les articles de blog",
+      "loading": "Chargement des blogs...",
+      "backToAdmin": "Retour à l'administration",
+      "totalPosts": "Total des articles",
+      "newPost": "Nouvel article",
+      "filters": "Filtres",
+      "searchPlaceholder": "Rechercher des blogs par titre, contenu ou auteur...",
+      "moreTags": "plus",
+      "edit": "Modifier",
+      "noBlogsFound": "Aucun article de blog trouvé",
+      "adjustFilters": "Essayez d'ajuster votre recherche ou vos filtres",
+      "createFirstBlog": "Commencez par créer votre premier article de blog",
+      "createFirstPost": "Créer le premier article",
+      "editBlogPost": "Modifier l'article de blog",
+      "createNewBlogPost": "Créer un nouvel article de blog",
+      "save": "Enregistrer",
+      "saving": "Enregistrement...",
+      "deletePost": "Supprimer l'article",
+      "deleting": "Suppression...",
+      "confirmDelete": "Confirmer la suppression",
+      "deleteWarning": "Êtes-vous sûr de vouloir supprimer cet article de blog ? Cette action est irréversible.",
+      "form": {
+        "title": "Titre",
+        "titlePlaceholder": "Entrez le titre du blog",
+        "summary": "Résumé",
+        "summaryPlaceholder": "Entrez le résumé du blog",
+        "content": "Contenu",
+        "contentPlaceholder": "Entrez le contenu du blog",
+        "author": "Auteur",
+        "authorPlaceholder": "Entrez le nom de l'auteur",
+        "category": "Catégorie",
+        "tags": "Mots-clés (séparés par des virgules)",
+        "tagsPlaceholder": "motclé1, motclé2, motclé3"
+      },
+      "categories": {
+        "general": "Général",
+        "technology": "Technologie",
+        "business": "Affaires",
+        "translation": "Traduction"
+      },
+      "errors": {
+        "fetchFailed": "Échec de la récupération des blogs",
+        "loadFailed": "Échec du chargement des blogs",
+        "createFailed": "Échec de la création du blog",
+        "updateFailed": "Échec de la mise à jour du blog",
+        "deleteFailed": "Échec de la suppression du blog"
+      }
+    }
+  },
+  "common": {
+    "loading": "Chargement...",
+    "error": "Une erreur est survenue",
+    "save": "Enregistrer",
+    "cancel": "Annuler",
+    "submit": "Soumettre",
+    "language": "Langue",
+    "logout": "Déconnexion"
+  },
+  "testTranslateGemini": {
+    "title": "Test de traduction Gemini AI",
+    "description": "Testez la traduction de texte alimentée par Gemini AI de Google avec un raisonnement avancé, une compréhension du langage naturel et la prise en charge de glossaires personnalisés.",
+    "freeLimit": "Gratuit : Jusqu'à 600 caractères par jour !",
+    "form": {
+      "sourceLanguage": "Langue source",
+      "targetLanguage": "Langue cible",
+      "translationTone": "Tonalité de traduction",
+      "customGlossary": "Glossaire personnalisé ({count} termes)",
+      "showGlossary": "Afficher le glossaire",
+      "hideGlossary": "Masquer le glossaire",
+      "sourceTerm": "Terme source",
+      "targetTranslation": "Traduction cible",
+      "textToTranslate": "Texte à traduire",
+      "enterText": "Entrez votre texte ici...",
+      "characters": "caractères",
+      "remaining": "{remaining}/{total} restants aujourd'hui",
+      "credits": "crédits"
+    },
+    "tones": {
+      "default": {
+        "label": "Par défaut",
+        "description": "Traduction standard"
+      },
+      "formal": {
+        "label": "Formel",
+        "description": "Professionnel et respectueux"
+      },
+      "informal": {
+        "label": "Informel",
+        "description": "Décontracté et amical"
+      },
+      "business": {
+        "label": "Affaires",
+        "description": "Entreprise et professionnel"
+      },
+      "friendly": {
+        "label": "Amical",
+        "description": "Chaleureux et abordable"
+      }
+    },
+    "glossary": {
+      "noTerms": "Aucun terme de glossaire ajouté. Ajoutez des termes ci-dessus pour des traductions cohérentes.",
+      "addTerm": "Ajoutez des termes pour des traductions cohérentes"
+    },
+    "dailyUsage": {
+      "title": "Utilisation quotidienne : {count}/{total} caractères",
+      "remaining": "{remaining} caractères restants aujourd'hui",
+      "limitReached": "Limite quotidienne atteinte. Réinitialisation à minuit."
+    },
+    "buttons": {
+      "translateWithGemini": "Traduire avec Gemini",
+      "translating": "Traduction avec Gemini AI...",
+      "dailyLimitExceeded": "Limite quotidienne dépassée",
+      "copy": "Copier",
+      "copied": "Copié !"
+    },
+    "result": {
+      "title": "Résultat de la traduction Gemini",
+      "description": "Traduction alimentée par l'IA avec compréhension du contexte et prise en charge du glossaire",
+      "placeholder": "La traduction Gemini AI apparaîtra ici",
+      "detectedLanguage": "Langue détectée :",
+      "creditsUsed": "Crédits utilisés :",
+      "tone": "Tonalité appliquée :",
+      "glossaryTerms": "Termes du glossaire :",
+      "dailyRemaining": "Restant quotidien :",
+      "chars": "caractères",
+      "free": "(GRATUIT)"
+    },
+    "features": {
+      "title": "Fonctionnalités de traduction Google Gemini AI",
+      "description": "Découvrez la traduction IA de nouvelle génération avec des capacités de raisonnement avancées et un support de glossaire personnalisé",
+      "advancedReasoning": {
+        "title": "Raisonnement avancé",
+        "description": "Gemini comprend le contexte et les nuances pour des traductions plus précises"
+      },
+      "naturalLanguage": {
+        "title": "Compréhension du langage naturel",
+        "description": "Compréhension par l'IA des idiomes, des références culturelles et du contexte"
+      },
+      "toneAdaptation": {
+        "title": "Adaptation intelligente du ton",
+        "description": "Adapte le style de traduction en fonction de votre ton et de votre contexte sélectionnés"
+      },
+      "customGlossary": {
+        "title": "Support de glossaire personnalisé",
+        "description": "Définissez des traductions de termes spécifiques pour des résultats cohérents et spécifiques au domaine"
+      },
+      "note": "Gemini AI offre une traduction de pointe avec des capacités de raisonnement et un support de glossaire personnalisé. Nécessite une clé API Google AI. Les traductions sont optimisées pour la compréhension du langage naturel et le contexte culturel.",
+      "freeUsage": "Utilisation gratuite : Jusqu'à 600 caractères par jour sont entièrement gratuits !"
+    },
+    "errors": {
+      "enterText": "Veuillez entrer du texte à traduire",
+      "dailyLimitExceeded": "Limite quotidienne dépassée ! Vous pouvez traduire jusqu'à {limit} caractères par jour. Il vous reste {remaining} caractères. La limite est réinitialisée à minuit.",
+      "translationFailed": "Échec de la traduction",
+      "textTooLong": "La longueur du texte ({length}) dépasse votre limite quotidienne restante de {remaining} caractères"
+    }
+  },
+  "translateDocs": {
+    "title": "Traductions de documents",
+    "description": "Traduire des fichiers PDF, DOCX, PPTX et SRT",
+    "navigation": {
+      "textTranslation": "Traduction de texte",
+      "documentTranslation": "Traduction de documents"
+    },
+    "userStatus": {
+      "welcome": "Bienvenue, {username}",
+      "currentCredits": "Crédits actuels : {credits}",
+      "loadingCredits": "Chargement des crédits...",
+      "updatingCredits": "Mise à jour des crédits...",
+      "unableToLoad": "Impossible de charger les informations de crédit",
+      "loginRequired": "Veuillez vous connecter pour utiliser les services de traduction de documents et voir votre solde de crédits"
+    },
+    "largeDocuments": {
+      "title": "Besoin d'aide pour des documents volumineux ou une traduction humaine ?",
+      "description": "Pour les documents dépassant nos limites standard ou lorsque vous avez besoin de services de traduction humaine professionnels, nous sommes là pour vous aider avec des solutions personnalisées.",
+      "contact": "Contactez-nous sur WhatsApp :",
+      "whatsapp": "WhatsApp"
+    },
+    "upload": {
+      "title": "Télécharger des documents",
+      "description": "Téléchargez des fichiers PDF, DOCX, PPTX ou SRT pour la traduction",
+      "sourceLanguage": "Langue source",
+      "targetLanguage": "Langue cible",
+      "translationTone": "Tonalité de traduction",
+      "dropFiles": "Déposez des fichiers ici ou cliquez pour télécharger",
+      "supportedFormats": "Prend en charge les fichiers PDF, DOCX, DOC, PPTX, XLSX, HTML, TXT, SRT jusqu'à 50 Mo chacun",
+      "browseFiles": "Parcourir les fichiers",
+      "uploadedFiles": "Fichiers téléchargés ({count})",
+      "estimatedCredits": "Crédits estimés : ~{credits} (minimum 72 par document)",
+      "insufficientCredits": "Crédits insuffisants (besoin de {needed}, avez {current})"
+    },
+    "results": {
+      "title": "Résultats de la traduction",
+      "description": "Vos documents traduits apparaîtront ici",
+      "placeholder": "Les documents traduits apparaîtront ici",
+      "charactersTranslated": "{count} caractères traduits",
+      "download": "Télécharger",
+      "creditsUsed": "Crédits utilisés :",
+      "pages": "Pages :",
+      "format": "Format :",
+      "status": "Statut :",
+      "complete": "Terminé"
+    },
+    "billing": {
+      "warning": "Un minimum de 50 000 caractères par document (environ 72 crédits) vous sera facturé, quelle que soit la taille réelle du contenu du fichier. Cela signifie que même un petit PDF d'une page sera facturé comme s'il contenait 50 000 caractères."
+    },
+    "supportedFormats": {
+      "title": "Formats de document pris en charge",
+      "description": "Téléchargez et traduisez différents types de documents en conservant leur mise en forme",
+      "formats": {
+        "pdf": "Documents PDF",
+        "docx": "Documents Word (DOCX)",
+        "doc": "Documents Word (DOC)",
+        "pptx": "PowerPoint (PPTX)",
+        "xlsx": "Excel (XLSX)",
+        "html": "Documents HTML",
+        "txt": "Fichiers texte",
+        "srt": "Fichiers de sous-titres"
+      }
+    },
+    "creditPurchase": {
+      "title": "Manque de crédits ?",
+      "description": "Il vous reste {credits} crédits. La traduction de documents nécessite généralement plus de crédits. Achetez-en plus pour continuer à traduire des documents.",
+      "purchaseButton": "Acheter des crédits"
+    },
+    "buttons": {
+      "translateDocuments": "Traduire les documents ({credits} crédits - 72 min par document)",
+      "translatingDocuments": "Traduction des documents..."
+    },
+    "errors": {
+      "uploadRequired": "Veuillez télécharger au moins un document",
+      "loginRequired": "Veuillez vous connecter pour utiliser les services de traduction de documents",
+      "insufficientCredits": "Crédits insuffisants. Vous avez besoin de {needed} crédits mais vous n'avez que {current} disponibles.",
+      "translationFailed": "Échec de la traduction pour {filename}",
+      "creditDeductionFailed": "La traduction du document a réussi mais l'imputation des crédits a échoué",
+      "downloadFailed": "Échec du téléchargement du fichier traduit",
+      "networkError": "Une erreur réseau s'est produite. Veuillez réessayer."
+    }
+  },
+  "translateTxt": {
+    "title": "Test de traduction",
+    "description": "Testez l'intégration de DeepL API Pro avec sélection de tonalité et traduction en temps réel",
+    "navigation": {
+      "docsTranslation": "Traduction de documents",
+      "textTranslation": "Traduction de texte"
+    },
+    "userStatus": {
+      "welcome": "Bienvenue, {username}",
+      "currentCredits": "Crédits actuels : {credits}",
+      "loadingCredits": "Chargement des crédits...",
+      "updatingCredits": "Mise à jour des crédits...",
+      "unableToLoad": "Impossible de charger les informations de crédit",
+      "loginRequired": "Veuillez vous connecter pour utiliser les services de traduction et voir votre solde de crédits"
+    },
+    "sourceText": {
+      "title": "Texte source",
+      "description": "Entrez le texte que vous souhaitez traduire",
+      "sourceLanguage": "Langue source",
+      "targetLanguage": "Langue cible",
+      "translationTone": "Tonalité de traduction",
+      "textToTranslate": "Texte à traduire",
+      "enterText": "Entrez votre texte ici...",
+      "characters": "caractères",
+      "credits": "crédits",
+      "insufficientCredits": "Crédits insuffisants (besoin de {needed}, avez {current})"
+    },
+    "result": {
+      "title": "Résultat de la traduction",
+      "description": "Votre texte traduit apparaîtra ici",
+      "placeholder": "La traduction apparaîtra ici",
+      "charactersTranslated": "Caractères traduits :",
+      "creditsUsed": "Crédits utilisés :",
+      "translationDirection": "Direction de la traduction :",
+      "toneApplied": "Tonalité appliquée :",
+      "remainingCredits": "Crédits restants :",
+      "copy": "Copier",
+      "copied": "Copié !"
+    },
+    "features": {
+      "title": "Intégration DeepL API Pro",
+      "description": "Cette page de test démontre le flux de travail de traduction complet avec des fonctionnalités avancées",
+      "autoDetection": {
+        "title": "Détection automatique de la langue",
+        "description": "Détection automatique de la langue source pour une traduction transparente"
+      },
+      "toneSelection": {
+        "title": "Sélection de la tonalité",
+        "description": "Choisissez parmi les tonalités formelle, informelle, commerciale ou amicale"
+      },
+      "creditSystem": {
+        "title": "Système de crédits",
+        "description": "Calcul des crédits en temps réel et déduction automatique"
+      }
+    },
+    "creditPurchase": {
+      "title": "Manque de crédits ?",
+      "description": "Il vous reste {credits} crédits. Achetez-en plus pour continuer à traduire.",
+      "purchaseButton": "Acheter des crédits"
+    },
+    "buttons": {
+      "translateText": "Traduire le texte ({credits} crédits)",
+      "translating": "Traduction en cours..."
+    },
+    "errors": {
+      "enterText": "Veuillez entrer du texte à traduire",
+      "loginRequired": "Veuillez vous connecter pour utiliser les services de traduction",
+      "insufficientCredits": "Crédits insuffisants. Vous avez besoin de {needed} crédits mais vous n'avez que {current} disponibles.",
+      "translationFailed": "Échec de la traduction",
+      "creditDeductionFailed": "La traduction a réussi mais l'imputation des crédits a échoué",
+      "networkError": "Erreur réseau. Veuillez vérifier votre connexion et réessayer."
+    }
+  },
+  "verifyEmail": {
+    "title": "Vérifiez votre e-mail",
+    "description": "Nous avons envoyé un code de vérification à votre adresse e-mail. Veuillez l'entrer ci-dessous pour vérifier votre compte.",
+    "form": {
+      "emailAddress": "Adresse e-mail",
+      "enterEmail": "Entrez votre e-mail",
+      "verificationCode": "Code de vérification",
+      "enterCode": "Entrez le code à 6 chiffres",
+      "verifyEmail": "Vérifier l'e-mail",
+      "verifying": "Vérification..."
+    },
+    "help": {
+      "didntReceive": "Vous n'avez pas reçu le code ?",
+      "getHelp": "Obtenir de l'aide",
+      "alreadyVerified": "Déjà vérifié ?",
+      "signIn": "Se connecter"
+    },
+    "success": {
+      "message": "E-mail vérifié avec succès ! Redirection vers la connexion..."
+    },
+    "errors": {
+      "enterEmail": "Veuillez entrer votre adresse e-mail",
+      "enterValidCode": "Veuillez entrer un code de vérification valide à 6 chiffres",
+      "verificationFailed": "Échec de la vérification. Veuillez réessayer.",
+      "networkError": "Erreur réseau. Veuillez vérifier votre connexion et réessayer.",
+      "enterEmailFirst": "Veuillez entrer votre adresse e-mail d'abord"
+    },
+    "resend": {
+      "message": "Veuillez vérifier votre e-mail pour le code de vérification. Si vous ne le recevez pas, essayez de vous inscrire à nouveau."
+    }
+  },
+  "footer": {
+    "brand": {
+      "tagline": "Plateforme de Traduction IA",
+      "description": "Transformez votre contenu avec une précision alimentée par l'IA. Services de traduction professionnels optimisés par DeepL et Gemini AI pour des résultats précis et sensibles au contexte."
+    },
+    "features": {
+      "languages": "Plus de 100 langues",
+      "security": "Sécurité d'entreprise",
+      "speed": "Vitesse Éclair"
+    },
+    "sections": {
+      "product": {
+        "title": "Produit",
+        "features": "Fonctionnalités",
+        "pricing": "Tarifs",
+        "apiDocs": "Documentation API",
+        "integrations": "Intégrations",
+        "status": "Statut"
+      },
+      "company": {
+        "title": "Entreprise",
+        "about": "À propos",
+        "careers": "Carrières",
+        "blogs": "Blogs",
+        "pressKit": "Kit de presse",
+        "contact": "Contact"
+      },
+      "support": {
+        "title": "Support",
+        "helpCenter": "Centre d'aide",
+        "community": "Communauté",
+        "tutorials": "Tutoriels",
+        "faq": "FAQ",
+        "systemStatus": "État du système"
+      },
+      "legal": {
+        "title": "Légal",
+        "privacy": "Politique de confidentialité",
+        "terms": "Conditions d'utilisation",
+        "cookies": "Politique de cookies",
+        "gdpr": "RGPD",
+        "security": "Sécurité"
+      }
+    },
+    "social": {
+      "twitter": "Twitter",
+      "github": "GitHub",
+      "linkedin": "LinkedIn",
+      "email": "E-mail"
+    },
+    "copyright": "© 2025 TransleXable. Tous droits réservés."
+  }
+  , "footer": {
+    "brand": {
+      "tagline": "Plateforme de Traduction IA",
+      "description": "Transformez votre contenu avec une précision alimentée par l'IA. Services de traduction professionnels optimisés par DeepL et Gemini AI pour des résultats précis et sensibles au contexte."
+    },
+    "features": {
+      "languages": "Plus de 100 langues",
+      "security": "Sécurité d'entreprise",
+      "speed": "Vitesse Éclair"
+    },
+    "sections": {
+      "product": {
+        "title": "Produit",
+        "features": "Fonctionnalités",
+        "pricing": "Tarifs",
+        "apiDocs": "Documentation API",
+        "integrations": "Intégrations",
+        "status": "Statut"
+      },
+      "company": {
+        "title": "Entreprise",
+        "about": "À propos",
+        "careers": "Carrières",
+        "blogs": "Blogs",
+        "pressKit": "Kit de presse",
+        "contact": "Contact"
+      },
+      "support": {
+        "title": "Support",
+        "helpCenter": "Centre d'aide",
+        "community": "Communauté",
+        "tutorials": "Tutoriels",
+        "faq": "FAQ",
+        "systemStatus": "État du système"
+      },
+      "legal": {
+        "title": "Légal",
+        "privacy": "Politique de confidentialité",
+        "terms": "Conditions d'utilisation",
+        "cookies": "Politique de cookies",
+        "gdpr": "RGPD",
+        "security": "Sécurité"
+      }
+    },
+    "social": {
+      "twitter": "Twitter",
+      "github": "GitHub",
+      "linkedin": "LinkedIn",
+      "email": "E-mail"
+    },
+    "copyright": "© 2025 TransleXable. Tous droits réservés."
+  }
+}
