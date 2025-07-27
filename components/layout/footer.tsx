@@ -1,61 +1,67 @@
-import Link from "next/link"
+'use client';
+
 import { Sparkles, Github, Twitter, Linkedin, Mail, Globe, Shield, Zap } from "lucide-react"
+import { Link } from "@/navigation"
+import { useTranslations } from 'next-intl'
 
 export function Footer() {
+  const t = useTranslations('footer')
+  const tNav = useTranslations('navigation')
+  
   const footerSections = [
     {
-      title: "Product",
+      title: t('sections.product.title'),
       links: [
-        { name: "Features", href: "#features" },
-        { name: "Pricing", href: "#pricing" },
-        { name: "API Documentation", href: "/" },
-        { name: "Integrations", href: "/" },
-        { name: "Status", href: "/" },
+        { name: t('sections.product.features'), href: "#features" },
+        { name: tNav('pricing'), href: "/pricing" },
+        { name: t('sections.product.apiDocs'), href: "/" },
+        { name: t('sections.product.integrations'), href: "/" },
+        { name: t('sections.product.status'), href: "/" },
       ],
     },
     {
-      title: "Company",
+      title: t('sections.company.title'),
       links: [
-        { name: "About Us", href: "/" },
-        { name: "Careers", href: "/" },
-        { name: "Blog", href: "/blogs" },
-        { name: "Press Kit", href: "/" },
-        { name: "Contact", href: "/" },
+        { name: tNav('about'), href: "/about" },
+        { name: t('sections.company.careers'), href: "/" },
+        { name: tNav('blogs'), href: "/blogs" },
+        { name: t('sections.company.pressKit'), href: "/" },
+        { name: t('sections.company.contact'), href: "/" },
       ],
     },
     {
-      title: "Support",
+      title: t('sections.support.title'),
       links: [
-        { name: "Help Center", href: "/" },
-        { name: "Community", href: "/" },
-        { name: "Tutorials", href: "/" },
-        { name: "FAQ", href: "/" },
-        { name: "System Status", href: "/" },
+        { name: t('sections.support.helpCenter'), href: "/" },
+        { name: t('sections.support.community'), href: "/" },
+        { name: t('sections.support.tutorials'), href: "/" },
+        { name: t('sections.support.faq'), href: "/" },
+        { name: t('sections.support.systemStatus'), href: "/" },
       ],
     },
     {
-      title: "Legal",
+      title: t('sections.legal.title'),
       links: [
-        { name: "Privacy Policy", href: "/" },
-        { name: "Terms of Service", href: "/" },
-        { name: "Cookie Policy", href: "/" },
-        { name: "GDPR", href: "/" },
-        { name: "Security", href: "/" },
+        { name: t('sections.legal.privacy'), href: "/" },
+        { name: t('sections.legal.terms'), href: "/" },
+        { name: t('sections.legal.cookies'), href: "/" },
+        { name: t('sections.legal.gdpr'), href: "/" },
+        { name: t('sections.legal.security'), href: "/" },
       ],
     },
   ]
 
   const socialLinks = [
-    { name: "Twitter", icon: Twitter, href: "#", color: "hover:text-blue-400" },
-    { name: "GitHub", icon: Github, href: "#", color: "hover:text-gray-400" },
-    { name: "LinkedIn", icon: Linkedin, href: "#", color: "hover:text-blue-600" },
-    { name: "Email", icon: Mail, href: "mailto:hello@translexable.com", color: "hover:text-green-500" },
+    { name: t('social.twitter'), icon: Twitter, href: "#", color: "hover:text-blue-400" },
+    { name: t('social.github'), icon: Github, href: "#", color: "hover:text-gray-400" },
+    { name: t('social.linkedin'), icon: Linkedin, href: "#", color: "hover:text-blue-600" },
+    { name: t('social.email'), icon: Mail, href: "mailto:hello@translexable.com", color: "hover:text-green-500" },
   ]
 
   const features = [
-    { icon: Globe, text: "100+ Languages" },
-    { icon: Shield, text: "Enterprise Security" },
-    { icon: Zap, text: "Lightning Fast" },
+    { icon: Globe, text: t('features.languages') },
+    { icon: Shield, text: t('features.security') },
+    { icon: Zap, text: t('features.speed') },
   ]
 
   return (
@@ -81,13 +87,12 @@ export function Footer() {
                 </div>
                 <div className="flex flex-col">
                   <span className="text-2xl font-bold gradient-text">TransleXable</span>
-                  <span className="text-sm text-muted-foreground">AI Translation Platform</span>
+                  <span className="text-sm text-muted-foreground">{t('brand.tagline')}</span>
                 </div>
               </Link>
               
               <p className="text-muted-foreground leading-relaxed max-w-md">
-                Transform your content with AI-powered precision. Professional translation services 
-                powered by DeepL and Gemini AI for accurate, context-aware results.
+                {t('brand.description')}
               </p>
 
               {/* Feature highlights */}
@@ -153,7 +158,7 @@ export function Footer() {
         <div className="py-8 border-t border-border/20">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6 text-sm text-muted-foreground">
-              <span>&copy; 2025 TransleXable. All rights reserved.</span>
+              <span>{t('copyright')}</span>
               
             </div>
             

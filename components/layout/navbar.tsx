@@ -1,12 +1,20 @@
 "use client"
 
 import { useState, useEffect } from "react"
-import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
-import { DropdownMenu, DropdownMenuItem, DropdownMenuSeparator } from "@/components/ui/dropdown-menu"
+import { 
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem, 
+  DropdownMenuSeparator 
+} from "@/components/ui/dropdown-menu"
 import { Menu, X, Sparkles, Zap, User, LogOut, Settings, Shield, ChevronDown, FileText, File, Sparkles as SparklesIcon, Receipt } from "lucide-react"
 import { getUserFromCookie, notifyAuthStateChange } from "@/lib/auth-utils"
+import { LanguageSwitcher } from "@/components/ui/language-switcher"
+import Link from "next/link"
+import { useTranslation } from "@/hooks/useTranslation"
 
 interface UserInfo {
   userId: number
@@ -15,10 +23,37 @@ interface UserInfo {
   role: string
 }
 
+// Define a translation function type
+type TranslationFunction = (key: string) => string;
+
 export function Navbar() {
   const [isOpen, setIsOpen] = useState(false)
   const [user, setUser] = useState<UserInfo | null>(null)
   const router = useRouter()
+  
+  // Handle potential context errors
+  let t: TranslationFunction = (key: string) => {
+    // Default translations as fallback
+    const defaults: Record<string, string> = {
+      home: 'Home',
+      pricing: 'Pricing',
+      blogs: 'Blogs',
+      about: 'About',
+      dashboard: 'Dashboard',
+      profile: 'Profile',
+      login: 'Login',
+      register: 'Register',
+      logout: 'Logout'
+    }
+    return defaults[key] || key
+  }
+  
+  try {
+    const translation = useTranslation('navigation')
+    t = translation.t
+  } catch (error) {
+    console.error('Error loading translation context:', error)
+  }
 
   // Function to check user authentication from cookie
   const checkAuthStatus = () => {
@@ -80,10 +115,10 @@ export function Navbar() {
   }
 
   const navItems = [
-    { name: "Features", href: "/#features" },
-    { name: "Pricing", href: "/pricing" },
-    { name: "Blog", href: "/blogs" },
-    { name: "About", href: "/about" },
+    { name: t('home'), href: "/" },
+    { name: t('pricing'), href: "/pricing" },
+    { name: t('blogs'), href: "/blogs" },
+    { name: t('about'), href: "/about" },
   ]
 
   const translationItems = [
@@ -124,78 +159,70 @@ export function Navbar() {
             ))}
             
             {/* Translations Dropdown */}
-            <DropdownMenu
-              trigger={
-                <button className="flex items-center space-x-1 text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105 relative group">
-                  <span>Translations</span>
-                  <ChevronDown className="h-4 w-4" />
-                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-accent transition-all duration-300 group-hover:w-full rounded-full" />
-                </button>
-              }
-            >
-              {translationItems.map((item) => (
-                <DropdownMenuItem
-                  key={item.name}
-                  onClick={() => router.push(item.href)}
-                  icon={item.icon}
-                >
-                  {item.name}
-                </DropdownMenuItem>
-              ))}
+            <DropdownMenu>
+              <DropdownMenuTrigger className="flex items-center space-x-1 text-sm font-medium text-muted-foreground hover:text-primary transition-all duration-300 hover:scale-105 relative group">
+                <span>Translations</span>
+                <ChevronDown className="h-4 w-4" />
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-primary to-accent transition-all duration-300 group-hover:w-full rounded-full" />
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                {translationItems.map((item) => (
+                  <DropdownMenuItem
+                    key={item.name}
+                    onClick={() => router.push(item.href)}
+                  >
+                    {item.icon}
+                    <span className="ml-2">{item.name}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
             </DropdownMenu>
           </div>
 
           {/* Desktop Actions */}
           <div className="hidden md:flex items-center space-x-4">
+            {/* Language Switcher */}
+            <LanguageSwitcher />
+            
             {user ? (
               // User is logged in - show user menu
-              <DropdownMenu
-                trigger={
-                  <div className="flex items-center  space-x-3 p-2 rounded-lg hover:bg-primary/10 transition-colors cursor-pointer bg-gradient-to-r from-purple-600 to-pink-600 text-white">
-                    <div className=" bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
-                      <User className="h-4 w-4 text-white" />
-                    </div>
-                    <div className="flex flex-col">
-                      <span className="text-sm font-medium">{user.username}</span>
-
-                    </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger className="flex items-center space-x-3 p-2 rounded-lg hover:bg-primary/10 transition-colors cursor-pointer bg-gradient-to-r from-purple-600 to-pink-600 text-white">
+                  <div className="bg-gradient-to-br from-primary to-accent rounded-full flex items-center justify-center">
+                    <User className="h-4 w-4 text-white" />
                   </div>
-                }
-              >
-                <DropdownMenuItem 
-                  onClick={() => router.push('/profile')}
-                  icon={<User className="h-4 w-4" />}
-                >
-                  Profile
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => router.push('/dashboard')}
-                  icon={<Settings className="h-4 w-4" />}
-                >
-                  Dashboard
-                </DropdownMenuItem>
-                <DropdownMenuItem 
-                  onClick={() => router.push('/history')}
-                  icon={<Receipt className="h-4 w-4" />}
-                >
-                  Transaction History
-                </DropdownMenuItem>
-                {user.role === 'ADMIN' && (
-                  <DropdownMenuItem 
-                    onClick={() => router.push('/admin')}
-                    icon={<Shield className="h-4 w-4" />}
-                  >
-                    Admin Panel
+                  <div className="flex flex-col">
+                    <span className="text-sm font-medium">{user.username}</span>
+                  </div>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent>
+                  <DropdownMenuItem onClick={() => router.push('/profile')}>
+                    <User className="h-4 w-4 mr-2" />
+                    {t('profile')}
                   </DropdownMenuItem>
-                )}
-                <DropdownMenuSeparator />
-                <DropdownMenuItem 
-                  onClick={handleLogout}
-                  icon={<LogOut className="h-4 w-4" />}
-                  className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
-                >
-                  Logout
-                </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push('/dashboard')}>
+                    <Settings className="h-4 w-4 mr-2" />
+                    {t('dashboard')}
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => router.push('/history')}>
+                    <Receipt className="h-4 w-4 mr-2" />
+                    Transaction History
+                  </DropdownMenuItem>
+                  {user.role === 'ADMIN' && (
+                    <DropdownMenuItem onClick={() => router.push('/admin')}>
+                      <Shield className="h-4 w-4 mr-2" />
+                      Admin Panel
+                    </DropdownMenuItem>
+                  )}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem 
+                    onClick={handleLogout}
+                    className="text-red-600 hover:bg-red-50 dark:hover:bg-red-900/20"
+                  >
+                    <LogOut className="h-4 w-4 mr-2" />
+                    {t('logout')}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
               </DropdownMenu>
             ) : (
               // User is not logged in - show login/register buttons
@@ -205,14 +232,14 @@ export function Navbar() {
                   asChild 
                   className="text-sm font-medium hover:bg-primary/10 hover:text-primary transition-all duration-300 hover-lift"
                 >
-                  <Link href="/login">Sign In</Link>
+                  <Link href="/login">{t('login')}</Link>
                 </Button>
                 <Button 
                   asChild 
                   className="btn-primary-enhanced text-sm px-6 py-2 h-auto rounded-lg shadow-glow hover:shadow-glow-lg transform hover:scale-105 transition-all duration-300"
                 >
                   <Link href="/register" className="flex items-center space-x-2">
-                    <span>Get Started</span>
+                    <span>{t('register')}</span>
                     <Zap className="h-4 w-4" />
                   </Link>
                 </Button>
@@ -221,7 +248,10 @@ export function Navbar() {
           </div>
 
           {/* Mobile menu button */}
-          <div className="md:hidden">
+          <div className="md:hidden flex items-center space-x-2">
+            {/* Language Switcher for Mobile */}
+            <LanguageSwitcher />
+            
             <Button
               variant="ghost"
               size="sm"
@@ -282,7 +312,7 @@ export function Navbar() {
                     >
                       <Link href="/profile" onClick={() => setIsOpen(false)}>
                         <User className="h-4 w-4 mr-2" />
-                        Profile
+                        {t('profile')}
                       </Link>
                     </Button>
                     <Button 
@@ -292,7 +322,7 @@ export function Navbar() {
                     >
                       <Link href="/dashboard" onClick={() => setIsOpen(false)}>
                         <Settings className="h-4 w-4 mr-2" />
-                        Dashboard
+                        {t('dashboard')}
                       </Link>
                     </Button>
                     <Button 
@@ -314,7 +344,7 @@ export function Navbar() {
                       className="w-full justify-start text-left hover:bg-red-50 hover:text-red-600 rounded-xl"
                     >
                       <LogOut className="h-4 w-4 mr-2" />
-                      Logout
+                      {t('logout')}
                     </Button>
                   </>
                 ) : (
@@ -326,7 +356,7 @@ export function Navbar() {
                       className="w-full justify-start text-left hover:bg-primary/10 hover:text-primary rounded-xl"
                     >
                       <Link href="/login" onClick={() => setIsOpen(false)}>
-                        Sign In
+                        {t('login')}
                       </Link>
                     </Button>
                     <Button 
@@ -338,7 +368,7 @@ export function Navbar() {
                         onClick={() => setIsOpen(false)}
                         className="flex items-center justify-center space-x-2"
                       >
-                        <span>Get Started</span>
+                        <span>{t('register')}</span>
                         <Zap className="h-4 w-4" />
                       </Link>
                     </Button>

@@ -39,11 +39,11 @@ export default function RootLayout({
         className={`${outfit.variable} ${firaCode.variable} antialiased min-h-screen flex flex-col`}
       >
         <Providers>
-          <Navbar />
+          {/* <Navbar /> */}
           <main className="flex-1">
             {children}
           </main>
-          <Footer />
+          {/* <Footer /> */}
           <Toaster />
         </Providers>
       </body>
