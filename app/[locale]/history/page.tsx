@@ -142,8 +142,8 @@ export default function TransactionHistoryPage() {
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-primary/5">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Header */}
-        <div className="flex items-center justify-between mb-8">
-          <div className="flex items-center space-x-4">
+        <div className="flex items-center justify-between mb-8    ">
+          <div className="flex  flex-col space-x-4 gap-4">
             <Link href="/dashboard">
               <Button variant="outline" size="sm" className="hover-lift">
                 <ArrowLeft className="h-4 w-4 mr-2" />
@@ -204,7 +204,7 @@ export default function TransactionHistoryPage() {
         {/* Transactions Summary */}
         <Card className="modern-card mb-8">
           <CardHeader>
-            <CardTitle className="flex items-center space-x-2">
+            <CardTitle className="flex items-center space-x-2 ">
               <Receipt className="h-5 w-5 text-primary" />
               <span>{t('summary.title')}</span>
             </CardTitle>
