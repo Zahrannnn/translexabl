@@ -492,9 +492,9 @@ export default function PricingPage() {
                 <p className="text-red-700 text-base">
                   {t('characterConversion.note')} <strong>350,000 {t('characters')} ≈ 120 to 140 {t('page')} PDF Or ≈ 1000 {t('page')} txt</strong>
                 </p>
-                <p className="text-red-600 text-sm mt-1">
+                {/* <p className="text-red-600 text-sm mt-1">
                   {t('characterConversion.example')}
-                </p>
+                </p> */}
               </AlertDescription>
             </Alert>
           </div>
