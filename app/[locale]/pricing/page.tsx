@@ -89,8 +89,10 @@ const creditPackages: CreditPackage[] = [
       '1,500 translation credits',
       '1,050,000 characters total',
       'All language pairs',
-  
-      'Priority support'
+      'Priority support',
+      'Glossary management',
+      'Accent - tone translation',
+      'Human-reviewed AI output'
     ]
   },
   {
@@ -105,9 +107,12 @@ const creditPackages: CreditPackage[] = [
       '3,000 translation credits',
       '2,100,000 characters total',
       'All language pairs',
-  
       'Priority support',
-      
+      'Glossary management',
+      'Accent - tone translation',
+      '100% human translation',
+      'Human-reviewed AI output',
+      'Ancient languages support'
     ]
   }
 ]
@@ -495,6 +500,24 @@ export default function PricingPage() {
                 {/* <p className="text-red-600 text-sm mt-1">
                   {t('characterConversion.example')}
                 </p> */}
+              </AlertDescription>
+            </Alert>
+          </div>
+
+          {/* Premium Features Contact Note */}
+          <div className="mt-8 mb-8">
+            <Alert className="modern-card border-orange-200 bg-gradient-to-r from-orange-500/10 to-yellow-500/10">
+              <AlertDescription className="text-center">
+                <div className="flex items-center justify-center gap-2 mb-2">
+                  <span className="text-2xl">🌟</span>
+                  <strong className="text-orange-600 text-lg">{t('premiumFeatures.title')}</strong>
+                </div>
+                <p className="text-orange-700 text-base">
+                  {t('premiumFeatures.note')}
+                </p>
+                <p className="text-orange-600 text-sm mt-2 font-medium">
+                  {t('premiumFeatures.contactRequired')}
+                </p>
               </AlertDescription>
             </Alert>
           </div>

@@ -274,6 +274,11 @@
       "note": "For reference:",
       "example": "This means the Starter Pack can translate approximately 1 page, Popular Pack ~3 pages, and Premium Pack ~6 pages"
     },
+    "premiumFeatures": {
+      "title": "Premium Features Notice",
+      "note": "Advanced features like Glossary Management, Accent/Tone Translation, Human Translation, and Ancient Languages Support are premium services.",
+      "contactRequired": "Please contact our sales team to enable these features and discuss custom pricing."
+    },
     "packages": {
       "mostPopular": "Most Popular",
       "starter": {
@@ -292,7 +297,10 @@
           "0": "1,500 translation credits",
           "1": "1,050,000 characters total",
           "2": "All language pairs",
-          "3": "Priority support"
+          "3": "Priority support",
+          "4": "Glossary management",
+          "5": "Accent - tone translation",
+          "6": "Human-reviewed AI output"
         }
       },
       "premium": {
@@ -302,7 +310,12 @@
           "0": "3,000 translation credits",
           "1": "2,100,000 characters total",
           "2": "All language pairs",
-          "3": "Priority support"
+          "3": "Priority support",
+          "4": "Glossary management",
+          "5": "Accent - tone translation",
+          "6": "100% human translation",
+          "7": "Human-reviewed AI output",
+          "8": "Ancient languages support"
         }
       },
       "custom": {

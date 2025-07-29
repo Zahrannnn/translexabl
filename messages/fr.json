@@ -274,6 +274,11 @@
       "note": "Pour référence :",
       "example": "Cela signifie que le Pack de démarrage peut traduire environ 1 page, le Pack populaire ~3 pages, et le Pack premium ~6 pages"
     },
+    "premiumFeatures": {
+      "title": "Avis sur les fonctionnalités premium",
+      "note": "Les fonctionnalités avancées comme la Gestion de Glossaire, la Traduction d'Accent/Tonalité, la Traduction Humaine et le Support des Langues Anciennes sont des services premium.",
+      "contactRequired": "Veuillez contacter notre équipe de vente pour activer ces fonctionnalités et discuter de la tarification personnalisée."
+    },
     "packages": {
       "mostPopular": "Le plus populaire",
       "starter": {
@@ -292,7 +297,10 @@
           "0": "1 500 crédits de traduction",
           "1": "1 050 000 caractères au total",
           "2": "Toutes les paires de langues",
-          "3": "Support prioritaire"
+          "3": "Support prioritaire",
+          "4": "Gestion de glossaire",
+          "5": "Traduction d'accent et de tonalité",
+          "6": "Sortie IA révisée par un humain"
         }
       },
       "premium": {
@@ -302,7 +310,12 @@
           "0": "3 000 crédits de traduction",
           "1": "2 100 000 caractères au total",
           "2": "Toutes les paires de langues",
-          "3": "Support prioritaire"
+          "3": "Support prioritaire",
+          "4": "Gestion de glossaire",
+          "5": "Traduction d'accent et de tonalité",
+          "6": "Traduction 100% humaine",
+          "7": "Sortie IA révisée par un humain",
+          "8": "Support des langues anciennes"
         }
       },
       "custom": {
