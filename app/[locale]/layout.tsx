@@ -1,14 +1,17 @@
-import { Outfit, Fira_Code } from "next/font/google";
-import "../globals.css";
+import { NextIntlClientProvider } from 'next-intl';
+import { getDictionary } from '@/app/[locale]/dictionaries';
+import { locales, Locale } from '@/i18n';
+import Providers from "@/app/providers";
 import { Navbar } from "@/components/layout/navbar";
 import { Footer } from "@/components/layout/footer";
 import { Toaster } from "sonner";
-import Providers from "../providers";
-import { NextIntlClientProvider } from 'next-intl';
-import { getDirection, locales, type Locale } from '@/i18n';
 import { RTLProvider } from "@/components/ui/rtl-provider";
-import { getDictionary } from './dictionaries';
-import Blocked from "@/components/Blocked";
+import { Outfit, Fira_Code } from 'next/font/google';
+import './globals.css';
+
+function getDirection(locale: Locale): 'ltr' | 'rtl' {
+  return locale === 'ar' ? 'rtl' : 'ltr';
+}
 
 const outfit = Outfit({
   variable: "--font-outfit",
@@ -19,28 +22,6 @@ const firaCode = Fira_Code({
   variable: "--font-fira-code",
   subsets: ["latin"],
 });
-
-// Function to check program status from API
-async function getProgramStatus(): Promise<boolean> {
-  try {
-    const response = await fetch('https://valid-app-production.up.railway.app/api/programs/3', {
-      cache: 'no-store', // Ensure we get fresh data each time
-      next: { revalidate: 300 } // Revalidate every 5 minutes
-    });
-    
-    if (!response.ok) {
-      console.error('Program status API responded with:', response.status);
-      return false; // If API fails, default to blocked
-    }
-    
-    const data = await response.json();
-    console.log('Program status response:', data);
-    return data?.data?.is_active === true;
-  } catch (error) {
-    console.error('Failed to fetch program status:', error);
-    return false; // If any error occurs, default to blocked
-  }
-}
 
 export function generateStaticParams() {
   return locales.map((locale) => ({ locale }));
@@ -81,9 +62,6 @@ export default async function LocaleLayout({
   const direction = getDirection(locale as Locale);
   // Load messages for next-intl client components
   const messages = await getDictionary(locale as 'en' | 'fr' | 'ar');
-  
-  // Check program status from API
-  const isProgramActive = await getProgramStatus();
 
   return (
     <html lang={locale} dir={direction} className="dark">
@@ -95,7 +73,7 @@ export default async function LocaleLayout({
             <Providers>
               <Navbar />
               <main className="flex-1">
-                {!isProgramActive ? <Blocked /> : children}  
+                {children}
               </main>
               <Footer />
               <Toaster />
