@@ -14,48 +14,65 @@ import {
   Award,
   Clock
 } from "lucide-react";
-import { useTranslations } from 'next-intl';
 import { Link } from '@/navigation';
+import { getDictionary } from './dictionaries';
 
-export default function HomePage() {
-  // Get translations
-  const t = useTranslations('home');
+// Manual translation function
+function getTranslation(messages: Record<string, unknown>, path: string): string {
+  const result = path.split('.').reduce<unknown>((obj, key) => {
+    return obj && typeof obj === 'object' && key in obj ? (obj as Record<string, unknown>)[key] : undefined;
+  }, messages);
+  return typeof result === 'string' ? result : path;
+}
+
+interface HomePageProps {
+  params: Promise<{ locale: 'en' | 'fr' | 'ar' }>;
+}
+
+export default async function HomePage({ params }: HomePageProps) {
+  const { locale } = await params;
+  
+  // Load translations manually
+  const messages = await getDictionary(locale);
+  
+  // Create translation function
+  const t = (path: string) => getTranslation(messages, path);
 
   const features = [
     {
       icon: FileText,
-      title: t('features.textDocumentTranslation.title'),
-      description: t('features.textDocumentTranslation.description'),
+      title: t('home.features.textDocumentTranslation.title'),
+      description: t('home.features.textDocumentTranslation.description'),
       gradient: "bg-gradient-to-br from-blue-500 to-cyan-500"
     },
     {
       icon: Globe,
-      title: t('features.aiPoweredTranslation.title'),
-      description: t('features.aiPoweredTranslation.description'),
+      title: t('home.features.aiPoweredTranslation.title'),
+      description: t('home.features.aiPoweredTranslation.description'),
       gradient: "bg-gradient-to-br from-purple-500 to-pink-500"
     },
     {
       icon: TrendingUp,
-      title: t('features.realtimeCollaboration.title'),
-      description: t('features.realtimeCollaboration.description'),
+      title: t('home.features.realtimeCollaboration.title'),
+      description: t('home.features.realtimeCollaboration.description'),
       gradient: "bg-gradient-to-br from-green-500 to-emerald-500"
     },
     {
       icon: Sparkles,
-      title: t('features.toneSelection.title'),
-      description: t('features.toneSelection.description'),
+      title: t('home.features.toneSelection.title'),
+      description: t('home.features.toneSelection.description'),
       gradient: "bg-gradient-to-br from-yellow-500 to-orange-500"
     },
     {
       icon: Shield,
-      title: t('features.glossaryGrammar.title'),
-      description: t('features.glossaryGrammar.description'),
+      title: t('home.features.glossaryGrammar.title'),
+      description: t('home.features.glossaryGrammar.description'),
       gradient: "bg-gradient-to-br from-red-500 to-rose-500"
     },
     {
       icon: Users,
-      title: t('features.humanReview.title'),
-      description: t('features.humanReview.description'),
+      title: t('home.features.humanReview.title'),
+      description: t('home.features.humanReview.description'),
       gradient: "bg-gradient-to-br from-indigo-500 to-purple-500"
     }
   ]
@@ -63,36 +80,36 @@ export default function HomePage() {
  
   const useCases = [
     {
-      title: t('useCases.globalBusiness.title'),
-      description: t('useCases.globalBusiness.description'),
+      title: t('home.useCases.globalBusiness.title'),
+      description: t('home.useCases.globalBusiness.description'),
       icon: TrendingUp,
-      stats: t('useCases.globalBusiness.stats')
+      stats: t('home.useCases.globalBusiness.stats')
     },
     {
-      title: t('useCases.contentCreation.title'),
-      description: t('useCases.contentCreation.description'),
+      title: t('home.useCases.contentCreation.title'),
+      description: t('home.useCases.contentCreation.description'),
       icon: Sparkles,
-      stats: t('useCases.contentCreation.stats')
+      stats: t('home.useCases.contentCreation.stats')
     },
     {
-      title: t('useCases.education.title'),
-      description: t('useCases.education.description'),
+      title: t('home.useCases.education.title'),
+      description: t('home.useCases.education.description'),
       icon: Award,
-      stats: t('useCases.education.stats')
+      stats: t('home.useCases.education.stats')
     },
     {
-      title: t('useCases.legalMedical.title'),
-      description: t('useCases.legalMedical.description'),
+      title: t('home.useCases.legalMedical.title'),
+      description: t('home.useCases.legalMedical.description'),
       icon: Shield,
-      stats: t('useCases.legalMedical.stats')
+      stats: t('home.useCases.legalMedical.stats')
     }
   ]
 
   const stats = [
-    { label: t('stats.activeUsers'), value: "50K+", icon: Users },
-    { label: t('stats.documentsTranslated'), value: "2M+", icon: FileText },
-    { label: t('stats.languagesSupported'), value: "100+", icon: Globe },
-    { label: t('stats.averageRating'), value: "4.9/5", icon: Star }
+    { label: t('home.stats.activeUsers'), value: "50K+", icon: Users },
+    { label: t('home.stats.documentsTranslated'), value: "2M+", icon: FileText },
+    { label: t('home.stats.languagesSupported'), value: "100+", icon: Globe },
+    { label: t('home.stats.averageRating'), value: "4.9/5", icon: Star }
   ]
 
   return (
@@ -124,7 +141,7 @@ export default function HomePage() {
             <div className="inline-flex items-center space-x-2 modern-card rounded-full px-6 py-3 shadow-glow">
               <Sparkles className="h-5 w-5 text-primary animate-pulse" />
               <span className="text-sm font-semibold ">
-                {t('aiPoweredBadge')}
+                {t('home.aiPoweredBadge')}
               </span>
               <Zap className="h-4 w-4 text-accent animate-pulse" />
             </div>
@@ -132,15 +149,15 @@ export default function HomePage() {
             {/* Enhanced main headline */}
             <div className="space-y-4">
               <h1 className="text-5xl lg:text-7xl font-bold tracking-tight">
-                {t('hero.title')}{" "}
+                {t('home.hero.title')}{" "}
                 <span className="relative">
-                  <span className="gradient-text animate-gradient-x">{t('hero.madeSimple')}</span>
+                  <span className="gradient-text animate-gradient-x">{t('home.hero.madeSimple')}</span>
                   <div className="absolute -inset-1 bg-gradient-to-r from-primary/20 to-accent/20 blur-xl -z-10 animate-pulse" />
                 </span>
               </h1>
               
               <p className="text-xl lg:text-2xl text-muted-foreground max-w-4xl mx-auto leading-relaxed">
-                {t('hero.subtitle')}
+                {t('home.hero.subtitle')}
               </p>
             </div>
             
@@ -152,7 +169,7 @@ export default function HomePage() {
                 className="btn-primary-enhanced text-lg px-10 py-4 h-auto rounded-xl shadow-glow-lg hover:shadow-glow-lg transform hover:scale-105 transition-all duration-300"
               >
                 <Link href="/translate-txt" className="flex items-center space-x-2">
-                  <span>{t('hero.cta')}</span>
+                  <span>{t('home.hero.cta')}</span>
                   <ArrowRight className="h-5 w-5" />
                 </Link>
               </Button>
@@ -162,16 +179,16 @@ export default function HomePage() {
                 asChild 
                 className="text-lg px-10 py-4 h-auto rounded-xl border-2 border-primary/30 hover:border-primary hover:bg-primary/5 modern-card hover-lift"
               >
-                <Link href="#features">{t('buttons.learnMore')}</Link>
+                <Link href="#features">{t('home.buttons.learnMore')}</Link>
               </Button>
             </div>
             
             {/* Enhanced trust indicators */}
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-8 mt-16 max-w-2xl mx-auto">
               {[
-                { icon: CheckCircle, text: t('trustIndicators.noSetup') },
-                { icon: Zap, text: t('trustIndicators.instantTranslation') },
-                { icon: Clock, text: t('trustIndicators.alwaysAvailable') }
+                { icon: CheckCircle, text: t('home.trustIndicators.noSetup') },
+                { icon: Zap, text: t('home.trustIndicators.instantTranslation') },
+                { icon: Clock, text: t('home.trustIndicators.alwaysAvailable') }
               ].map((item, index) => (
                 <div key={index} className="flex items-center justify-center space-x-3 modern-card px-4 py-3 rounded-xl hover-lift">
                   <item.icon className="h-5 w-5 text-primary" />
@@ -208,14 +225,14 @@ export default function HomePage() {
           <div className="text-center mb-20">
             <div className="inline-flex items-center space-x-2 modern-card rounded-full px-4 py-2 mb-6">
               <Sparkles className="h-4 w-4 text-primary" />
-              <span className="text-sm font-medium text-primary">{t('features.title')}</span>
+              <span className="text-sm font-medium text-primary">{t('home.features.title')}</span>
             </div>
             <h2 className="text-4xl lg:text-6xl font-bold mb-6">
-              {t('features.sectionTitle')}{" "}
-              <span className="gradient-text">{t('features.sectionHighlight')}</span>
+              {t('home.features.sectionTitle')}{" "}
+              <span className="gradient-text">{t('home.features.sectionHighlight')}</span>
             </h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto leading-relaxed">
-              {t('features.sectionDescription')}
+              {t('home.features.sectionDescription')}
             </p>
           </div>
           
@@ -245,9 +262,9 @@ export default function HomePage() {
       <section className="py-32 bg-gradient-to-br from-card to-muted/20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-20">
-            <h2 className="text-4xl lg:text-5xl font-bold mb-6">{t('useCases.sectionTitle')}</h2>
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6">{t('home.useCases.sectionTitle')}</h2>
             <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
-              {t('useCases.sectionDescription')}
+              {t('home.useCases.sectionDescription')}
             </p>
           </div>
           
