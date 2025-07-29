@@ -566,7 +566,7 @@ export default function TestTranslateDocsPage() {
                   <div className="flex items-center space-x-2 text-blue-600 dark:text-blue-300">
                     <span className="text-sm font-medium">Contact us on WhatsApp:</span>
                     <a 
-                      href="https://wa.me/201092088922" 
+                      href="https://wa.me/201024765229" 
                       target="_blank" 
                       rel="noopener noreferrer"
                       className="inline-flex items-center space-x-1 text-sm bg-green-600 text-white px-3 py-1 rounded-full hover:bg-green-700 transition-colors"

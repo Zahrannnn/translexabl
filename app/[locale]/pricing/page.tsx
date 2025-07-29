@@ -490,7 +490,7 @@ export default function PricingPage() {
                   <strong className="text-red-600 text-lg">{t('important')}</strong>
                 </div>
                 <p className="text-red-700 text-base">
-                  {t('characterConversion.note')} <strong>350,000 {t('characters')} ≈ 1 {t('page')}</strong>
+                  {t('characterConversion.note')} <strong>350,000 {t('characters')} ≈ 120 to 140 {t('page')} PDF Or ≈ 1000 {t('page')} txt</strong>
                 </p>
                 <p className="text-red-600 text-sm mt-1">
                   {t('characterConversion.example')}
@@ -523,7 +523,7 @@ export default function PricingPage() {
             TRC20
             </p>
             </div>
-            <a href="https://wa.me/201092088922">
+            <a href="https://wa.me/201024765229">
             <Button variant="outline" size="lg" className="modern-card border-primary/30 hover:border-primary hover:bg-primary/5 px-8 py-3 rounded-xl hover-lift">
               {t('customPricing.contactSales')}
               <svg className="w-5 h-5 ml-2" viewBox="0 0 24 24" fill="currentColor">

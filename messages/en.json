@@ -18,16 +18,81 @@
     "hero": {
       "title": "Professional Translation Platform",
       "subtitle": "Translate text and documents with precision using DeepL API and Gemini AI.",
-      "cta": "Get Started"
+      "cta": "Get Started",
+      "madeSimple": "Made Simple"
+    },
+    "trustIndicators": {
+      "noSetup": "No setup required",
+      "instantTranslation": "Instant translation", 
+      "alwaysAvailable": "24/7 availability"
+    },
+    "stats": {
+      "activeUsers": "Active Users",
+      "documentsTranslated": "Documents Translated",
+      "languagesSupported": "Languages Supported", 
+      "averageRating": "Average Rating"
     },
     "features": {
       "title": "Features",
-      "subtitle": "Everything you need for professional translation"
+      "subtitle": "Everything you need for professional translation",
+      "sectionTitle": "Powerful Features for",
+      "sectionHighlight": "Professional Translation",
+      "sectionDescription": "Everything you need to translate content professionally, from simple text to complex documents.",
+      "textDocumentTranslation": {
+        "title": "Text & Document Translation",
+        "description": "Translate text, PDFs, DOCX, PowerPoint, and SRT files with precision and context awareness."
+      },
+      "aiPoweredTranslation": {
+        "title": "AI Powered Translation", 
+        "description": "Powered by AI for superior accuracy and natural language output."
+      },
+      "realtimeCollaboration": {
+        "title": "Real-time Collaboration",
+        "description": "Collaborate with team members in real-time, share translations, and maintain consistency across projects."
+      },
+      "toneSelection": {
+        "title": "Tone Selection",
+        "description": "Choose from formal, informal, business, or friendly tones to match your communication style."
+      },
+      "glossaryGrammar": {
+        "title": "Glossary & Grammar",
+        "description": "Custom glossary terms and advanced grammar checking for consistent, professional translations."
+      },
+      "humanReview": {
+        "title": "Human Review",
+        "description": "Optional human review by professional translators for critical documents and perfect accuracy."
+      }
     },
     "useCases": {
       "title": "Use Cases",
-      "subtitle": "Perfect for every industry"
-    }
+      "subtitle": "Perfect for every industry",
+      "sectionTitle": "Perfect for Every Industry",
+      "sectionDescription": "From global businesses to content creators, TransleXable adapts to your specific needs.",
+      "globalBusiness": {
+        "title": "Global Business",
+        "description": "Expand internationally with professional document translation and consistent brand messaging.",
+        "stats": "500+ Companies"
+      },
+      "contentCreation": {
+        "title": "Content Creation", 
+        "description": "Localize blogs, marketing materials, and social media content for different markets.",
+        "stats": "10M+ Words"
+      },
+      "education": {
+        "title": "Education",
+        "description": "Translate course materials, research papers, and educational content for global audiences.",
+        "stats": "200+ Universities" 
+      },
+      "legalMedical": {
+        "title": "Legal & Medical",
+        "description": "Ensure accuracy in critical documents with human review and specialized terminology.",
+        "stats": "99.9% Accuracy"
+      }
+    },
+    "buttons": {
+      "learnMore": "Learn More"
+    },
+    "aiPoweredBadge": "AI Powered Translation"
   },
   "blogs": {
     "loading": "Loading blog posts...",

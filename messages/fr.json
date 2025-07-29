@@ -18,16 +18,81 @@
     "hero": {
       "title": "Plateforme de traduction professionnelle",
       "subtitle": "Traduisez des textes et des documents avec précision en utilisant DeepL API et Gemini AI.",
-      "cta": "Commencer"
+      "cta": "Commencer",
+      "madeSimple": "Rendu Simple"
+    },
+    "trustIndicators": {
+      "noSetup": "Aucune configuration requise",
+      "instantTranslation": "Traduction instantanée",
+      "alwaysAvailable": "Disponible 24h/24 et 7j/7"
+    },
+    "stats": {
+      "activeUsers": "Utilisateurs Actifs",
+      "documentsTranslated": "Documents Traduits",
+      "languagesSupported": "Langues Prises en Charge",
+      "averageRating": "Note Moyenne"
     },
     "features": {
       "title": "Fonctionnalités",
-      "subtitle": "Tout ce dont vous avez besoin pour une traduction professionnelle"
+      "subtitle": "Tout ce dont vous avez besoin pour une traduction professionnelle",
+      "sectionTitle": "Fonctionnalités Puissantes pour",
+      "sectionHighlight": "la Traduction Professionnelle",
+      "sectionDescription": "Tout ce dont vous avez besoin pour traduire du contenu de manière professionnelle, du texte simple aux documents complexes.",
+      "textDocumentTranslation": {
+        "title": "Traduction de Texte et Documents",
+        "description": "Traduisez du texte, des PDF, DOCX, PowerPoint et des fichiers SRT avec précision et conscience du contexte."
+      },
+      "aiPoweredTranslation": {
+        "title": "Traduction Alimentée par l'IA",
+        "description": "Alimentée par l'IA pour une précision supérieure et une sortie en langage naturel."
+      },
+      "realtimeCollaboration": {
+        "title": "Collaboration en Temps Réel",
+        "description": "Collaborez avec les membres de l'équipe en temps réel, partagez des traductions et maintenez la cohérence entre les projets."
+      },
+      "toneSelection": {
+        "title": "Sélection de Tonalité",
+        "description": "Choisissez parmi les tonalités formelles, informelles, commerciales ou amicales pour correspondre à votre style de communication."
+      },
+      "glossaryGrammar": {
+        "title": "Glossaire et Grammaire",
+        "description": "Termes de glossaire personnalisés et vérification grammaticale avancée pour des traductions cohérentes et professionnelles."
+      },
+      "humanReview": {
+        "title": "Révision Humaine",
+        "description": "Révision humaine optionnelle par des traducteurs professionnels pour les documents critiques et une précision parfaite."
+      }
     },
     "useCases": {
       "title": "Cas d'utilisation",
-      "subtitle": "Parfait pour chaque industrie"
-    }
+      "subtitle": "Parfait pour chaque industrie",
+      "sectionTitle": "Parfait pour Chaque Industrie",
+      "sectionDescription": "Des entreprises mondiales aux créateurs de contenu, TransleXable s'adapte à vos besoins spécifiques.",
+      "globalBusiness": {
+        "title": "Entreprise Mondiale",
+        "description": "Développez-vous à l'international avec une traduction de documents professionnelle et une messagerie de marque cohérente.",
+        "stats": "Plus de 500 Entreprises"
+      },
+      "contentCreation": {
+        "title": "Création de Contenu",
+        "description": "Localisez des blogs, du matériel marketing et du contenu de médias sociaux pour différents marchés.",
+        "stats": "Plus de 10M de Mots"
+      },
+      "education": {
+        "title": "Éducation",
+        "description": "Traduisez des supports de cours, des documents de recherche et du contenu éducatif pour des audiences mondiales.",
+        "stats": "Plus de 200 Universités"
+      },
+      "legalMedical": {
+        "title": "Juridique et Médical",
+        "description": "Assurez la précision dans les documents critiques avec révision humaine et terminologie spécialisée.",
+        "stats": "99,9% de Précision"
+      }
+    },
+    "buttons": {
+      "learnMore": "En Savoir Plus"
+    },
+    "aiPoweredBadge": "Traduction Alimentée par l'IA"
   },
   "blogs": {
     "loading": "Chargement des articles de blog...",
@@ -816,58 +881,6 @@
     }
   },
   "footer": {
-    "brand": {
-      "tagline": "Plateforme de Traduction IA",
-      "description": "Transformez votre contenu avec une précision alimentée par l'IA. Services de traduction professionnels optimisés par DeepL et Gemini AI pour des résultats précis et sensibles au contexte."
-    },
-    "features": {
-      "languages": "Plus de 100 langues",
-      "security": "Sécurité d'entreprise",
-      "speed": "Vitesse Éclair"
-    },
-    "sections": {
-      "product": {
-        "title": "Produit",
-        "features": "Fonctionnalités",
-        "pricing": "Tarifs",
-        "apiDocs": "Documentation API",
-        "integrations": "Intégrations",
-        "status": "Statut"
-      },
-      "company": {
-        "title": "Entreprise",
-        "about": "À propos",
-        "careers": "Carrières",
-        "blogs": "Blogs",
-        "pressKit": "Kit de presse",
-        "contact": "Contact"
-      },
-      "support": {
-        "title": "Support",
-        "helpCenter": "Centre d'aide",
-        "community": "Communauté",
-        "tutorials": "Tutoriels",
-        "faq": "FAQ",
-        "systemStatus": "État du système"
-      },
-      "legal": {
-        "title": "Légal",
-        "privacy": "Politique de confidentialité",
-        "terms": "Conditions d'utilisation",
-        "cookies": "Politique de cookies",
-        "gdpr": "RGPD",
-        "security": "Sécurité"
-      }
-    },
-    "social": {
-      "twitter": "Twitter",
-      "github": "GitHub",
-      "linkedin": "LinkedIn",
-      "email": "E-mail"
-    },
-    "copyright": "© 2025 TransleXable. Tous droits réservés."
-  }
-  , "footer": {
     "brand": {
       "tagline": "Plateforme de Traduction IA",
       "description": "Transformez votre contenu avec une précision alimentée par l'IA. Services de traduction professionnels optimisés par DeepL et Gemini AI pour des résultats précis et sensibles au contexte."
