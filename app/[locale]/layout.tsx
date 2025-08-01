@@ -74,8 +74,8 @@ export default async function LocaleLayout({
             <Providers>
               <Navbar />
               <main className="flex-1">
-                {/* {children} */}
-                <Blocked />
+                {children}
+                {/* <Blocked /> */}
               </main>
               <Footer />
               <Toaster />
