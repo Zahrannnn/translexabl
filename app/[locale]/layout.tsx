@@ -8,7 +8,7 @@ import { Toaster } from "sonner";
 import { RTLProvider } from "@/components/ui/rtl-provider";
 import { Outfit, Fira_Code } from 'next/font/google';
 import './globals.css';
-import { ProjectStatusGuard } from '@/components/ProjectStatusGuard';
+import Blocked from '@/components/Blocked';
 
 function getDirection(locale: Locale): 'ltr' | 'rtl' {
   return locale === 'ar' ? 'rtl' : 'ltr';
@@ -74,9 +74,8 @@ export default async function LocaleLayout({
             <Providers>
               <Navbar />
               <main className="flex-1">
-                <ProjectStatusGuard projectId={3}>
-                  {children}
-                </ProjectStatusGuard>
+                {/* {children} */}
+                <Blocked />
               </main>
               <Footer />
               <Toaster />

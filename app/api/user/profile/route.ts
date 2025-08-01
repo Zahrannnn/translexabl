@@ -13,7 +13,7 @@ export async function GET(request: NextRequest) {
     }
 
     // Make request to backend API
-    const response = await fetch('https://translatex-production.up.railway.app/api/user/profile', {
+    const response = await fetch('http://translatex-production-fb26.up.railway.app/api/user/profile', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,

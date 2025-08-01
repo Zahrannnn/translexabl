@@ -91,7 +91,7 @@ export function useTransactionStats(userId: number | null) {
     queryFn: async () => {
       if (!userId) throw new Error('User ID is required')
       
-      // Fetch all transactions to calculate stats (in a real app, this would be a separate API endpoint)
+      // Fetch all transactions to calculate stats 
       const response = await fetchTransactions(userId, 1, 1000) // Get large batch for stats
       const transactions = response.data.transactions
       

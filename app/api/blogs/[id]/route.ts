@@ -10,7 +10,7 @@ export async function GET(
     console.log(`Proxying request for blog post ${blogId} to backend API...`)
     
     // Use the public blog endpoint for individual posts
-    const response = await fetch(`https://translatex-production.up.railway.app/api/blogs/${blogId}`, {
+    const response = await fetch(`http://translatex-production-fb26.up.railway.app/api/blogs/${blogId}`, {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

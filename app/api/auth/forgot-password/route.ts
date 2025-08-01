@@ -16,7 +16,7 @@ export async function POST(request: NextRequest) {
     console.log('Sending verification code to:', email)
 
     // Make request to backend API without authentication (similar to register/verify-email)
-    const response = await fetch(`https://translatex-production.up.railway.app/api/auth/forgot-password?email=${encodeURIComponent(email)}`, {
+    const response = await fetch(`http://translatex-production-fb26.up.railway.app/api/auth/forgot-password?email=${encodeURIComponent(email)}`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

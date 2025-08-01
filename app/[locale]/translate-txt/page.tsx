@@ -165,7 +165,7 @@ export default function TestTranslatePage() {
     try {
       console.log(`💳 Attempting to deduct ${amount} credits from user ${userId}...`)
       
-      const response = await fetch('https://translatex-production.up.railway.app/api/credits/deduct', {
+      const response = await fetch('http://translatex-production-fb26.up.railway.app/api/credits/deduct', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

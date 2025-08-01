@@ -18,7 +18,7 @@ export async function PUT(
     const body = await request.json()
     const { id: blogId } = await params
 
-    const response = await fetch(`https://translatex-production.up.railway.app/api/admin/blogs/${blogId}`, {
+    const response = await fetch(`http://translatex-production-fb26.up.railway.app/api/admin/blogs/${blogId}`, {
       method: 'PUT',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -75,7 +75,7 @@ export async function DELETE(
 
     const { id: blogId } = await params
 
-    const response = await fetch(`https://translatex-production.up.railway.app/api/admin/blogs/${blogId}`, {
+    const response = await fetch(`http://translatex-production-fb26.up.railway.app/api/admin/blogs/${blogId}`, {
       method: 'DELETE',
       headers: {
         'Authorization': `Bearer ${accessToken}`,

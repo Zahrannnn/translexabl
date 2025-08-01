@@ -24,7 +24,7 @@ export async function GET(
     const limit = searchParams.get('limit') || '10'
 
     // Make request to external API
-    const externalUrl = `https://translatex-production.up.railway.app/api/users/${userId}/transactions?page=${page}&limit=${limit}`
+    const externalUrl = `http://translatex-production-fb26.up.railway.app/api/users/${userId}/transactions?page=${page}&limit=${limit}`
     
     const response = await fetch(externalUrl, {
       headers: {
