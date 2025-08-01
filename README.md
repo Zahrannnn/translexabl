@@ -375,8 +375,8 @@ We welcome contributions! Please see our [Contributing Guidelines](CONTRIBUTING.
 - **Project Status**: [PROJECT_STATUS_INTEGRATION.md](PROJECT_STATUS_INTEGRATION.md)
 
 ### Community
-- **Issues**: [GitHub Issues](https://github.com/your-username/translexable/issues)
-- **Discussions**: [GitHub Discussions](https://github.com/your-username/translexable/discussions)
+- **Issues**: [GitHub Issues](https://github.com/Zahrannnne/translexable/issues)
+- **Discussions**: [GitHub Discussions](https://github.com/Zahrannnn/translexable/discussions)
 - **Email**: support@translexable.com
 
 ---
@@ -401,6 +401,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **Made with ❤️ by the TransleXable Team**
 
-[Website](https://translexable.com) • [Twitter](https://twitter.com/translexable) • [LinkedIn](https://linkedin.com/company/translexable)
+[Website](https://www.translexable.io/en) 
 
 </div>
