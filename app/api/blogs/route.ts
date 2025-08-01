@@ -5,7 +5,7 @@ export async function GET(request: NextRequest) {
     console.log('Proxying request to backend API...')
     
     // Use the public blogs endpoint instead of admin endpoint
-    const response = await fetch('http://translatex-production-fb26.up.railway.app/api/blogs', {
+    const response = await fetch('https://translatex-production-fb26.up.railway.app/api/blogs', {
       method: 'GET',
       headers: {
         'Content-Type': 'application/json',

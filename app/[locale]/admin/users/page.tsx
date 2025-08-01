@@ -146,8 +146,8 @@ export default function AdminUsersPage() {
     setIsUpdating(true)
     try {
       const endpoint = creditFormData.operation === 'add' 
-        ? 'http://translatex-production-fb26.up.railway.app/api/credits/add'
-        : 'http://translatex-production-fb26.up.railway.app/api/credits/deduct'
+        ? 'https://translatex-production-fb26.up.railway.app/api/credits/add'
+        : 'https://translatex-production-fb26.up.railway.app/api/credits/deduct'
 
       const response = await fetch(endpoint, {
         method: 'POST',

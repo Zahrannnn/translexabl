@@ -52,7 +52,7 @@ async function saveTransactionToDatabase(transactionData: TransactionData) {
   try {
     console.log('💾 Attempting to save transaction to database...');
     
-    const response = await fetch('http://translatex-production-fb26.up.railway.app/api/transactions', {
+    const response = await fetch('https://translatex-production-fb26.up.railway.app/api/transactions', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
@@ -99,7 +99,7 @@ async function addCreditsToUser(userId: number, amountCents: number) {
     
     console.log(`💰 Attempting to add ${creditAmount} credits to user ${userId} (paid ${amountCents} cents = ${amountCents/100} EGP)...`);
     
-    const response = await fetch('http://translatex-production-fb26.up.railway.app/api/credits/add', {
+    const response = await fetch('https://translatex-production-fb26.up.railway.app/api/credits/add', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

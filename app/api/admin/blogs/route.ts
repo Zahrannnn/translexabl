@@ -16,7 +16,7 @@ export async function GET(request: NextRequest) {
     console.log('Proxying request to backend API...')
     
     // Use the admin blogs endpoint
-    const response = await fetch('http://translatex-production-fb26.up.railway.app/api/admin/blogs', {
+    const response = await fetch('https://translatex-production-fb26.up.railway.app/api/admin/blogs', {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,
@@ -136,7 +136,7 @@ export async function POST(request: NextRequest) {
 
     const body = await request.json()
 
-    const response = await fetch('http://translatex-production-fb26.up.railway.app/api/admin/blogs', {
+    const response = await fetch('https://translatex-production-fb26.up.railway.app/api/admin/blogs', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,

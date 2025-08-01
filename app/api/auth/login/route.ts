@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
       password: body.password
     }
     
-    const response = await fetch('http://translatex-production-fb26.up.railway.app/api/auth/login', {
+    const response = await fetch('https://translatex-production-fb26.up.railway.app/api/auth/login', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

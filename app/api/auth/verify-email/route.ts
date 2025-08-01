@@ -4,7 +4,7 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     
-    const response = await fetch('http://translatex-production-fb26.up.railway.app/api/auth/verify-email', {
+    const response = await fetch('https://translatex-production-fb26.up.railway.app/api/auth/verify-email', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

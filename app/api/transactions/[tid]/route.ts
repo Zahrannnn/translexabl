@@ -22,7 +22,7 @@ export async function GET(
     }
 
     // Make request to external API
-    const externalUrl = `http://translatex-production-fb26.up.railway.app/api/transactions/${tid}`
+    const externalUrl = `https://translatex-production-fb26.up.railway.app/api/transactions/${tid}`
     console.log('Making request to:', externalUrl)
     
     const response = await fetch(externalUrl, {

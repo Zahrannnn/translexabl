@@ -24,7 +24,7 @@ export async function POST(request: NextRequest) {
     }
 
     // Make request to backend API
-    const response = await fetch('http://translatex-production-fb26.up.railway.app/api/auth/reset-password', {
+    const response = await fetch('https://translatex-production-fb26.up.railway.app/api/auth/reset-password', {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${accessToken}`,

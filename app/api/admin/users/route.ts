@@ -18,7 +18,7 @@ export async function GET(request: NextRequest) {
     const size = searchParams.get('size') || '100' // Get more users by default for admin
 
     // Make request to backend API for users
-    const response = await fetch(`http://translatex-production-fb26.up.railway.app/api/admin/users?page=${page}&size=${size}`, {
+    const response = await fetch(`https://translatex-production-fb26.up.railway.app/api/admin/users?page=${page}&size=${size}`, {
       method: 'GET',
       headers: {
         'Authorization': `Bearer ${accessToken}`,

@@ -1,13 +1,12 @@
 import { NextResponse } from 'next/server';
 import type { NextRequest } from 'next/server';
 import { locales, defaultLocale } from './i18n';
-import { getProjectStatusSafe } from './lib/project-status';
 
 // Get the preferred locale, similar to above or using a library
 function getLocale(request: NextRequest) {
   // Check for cookie first
   const cookieLocale = request.cookies.get('NEXT_LOCALE')?.value;
-  if (cookieLocale && locales.includes(cookieLocale as any)) {
+  if (cookieLocale && locales.includes(cookieLocale as typeof locales[number])) {
     return cookieLocale;
   }
 
@@ -35,45 +34,13 @@ function getLocale(request: NextRequest) {
 export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname;
   
-  // Skip internal paths and API routes (except project-status)
+  // Skip internal paths and ALL API routes from internationalization
   if (
     pathname.startsWith('/_next') ||
-    (pathname.includes('/api/') && !pathname.includes('/api/translate') && !pathname.includes('/api/user')) ||
+    pathname.startsWith('/api/') ||
     pathname.match(/\.(jpg|jpeg|png|gif|svg|ico|css|js)$/)
   ) {
     return NextResponse.next();
-  }
-
-  // Check project status for critical routes (translation, user operations)
-  const criticalRoutes = [
-    '/api/translate',
-    '/api/translate-document',
-    '/api/translate-gemini',
-    '/api/user',
-    '/api/paymob'
-  ];
-
-  const isCriticalRoute = criticalRoutes.some(route => pathname.includes(route));
-
-  if (isCriticalRoute) {
-    try {
-      const projectStatus = await getProjectStatusSafe(3);
-      
-      if (!projectStatus.isActive) {
-        return NextResponse.json(
-          {
-            error: 'Project access denied',
-            message: 'Project access has been disabled. Please contact support.',
-            projectName: projectStatus.projectName
-          },
-          { status: 403 }
-        );
-      }
-    } catch (error) {
-      // Log error but don't block access if status check fails
-      console.error('Project status check failed:', error);
-      // You could choose to block access here too if you want to be more strict
-    }
   }
 
   // Check if there is any supported locale in the pathname

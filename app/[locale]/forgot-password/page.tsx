@@ -26,7 +26,7 @@ export default function ForgotPasswordPage() {
     setError("")
     
     try {
-      const response = await fetch(`http://translatex-production-fb26.up.railway.app/api/auth/forgot-password?email=${encodeURIComponent(email)}`, {
+      const response = await fetch(`https://translatex-production-fb26.up.railway.app/api/auth/forgot-password?email=${encodeURIComponent(email)}`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
     setError("")
     
     try {
-      const response = await fetch('http://translatex-production-fb26.up.railway.app/api/auth/reset-password', {
+      const response = await fetch('https://translatex-production-fb26.up.railway.app/api/auth/reset-password', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
