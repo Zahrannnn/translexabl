@@ -69,7 +69,7 @@ We believe that language should never be a barrier to human connection, business
 ## 🛠 Tech Stack
 
 ### **Frontend**
-- **Framework**: Next.js 15.3.5 with App Router
+- **Framework**: Next.js 15.3.5 with App Routerr
 - **Language**: TypeScript 5.0
 - **Styling**: TailwindCSS 4.0
 - **UI Components**: Radix UI primitives
