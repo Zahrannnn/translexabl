@@ -10,6 +10,7 @@ import { Outfit, Fira_Code } from 'next/font/google';
 import './globals.css';
 import Blocked from '@/components/Blocked';
 import { Analytics } from '@vercel/analytics/next';
+import { SpeedInsights } from "@vercel/speed-insights/next"
 
 function getDirection(locale: Locale): 'ltr' | 'rtl' {
   return locale === 'ar' ? 'rtl' : 'ltr';
@@ -77,6 +78,7 @@ export default async function LocaleLayout({
               <main className="flex-1">
                 {children}
                 <Analytics />
+                <SpeedInsights />
                 {/* <Blocked /> */}
               </main>
               <Footer />
