@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
-import { Check, CreditCard, Zap, Crown } from 'lucide-react'
+import { Check, CreditCard, Zap, Crown, AlertCircle } from 'lucide-react'
 import { toast } from 'sonner'
 import { useTranslations } from 'next-intl'
 
@@ -405,12 +405,29 @@ export default function PricingPage() {
                   </label>
                   <div className="relative">
                     <input
-                      type="number"
-                      min="100"
-                      max="50000"
-                      step="100"
+                      type="text"
                       value={customCredits}
-                      onChange={(e) => setCustomCredits(Math.max(100, parseInt(e.target.value) || 100))}
+                      onChange={(e) => {
+                        const value = e.target.value.replace(/[^0-9]/g, ''); // Remove non-numeric characters
+                        const numericValue = parseInt(value) || 0;
+                        if (numericValue >= 1) {
+                          setCustomCredits(numericValue);
+                        } else if (value === '') {
+                          setCustomCredits(0); // Allow empty field temporarily
+                        }
+                      }}
+                      onBlur={() => {
+                        // Ensure minimum value of 1 when user leaves the field
+                        if (customCredits <= 99) {
+                          setCustomCredits(100);
+                          toast.error("Minimum 100 credits", {
+                            position: "top-center",
+                            duration: 3000,
+                            icon: <AlertCircle className="h-5 w-5 text-red-500" />,
+                            className: "font-medium"
+                          });
+                        }
+                      }}
                       className="w-full px-4 py-3 text-lg font-semibold text-center border-2 border-primary/20 rounded-xl focus:border-primary focus:outline-none bg-background"
                       placeholder="1000"
                     />
@@ -470,7 +487,7 @@ export default function PricingPage() {
                     setCustomPackageLoading(true)
                     initiatePayment(customPackage).finally(() => setCustomPackageLoading(false))
                   }}
-                  disabled={customPackageLoading || !user || customCredits < 100}
+                  disabled={customPackageLoading || !user || customCredits < 1}
                   className="w-full rounded-xl py-3 font-semibold transition-all duration-300 bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg hover:shadow-xl hover-lift"
                 >
                   {customPackageLoading ? (
