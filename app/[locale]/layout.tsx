@@ -8,9 +8,9 @@ import { Toaster } from "sonner";
 import { RTLProvider } from "@/components/ui/rtl-provider";
 import { Outfit, Fira_Code } from 'next/font/google';
 import './globals.css';
-import Blocked from '@/components/Blocked';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from "@vercel/speed-insights/next"
+import { OrganizationStructuredData, WebsiteStructuredData, ServiceStructuredData } from '@/components/seo/StructuredData';
 
 function getDirection(locale: Locale): 'ltr' | 'rtl' {
   return locale === 'ar' ? 'rtl' : 'ltr';
@@ -33,6 +33,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const dict = await getDictionary(locale as 'en' | 'fr' | 'ar');
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || 'https://www.translexable.io';
   
   return {
     title: dict?.app?.title ? `${dict.app.title} - ${dict.app.description}` : "TransleXable - Professional Translation Platform",
@@ -43,7 +44,33 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
       title: dict?.app?.title ? `${dict.app.title} - ${dict.app.description}` : "TransleXable - Professional Translation Platform",
       description: "Translate text and documents with precision using DeepL API and Gemini AI.",
       type: "website",
-      locale: locale
+      locale: locale,
+      url: `${baseUrl}/${locale}`,
+      siteName: "TransleXable",
+    },
+    twitter: {
+      card: "summary_large_image",
+      title: dict?.app?.title ? `${dict.app.title} - ${dict.app.description}` : "TransleXable - Professional Translation Platform",
+      description: "Translate text and documents with precision using DeepL API and Gemini AI.",
+    },
+    robots: {
+      index: true,
+      follow: true,
+      googleBot: {
+        index: true,
+        follow: true,
+        'max-video-preview': -1,
+        'max-image-preview': 'large',
+        'max-snippet': -1,
+      },
+    },
+    alternates: {
+      canonical: `${baseUrl}/${locale}`,
+      languages: {
+        'en': `${baseUrl}/en`,
+        'fr': `${baseUrl}/fr`,
+        'ar': `${baseUrl}/ar`,
+      },
     },
   };
 }
@@ -86,6 +113,9 @@ export default async function LocaleLayout({
             </Providers>
           </RTLProvider>
         </NextIntlClientProvider>
+        <OrganizationStructuredData />
+        <WebsiteStructuredData />
+        <ServiceStructuredData />
       </body>
     </html>
   );

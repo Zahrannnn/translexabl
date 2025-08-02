@@ -138,7 +138,7 @@ We believe that language should never be a barrier to human connection, business
    NEXT_PUBLIC_HMAC_SECRET=your_webhook_secret
    
    # Application
-   NEXT_PUBLIC_BASE_URL=http://localhost:3000
+   NEXT_PUBLIC_BASE_URL=https://www.translexable.io/
    ```
 
 4. **Run the development server**
