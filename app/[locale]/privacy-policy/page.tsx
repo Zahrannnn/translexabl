@@ -39,9 +39,7 @@ export default async function PrivacyPolicyPage({ params }: PrivacyPageProps) {
           <h1 className="text-4xl lg:text-5xl font-bold gradient-text mb-4">
             Privacy Policy
           </h1>
-          <p className="text-xl text-muted-foreground">
-            Last Updated: {lastUpdated}
-          </p>
+        
         </div>
 
         {/* Content */}

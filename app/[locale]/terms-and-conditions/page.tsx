@@ -39,9 +39,7 @@ export default async function TermsAndConditionsPage({ params }: TermsPageProps)
           <h1 className="text-4xl lg:text-5xl font-bold gradient-text mb-4">
             Terms and Conditions
           </h1>
-          <p className="text-xl text-muted-foreground">
-            Effective Date: {lastUpdated}
-          </p>
+         
         </div>
 
         {/* Content */}
