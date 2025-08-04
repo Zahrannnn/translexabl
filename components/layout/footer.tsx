@@ -154,7 +154,7 @@ export function Footer() {
 
        
 
-        {/* Bottom section */}
+        {/* Bottom sectionn */}
         <div className="py-8 border-t border-border/20">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6 text-sm text-muted-foreground">
