@@ -12,7 +12,11 @@ import {
   Zap,
   TrendingUp,
   Award,
-  Clock
+  Clock,
+  Mail,
+  Phone,
+  MapPin,
+  MessageSquare
 } from "lucide-react";
 import { Link } from '@/navigation';
 import { getDictionary } from './dictionaries';
@@ -285,6 +289,177 @@ export default async function HomePage({ params }: HomePageProps) {
                 </div>
               )
             })}
+          </div>
+        </div>
+      </section>
+
+      {/* Contact Us Section */}
+      <section className="py-32 bg-gradient-to-br from-background via-background to-primary/5 relative overflow-hidden">
+        {/* Background decoration */}
+        <div className="absolute inset-0 opacity-30">
+          <div className="absolute top-1/4 left-1/4 w-32 h-32 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl animate-float" />
+          <div className="absolute bottom-1/4 right-1/4 w-40 h-40 bg-gradient-to-r from-accent/20 to-primary/20 rounded-full blur-3xl animate-float" style={{ animationDelay: '2s' }} />
+        </div>
+
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
+          <div className="text-center mb-20">
+            <div className="inline-flex items-center space-x-2 modern-card rounded-full px-4 py-2 mb-6">
+              <MessageSquare className="h-4 w-4 text-primary" />
+              <span className="text-sm font-medium text-primary">Get in Touch</span>
+            </div>
+            <h2 className="text-4xl lg:text-5xl font-bold mb-6">
+              Contact{" "}
+              <span className="gradient-text">Us</span>
+            </h2>
+            <p className="text-xl text-muted-foreground max-w-3xl mx-auto">
+                             Have questions about our translation services? We&apos;re here to help you get started.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+            {/* Contact Information */}
+            <div className="space-y-8">
+              <div className="modern-card p-8 rounded-2xl hover-lift">
+                <h3 className="text-2xl font-bold mb-6 gradient-text">Get in Touch</h3>
+                <div className="space-y-6">
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl flex items-center justify-center">
+                      <Mail className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Email Us</h4>
+                      <p className="text-muted-foreground">hello@translexable.com</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl flex items-center justify-center">
+                      <MessageSquare className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Live Chat</h4>
+                      <p className="text-muted-foreground">Available 24/7 for premium users</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl flex items-center justify-center">
+                      <Phone className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Support</h4>
+                      <p className="text-muted-foreground">Response within 24 hours</p>
+                    </div>
+                  </div>
+                  
+                  <div className="flex items-center space-x-4">
+                    <div className="w-12 h-12 bg-gradient-to-br from-primary/20 to-accent/20 rounded-xl flex items-center justify-center">
+                      <MapPin className="h-6 w-6 text-primary" />
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Global Service</h4>
+                      <p className="text-muted-foreground">Available worldwide</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Quick Links */}
+              <div className="modern-card p-8 rounded-2xl hover-lift">
+                <h3 className="text-xl font-bold mb-4">Quick Links</h3>
+                <div className="grid grid-cols-2 gap-4">
+                  <Link href="/pricing" className="text-muted-foreground hover:text-primary transition-colors hover:translate-x-1">
+                    → Pricing Plans
+                  </Link>
+                  <Link href="/about" className="text-muted-foreground hover:text-primary transition-colors hover:translate-x-1">
+                    → About Us
+                  </Link>
+                  <Link href="/blogs" className="text-muted-foreground hover:text-primary transition-colors hover:translate-x-1">
+                    → Blog & Resources
+                  </Link>
+                  <Link href="/translate-txt" className="text-muted-foreground hover:text-primary transition-colors hover:translate-x-1">
+                    → Try Translation
+                  </Link>
+                </div>
+              </div>
+            </div>
+
+            {/* Contact Form */}
+            <div className="modern-card p-8 rounded-2xl hover-lift">
+              <h3 className="text-2xl font-bold mb-6">Send us a Message</h3>
+              <form className="space-y-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="firstName" className="block text-sm font-medium mb-2">
+                      First Name
+                    </label>
+                    <input
+                      type="text"
+                      id="firstName"
+                      name="firstName"
+                      className="w-full px-4 py-3 rounded-xl border border-border/20 bg-background/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      placeholder="John"
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="lastName" className="block text-sm font-medium mb-2">
+                      Last Name
+                    </label>
+                    <input
+                      type="text"
+                      id="lastName"
+                      name="lastName"
+                      className="w-full px-4 py-3 rounded-xl border border-border/20 bg-background/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                      placeholder="Doe"
+                    />
+                  </div>
+                </div>
+                
+                <div>
+                  <label htmlFor="email" className="block text-sm font-medium mb-2">
+                    Email Address
+                  </label>
+                  <input
+                    type="email"
+                    id="email"
+                    name="email"
+                    className="w-full px-4 py-3 rounded-xl border border-border/20 bg-background/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                    placeholder="john@example.com"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="subject" className="block text-sm font-medium mb-2">
+                    Subject
+                  </label>
+                  <input
+                    type="text"
+                    id="subject"
+                    name="subject"
+                    className="w-full px-4 py-3 rounded-xl border border-border/20 bg-background/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all"
+                    placeholder="How can we help you?"
+                  />
+                </div>
+                
+                <div>
+                  <label htmlFor="message" className="block text-sm font-medium mb-2">
+                    Message
+                  </label>
+                  <textarea
+                    id="message"
+                    name="message"
+                    rows={4}
+                    className="w-full px-4 py-3 rounded-xl border border-border/20 bg-background/50 focus:border-primary focus:ring-2 focus:ring-primary/20 outline-none transition-all resize-none"
+                    placeholder="Tell us about your translation needs..."
+                  ></textarea>
+                </div>
+                
+                <Button className="w-full btn-primary-enhanced text-lg py-3 h-auto rounded-xl shadow-glow hover:shadow-glow-lg transform hover:scale-105 transition-all duration-300">
+                  <MessageSquare className="h-5 w-5 mr-2" />
+                  Send Message
+                </Button>
+              </form>
+            </div>
           </div>
         </div>
       </section>

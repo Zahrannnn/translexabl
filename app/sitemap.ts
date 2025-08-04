@@ -46,6 +46,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     '/test-payment',
     '/payment/success',
     '/payment/failure',
+    '/terms-and-conditions',
+    '/privacy-policy',
+    '/refund-policy',
+    '/shipping-policy',
   ]
 
   // Admin pages (lower priority)

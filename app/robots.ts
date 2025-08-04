@@ -17,6 +17,10 @@ export default function robots(): MetadataRoute.Robots {
           '/blogs',
           '/login',
           '/register',
+          '/terms-and-conditions',
+          '/privacy-policy',
+          '/refund-policy',
+          '/shipping-policy',
         ],
         disallow: [
           '/api/',
@@ -52,6 +56,10 @@ export default function robots(): MetadataRoute.Robots {
           '/blogs',
           '/login',
           '/register',
+          '/terms-and-conditions',
+          '/privacy-policy',
+          '/refund-policy',
+          '/shipping-policy',
         ],
         disallow: [
           '/api/',

@@ -944,5 +944,21 @@
       "email": "البريد الإلكتروني"
     },
     "copyright": "© 2025 TransleXable. جميع الحقوق محفوظة."
+  },
+  "termsAndConditions": {
+    "pageTitle": "الشروط والأحكام | TransleXable",
+    "metaDescription": "اقرأ شروطنا وأحكامنا لاستخدام خدمات الترجمة في TransleXable."
+  },
+  "privacyPolicy": {
+    "pageTitle": "سياسة الخصوصية | TransleXable", 
+    "metaDescription": "تعرف على كيفية حماية TransleXable لخصوصيتك والتعامل مع بياناتك."
+  },
+  "refundPolicy": {
+    "pageTitle": "سياسة الاسترداد | TransleXable",
+    "metaDescription": "تعرف على سياسة الاسترداد في TransleXable وكيفية طلب استرداد الأموال."
+  },
+  "shippingPolicy": {
+    "pageTitle": "سياسة الشحن | TransleXable",
+    "metaDescription": "تعرف على التسليم الرقمي وسياسة تقديم الخدمات في TransleXable."
   }
 }

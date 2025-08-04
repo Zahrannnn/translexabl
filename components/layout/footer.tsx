@@ -42,10 +42,10 @@ export function Footer() {
     {
       title: t('sections.legal.title'),
       links: [
-        { name: t('sections.legal.privacy'), href: "/" },
-        { name: t('sections.legal.terms'), href: "/" },
-        { name: t('sections.legal.cookies'), href: "/" },
-        { name: t('sections.legal.gdpr'), href: "/" },
+        { name: t('sections.legal.privacy'), href: "/privacy-policy" },
+        { name: t('sections.legal.terms'), href: "/terms-and-conditions" },
+        { name: "Refund Policy", href: "/refund-policy" },
+        { name: "Shipping Policy", href: "/shipping-policy" },
         { name: t('sections.legal.security'), href: "/" },
       ],
     },

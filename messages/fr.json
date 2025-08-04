@@ -944,5 +944,21 @@
       "email": "E-mail"
     },
     "copyright": "© 2025 TransleXable. Tous droits réservés."
+  },
+  "termsAndConditions": {
+    "pageTitle": "Conditions Générales | TransleXable",
+    "metaDescription": "Lisez nos Conditions Générales pour l'utilisation des services de traduction TransleXable."
+  },
+  "privacyPolicy": {
+    "pageTitle": "Politique de Confidentialité | TransleXable", 
+    "metaDescription": "Découvrez comment TransleXable protège votre vie privée et gère vos données."
+  },
+  "refundPolicy": {
+    "pageTitle": "Politique de Remboursement | TransleXable",
+    "metaDescription": "Découvrez la politique de remboursement de TransleXable et comment demander un remboursement."
+  },
+  "shippingPolicy": {
+    "pageTitle": "Politique de Livraison | TransleXable",
+    "metaDescription": "Découvrez la livraison numérique et la politique de prestation de services de TransleXable."
   }
 }
