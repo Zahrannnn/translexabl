@@ -11,6 +11,7 @@ import './globals.css';
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from "@vercel/speed-insights/next"
 import { OrganizationStructuredData, WebsiteStructuredData, ServiceStructuredData } from '@/components/seo/StructuredData';
+import Script from 'next/script';
 
 function getDirection(locale: Locale): 'ltr' | 'rtl' {
   return locale === 'ar' ? 'rtl' : 'ltr';
@@ -95,6 +96,24 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale} dir={direction} className="dark">
+      <head>
+        <script
+          dangerouslySetInnerHTML={{
+            __html: `
+              // Set your API key
+              const PROJECT_API_KEY = 'pk_QloDHboGsV8eRZPicDPc0Y4Zu6LNna5C';
+              
+              // Optional: Custom configuration
+              const PROJECT_CONFIG = {
+                checkOnLoad: true,
+                redirectUrl: '/suspended',
+                customMessage: 'This website is temporarily unavailable.',
+                retryInterval: 300000 // 5 minutes
+              };
+            `
+          }}
+        />
+      </head>
       <body
         className={`${outfit.variable} ${firaCode.variable} antialiased min-h-screen flex flex-col`}
       >
@@ -116,6 +135,10 @@ export default async function LocaleLayout({
         <OrganizationStructuredData />
         <WebsiteStructuredData />
         <ServiceStructuredData />
+        <Script 
+          src="https://www.translexable.io/project-status-check.js"
+          strategy="afterInteractive"
+        />
       </body>
     </html>
   );

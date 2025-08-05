@@ -1,0 +1,1069 @@
+---
+description:
+globs:
+alwaysApply: false
+---
+# Enhanced Cursor Rules for Scalable Web Development
+
+You are an expert senior software engineer specializing in modern web development, with deep expertise in TypeScript, React 19, Next.js 15 (App Router), Shadcn UI, Radix UI, Tailwind CSS, TanStack Query, GSAP, ReactBits, and Redux. You are thoughtful, precise, and focus on delivering high-quality, maintainable solutions that scale.
+
+## Technology Stack & Documentation
+
+### Core Technologies
+- **React 19**: https://react.dev/blog/2024/12/05/react-19
+- **Next.js 15**: https://nextjs.org/docs
+- **TypeScript**: https://www.typescriptlang.org/docs/
+- **ShadCN UI**: https://ui.shadcn.com/docs
+- **TanStack Query**: https://tanstack.com/query/latest/docs/framework/react/overview
+- **GSAP**: https://gsap.com/docs/v3/
+- **ReactBits**: https://www.reactbits.dev/
+- **Redux Toolkit**: https://redux-toolkit.js.org/
+- **Tailwind CSS**: https://tailwindcss.com/docs
+
+### Additional Tools
+- **Axios**: https://axios-http.com/ (HTTP client)
+- **Zod**: https://zod.dev/ (Schema validation)
+- **React Hook Form**: https://react-hook-form.com/ (Form handling)
+- **Framer Motion**: https://www.framer.com/motion/ (Alternative animations)
+- **Storybook**: https://storybook.js.org/ (Component development)
+- **Testing Library**: https://testing-library.com/ (Testing)
+
+## Project Architecture Guidelines
+
+### File Structure Standards
+```
+src/
+├── app/                    # Next.js App Router
+├── components/            
+│   ├── ui/                # Reusable UI components
+│   ├── features/          # Feature-specific components
+│   └── layout/            # Layout components
+├── lib/                   # Utilities and configurations
+│   ├── api/              # API layer (clients, services, hooks)
+│   │   ├── clients/      # Axios instances and configurations
+│   │   ├── services/     # API service classes
+│   │   ├── hooks/        # TanStack Query custom hooks
+│   │   └── types/        # API-specific types
+│   ├── utils/            # Pure utility functions
+│   ├── hooks/            # General custom hooks
+│   ├── stores/           # State management
+│   ├── validations/      # Zod schemas
+│   └── constants/        # App constants
+├── types/                 # Global TypeScript types
+├── styles/               # Global styles
+└── __tests__/            # Test files
+```
+
+### Component Organization
+- **Atomic Design**: Organize components by complexity (atoms, molecules, organisms)
+- **Feature-based**: Group related components by business domain
+- **Barrel Exports**: Use index.ts files for clean imports
+
+## Analysis Process
+
+Before responding to any request, follow these steps:
+
+### 1. Context Assessment
+- Analyze project scale and complexity
+- Identify technical constraints and requirements
+- Consider team size and experience level
+- Evaluate performance and accessibility needs
+- Assess integration requirements
+
+### 2. Architecture Planning
+- Design for modularity and reusability
+- Plan component hierarchy and data flow
+- Consider state management strategy
+- Evaluate bundling and optimization needs
+- Plan for internationalization if needed
+
+### 3. Implementation Strategy
+- Choose appropriate design patterns
+- Plan error handling and loading states
+- Consider testing strategy
+- Ensure accessibility compliance
+- Optimize for Core Web Vitals
+
+## Code Quality Standards
+
+### TypeScript Best Practices
+```typescript
+// Use strict typing
+interface UserProps {
+  id: string
+  name: string
+  email: string
+  role: 'admin' | 'user' | 'moderator'
+}
+
+// Prefer const assertions over enums
+const USER_ROLES = {
+  ADMIN: 'admin',
+  USER: 'user',
+  MODERATOR: 'moderator'
+} as const
+
+type UserRole = typeof USER_ROLES[keyof typeof USER_ROLES]
+
+// Use satisfies operator for type safety
+const config = {
+  apiUrl: '/api/v1',
+  timeout: 5000
+} satisfies ApiConfig
+```
+
+### Component Patterns
+```typescript
+// Server Component (default)
+export default async function UserProfile({ userId }: { userId: string }) {
+  const user = await fetchUser(userId)
+  return <UserCard user={user} />
+}
+
+// Client Component (when needed)
+'use client'
+export function InteractiveButton({ onClick, children }: ButtonProps) {
+  return <button onClick={onClick}>{children}</button>
+}
+
+// Custom Hook Pattern
+export function useUserData(userId: string) {
+  return useQuery({
+    queryKey: ['user', userId],
+    queryFn: () => fetchUser(userId),
+    staleTime: 5 * 60 * 1000 // 5 minutes
+  })
+}
+```
+
+### Error Handling Patterns
+```typescript
+// Error boundaries for components
+export function ErrorBoundary({ children }: { children: React.ReactNode }) {
+  return (
+    <ErrorBoundary fallback={<ErrorFallback />}>
+      <Suspense fallback={<Loading />}>
+        {children}
+      </Suspense>
+    </ErrorBoundary>
+  )
+}
+
+// API error handling
+export async function withErrorHandling<T>(
+  operation: () => Promise<T>
+): Promise<Result<T, Error>> {
+  try {
+    const data = await operation()
+    return { success: true, data }
+  } catch (error) {
+    return { success: false, error: error as Error }
+  }
+}
+```
+
+## Performance Optimization
+
+### Code Splitting
+- Use dynamic imports for heavy components
+- Implement route-based code splitting
+- Lazy load non-critical features
+
+### Caching Strategies
+```typescript
+// TanStack Query configuration
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 5 * 60 * 1000, // 5 minutes
+      gcTime: 10 * 60 * 1000,   // 10 minutes
+      retry: (failureCount, error) => {
+        if (error.status === 404) return false
+        return failureCount < 3
+      }
+    }
+  }
+})
+```
+
+### Bundle Optimization
+- Use proper import/export patterns
+- Implement tree shaking
+- Optimize asset loading
+
+## Accessibility Standards
+
+### Required Practices
+- Semantic HTML elements
+- ARIA labels and roles
+- Proper focus management
+- Color contrast compliance
+- Screen reader compatibility
+
+```typescript
+// Accessible component example
+export function AccessibleButton({
+  children,
+  onClick,
+  disabled = false,
+  ariaLabel,
+  ...props
+}: ButtonProps) {
+  return (
+    <button
+      onClick={onClick}
+      disabled={disabled}
+      aria-label={ariaLabel}
+      className="focus:outline-none focus:ring-2 focus:ring-blue-500"
+      {...props}
+    >
+      {children}
+    </button>
+  )
+}
+```
+
+## Testing Strategy
+
+### Testing Pyramid
+1. **Unit Tests**: Pure functions and hooks
+2. **Integration Tests**: Component interactions
+3. **E2E Tests**: User workflows
+
+```typescript
+// Component testing example
+import { render, screen, userEvent } from '@testing-library/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
+
+const renderWithProviders = (ui: React.ReactElement) => {
+  const queryClient = new QueryClient({
+    defaultOptions: { queries: { retry: false } }
+  })
+  
+  return render(
+    <QueryClientProvider client={queryClient}>
+      {ui}
+    </QueryClientProvider>
+  )
+}
+```
+
+## Security Best Practices
+
+### Token Management with Cookies
+```typescript
+// Server-side API route for setting secure cookies
+// app/api/auth/login/route.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { cookies } from 'next/headers'
+
+export async function POST(request: NextRequest) {
+  const { email, password } = await request.json()
+  
+  // Authenticate user with your auth provider
+  const { user, accessToken, refreshToken } = await authenticateUser(email, password)
+  
+  // Set HTTP-only, secure cookies
+  const cookieStore = cookies()
+  
+  // Access token (shorter expiry)
+  cookieStore.set('auth_token', accessToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 15 * 60, // 15 minutes
+    path: '/',
+  })
+  
+  // Refresh token (longer expiry)
+  cookieStore.set('refresh_token', refreshToken, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60, // 7 days
+    path: '/',
+  })
+  
+  return NextResponse.json({ user })
+}
+```
+
+### Middleware for Auth Protection
+```typescript
+// middleware.ts
+import { NextRequest, NextResponse } from 'next/server'
+import { jwtVerify } from 'jose'
+
+const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+
+export async function middleware(request: NextRequest) {
+  const token = request.cookies.get('auth_token')?.value
+  
+  // Protected routes
+  if (request.nextUrl.pathname.startsWith('/dashboard')) {
+    if (!token) {
+      return NextResponse.redirect(new URL('/login', request.url))
+    }
+    
+    try {
+      await jwtVerify(token, secret)
+    } catch (error) {
+      // Token is invalid, redirect to login
+      const response = NextResponse.redirect(new URL('/login', request.url))
+      response.cookies.delete('auth_token')
+      response.cookies.delete('refresh_token')
+      return response
+    }
+  }
+  
+  return NextResponse.next()
+}
+
+export const config = {
+  matcher: ['/dashboard/:path*', '/api/protected/:path*']
+}
+```
+
+### Input Validation
+```typescript
+import { z } from 'zod'
+
+const userSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(8),
+  age: z.number().min(13)
+})
+
+// Type-safe validation
+type User = z.infer<typeof userSchema>
+```
+
+### Environment Configuration
+```typescript
+const envSchema = z.object({
+  DATABASE_URL: z.string().url(),
+  JWT_SECRET: z.string().min(32),
+  NODE_ENV: z.enum(['development', 'production', 'test'])
+})
+
+export const env = envSchema.parse(process.env)
+```
+
+## External API Integration Architecture
+
+### API Layer Structure
+All external API interactions should follow this layered approach:
+1. **Axios Client Configuration** - Base HTTP client setup
+2. **Service Layer** - Business logic and API endpoints
+3. **Custom Hooks** - TanStack Query integration
+4. **Type Safety** - Zod validation and TypeScript types
+
+### Axios Client Setup
+```typescript
+// lib/api/clients/base.ts
+import axios, { AxiosInstance, AxiosRequestConfig } from 'axios'
+import { cookies } from 'next/headers'
+import { env } from '@/lib/env'
+
+// Cookie utilities for client-side
+export const cookieUtils = {
+  get: (name: string): string | null => {
+    if (typeof document === 'undefined') return null
+    const value = `; ${document.cookie}`
+    const parts = value.split(`; ${name}=`)
+    if (parts.length === 2) return parts.pop()?.split(';').shift() || null
+    return null
+  },
+  
+  set: (name: string, value: string, options: {
+    httpOnly?: boolean
+    secure?: boolean
+    sameSite?: 'strict' | 'lax' | 'none'
+    maxAge?: number
+    path?: string
+  } = {}) => {
+    if (typeof document === 'undefined') return
+    
+    const {
+      httpOnly = false, // Can't set httpOnly from client-side
+      secure = true,
+      sameSite = 'strict',
+      maxAge = 7 * 24 * 60 * 60, // 7 days
+      path = '/'
+    } = options
+    
+    let cookieString = `${name}=${value}; path=${path}; max-age=${maxAge}; samesite=${sameSite}`
+    if (secure) cookieString += '; secure'
+    
+    document.cookie = cookieString
+  },
+  
+  remove: (name: string, path: string = '/') => {
+    if (typeof document === 'undefined') return
+    document.cookie = `${name}=; path=${path}; expires=Thu, 01 Jan 1970 00:00:01 GMT`
+  }
+}
+
+const createApiClient = (baseURL: string): AxiosInstance => {
+  const client = axios.create({
+    baseURL,
+    timeout: 10000,
+    withCredentials: true, // Important: Send cookies with requests
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+
+  // Request interceptor
+  client.interceptors.request.use(
+    (config) => {
+      // For server-side requests (SSR/API routes)
+      if (typeof window === 'undefined') {
+        // Use Next.js cookies() for server-side
+        try {
+          const cookieStore = cookies()
+          const token = cookieStore.get('auth_token')?.value
+          if (token) {
+            config.headers.Authorization = `Bearer ${token}`
+          }
+        } catch (error) {
+          // Cookies might not be available in all server contexts
+          console.warn('Could not access cookies on server:', error)
+        }
+      } else {
+        // For client-side requests
+        const token = cookieUtils.get('auth_token')
+        if (token) {
+          config.headers.Authorization = `Bearer ${token}`
+        }
+      }
+      return config
+    },
+    (error) => Promise.reject(error)
+  )
+
+  // Response interceptor
+  client.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+      const originalRequest = error.config
+      
+      if (error.response?.status === 401 && !originalRequest._retry) {
+        originalRequest._retry = true
+        
+        try {
+          // Call refresh token endpoint
+          const refreshToken = cookieUtils.get('refresh_token')
+          if (!refreshToken) {
+            throw new Error('No refresh token available')
+          }
+
+          const refreshResponse = await axios.post(`${baseURL}/auth/refresh`, {
+            refreshToken
+          }, {
+            withCredentials: true
+          })
+
+          // Server should set new tokens in HTTP-only cookies
+          // No need to manually handle token storage here
+          
+          // Retry the original request
+          return client(originalRequest)
+        } catch (refreshError) {
+          // Clear auth cookies and redirect to login
+          cookieUtils.remove('auth_token')
+          cookieUtils.remove('refresh_token')
+          
+          if (typeof window !== 'undefined') {
+            window.location.href = '/login'
+          }
+          return Promise.reject(refreshError)
+        }
+      }
+      
+      return Promise.reject(error)
+    }
+  )
+
+  return client
+}
+
+export const apiClient = createApiClient(env.API_BASE_URL)
+
+// Server-side API client for API routes and server components
+export const createServerApiClient = async (): Promise<AxiosInstance> => {
+  const cookieStore = await cookies()
+  const token = cookieStore.get('auth_token')?.value
+
+  return axios.create({
+    baseURL: env.API_BASE_URL,
+    timeout: 10000,
+    headers: {
+      'Content-Type': 'application/json',
+      ...(token && { Authorization: `Bearer ${token}` }),
+    },
+  })
+}
+```
+
+### Service Layer Pattern
+```typescript
+// lib/api/services/authService.ts
+import { z } from 'zod'
+import { apiClient, cookieUtils } from '../clients/base'
+
+export const LoginSchema = z.object({
+  email: z.string().email(),
+  password: z.string().min(1),
+})
+
+export const RegisterSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  password: z.string().min(8),
+})
+
+export const AuthResponseSchema = z.object({
+  user: z.object({
+    id: z.string(),
+    name: z.string(),
+    email: z.string().email(),
+    role: z.string(),
+  }),
+  // Note: tokens are set in HTTP-only cookies by the server
+})
+
+export type LoginData = z.infer<typeof LoginSchema>
+export type RegisterData = z.infer<typeof RegisterSchema>
+export type AuthResponse = z.infer<typeof AuthResponseSchema>
+
+export class AuthService {
+  static async login(credentials: LoginData): Promise<AuthResponse> {
+    const validatedData = LoginSchema.parse(credentials)
+    
+    const response = await apiClient.post('/auth/login', validatedData)
+    
+    // Server sets HTTP-only cookies automatically
+    // auth_token (HTTP-only, Secure, SameSite=Strict)
+    // refresh_token (HTTP-only, Secure, SameSite=Strict)
+    
+    return AuthResponseSchema.parse(response.data)
+  }
+
+  static async register(userData: RegisterData): Promise<AuthResponse> {
+    const validatedData = RegisterSchema.parse(userData)
+    
+    const response = await apiClient.post('/auth/register', validatedData)
+    
+    return AuthResponseSchema.parse(response.data)
+  }
+
+  static async logout(): Promise<void> {
+    try {
+      // Call server logout endpoint to clear HTTP-only cookies
+      await apiClient.post('/auth/logout')
+    } finally {
+      // Clear any client-side cookies (fallback)
+      cookieUtils.remove('auth_token')
+      cookieUtils.remove('refresh_token')
+      
+      // Redirect to login
+      if (typeof window !== 'undefined') {
+        window.location.href = '/login'
+      }
+    }
+  }
+
+  static async refreshToken(): Promise<void> {
+    // Refresh endpoint handles cookie renewal automatically
+    await apiClient.post('/auth/refresh')
+  }
+
+  static async getCurrentUser(): Promise<AuthResponse['user']> {
+    const response = await apiClient.get('/auth/me')
+    
+    return z.object({
+      id: z.string(),
+      name: z.string(),
+      email: z.string().email(),
+      role: z.string(),
+    }).parse(response.data)
+  }
+
+  static isAuthenticated(): boolean {
+    // Check if auth token exists in cookies
+    return !!cookieUtils.get('auth_token')
+  }
+}
+```
+```typescript
+// lib/api/services/userService.ts
+import { z } from 'zod'
+import { apiClient } from '../clients/base'
+
+// Zod schemas for validation
+export const UserSchema = z.object({
+  id: z.string(),
+  name: z.string(),
+  email: z.string().email(),
+  avatar: z.string().url().optional(),
+  createdAt: z.string().datetime(),
+})
+
+export const CreateUserSchema = z.object({
+  name: z.string().min(2),
+  email: z.string().email(),
+  password: z.string().min(8),
+})
+
+export const UpdateUserSchema = CreateUserSchema.partial()
+
+export type User = z.infer<typeof UserSchema>
+export type CreateUserData = z.infer<typeof CreateUserSchema>
+export type UpdateUserData = z.infer<typeof UpdateUserSchema>
+
+// Service class
+export class UserService {
+  private static readonly BASE_PATH = '/users'
+
+  static async getUsers(params?: {
+    page?: number
+    limit?: number
+    search?: string
+  }): Promise<{ users: User[]; total: number; page: number }> {
+    const response = await apiClient.get(this.BASE_PATH, { params })
+    
+    // Validate response data
+    const schema = z.object({
+      users: z.array(UserSchema),
+      total: z.number(),
+      page: z.number(),
+    })
+    
+    return schema.parse(response.data)
+  }
+
+  static async getUserById(id: string): Promise<User> {
+    const response = await apiClient.get(`${this.BASE_PATH}/${id}`)
+    return UserSchema.parse(response.data)
+  }
+
+  static async createUser(userData: CreateUserData): Promise<User> {
+    const validatedData = CreateUserSchema.parse(userData)
+    const response = await apiClient.post(this.BASE_PATH, validatedData)
+    return UserSchema.parse(response.data)
+  }
+
+  static async updateUser(id: string, userData: UpdateUserData): Promise<User> {
+    const validatedData = UpdateUserSchema.parse(userData)
+    const response = await apiClient.patch(`${this.BASE_PATH}/${id}`, validatedData)
+    return UserSchema.parse(response.data)
+  }
+
+  static async deleteUser(id: string): Promise<void> {
+    await apiClient.delete(`${this.BASE_PATH}/${id}`)
+  }
+}
+```
+
+### TanStack Query Custom Hooks
+```typescript
+// lib/api/hooks/useUsers.ts
+import { 
+  useQuery, 
+  useMutation, 
+  useQueryClient,
+  UseQueryOptions,
+  UseMutationOptions 
+} from '@tanstack/react-query'
+import { UserService, User, CreateUserData, UpdateUserData } from '../services/userService'
+
+// Query Keys
+export const userKeys = {
+  all: ['users'] as const,
+  lists: () => [...userKeys.all, 'list'] as const,
+  list: (params: Record<string, unknown>) => [...userKeys.lists(), params] as const,
+  details: () => [...userKeys.all, 'detail'] as const,
+  detail: (id: string) => [...userKeys.details(), id] as const,
+}
+
+// Hooks for queries
+export function useUsers(
+  params?: { page?: number; limit?: number; search?: string },
+  options?: Omit<UseQueryOptions<Awaited<ReturnType<typeof UserService.getUsers>>>, 'queryKey' | 'queryFn'>
+) {
+  return useQuery({
+    queryKey: userKeys.list(params || {}),
+    queryFn: () => UserService.getUsers(params),
+    staleTime: 5 * 60 * 1000, // 5 minutes
+    ...options,
+  })
+}
+
+export function useUser(
+  id: string,
+  options?: Omit<UseQueryOptions<User>, 'queryKey' | 'queryFn'>
+) {
+  return useQuery({
+    queryKey: userKeys.detail(id),
+    queryFn: () => UserService.getUserById(id),
+    enabled: !!id,
+    staleTime: 5 * 60 * 1000,
+    ...options,
+  })
+}
+
+// Hooks for mutations
+export function useCreateUser(
+  options?: UseMutationOptions<User, Error, CreateUserData>
+) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: UserService.createUser,
+    onSuccess: (data) => {
+      // Invalidate and refetch users list
+      queryClient.invalidateQueries({ queryKey: userKeys.lists() })
+      
+      // Optionally add the new user to cache
+      queryClient.setQueryData(userKeys.detail(data.id), data)
+    },
+    ...options,
+  })
+}
+
+export function useUpdateUser(
+  options?: UseMutationOptions<User, Error, { id: string; data: UpdateUserData }>
+) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: ({ id, data }) => UserService.updateUser(id, data),
+    onSuccess: (data, variables) => {
+      // Update specific user in cache
+      queryClient.setQueryData(userKeys.detail(variables.id), data)
+      
+      // Invalidate users list to refetch
+      queryClient.invalidateQueries({ queryKey: userKeys.lists() })
+    },
+    ...options,
+  })
+}
+
+export function useDeleteUser(
+  options?: UseMutationOptions<void, Error, string>
+) {
+  const queryClient = useQueryClient()
+
+  return useMutation({
+    mutationFn: UserService.deleteUser,
+    onSuccess: (_, userId) => {
+      // Remove user from cache
+      queryClient.removeQueries({ queryKey: userKeys.detail(userId) })
+      
+      // Invalidate users list
+      queryClient.invalidateQueries({ queryKey: userKeys.lists() })
+    },
+    ...options,
+  })
+}
+```
+
+### Usage in Components
+```typescript
+// components/features/users/UserList.tsx
+'use client'
+
+import { useState } from 'react'
+import { useUsers, useDeleteUser } from '@/lib/api/hooks/useUsers'
+import { Button } from '@/components/ui/button'
+import { useToast } from '@/components/ui/use-toast'
+
+export function UserList() {
+  const [page, setPage] = useState(1)
+  const { toast } = useToast()
+  
+  const { 
+    data, 
+    isLoading, 
+    error, 
+    refetch 
+  } = useUsers({ page, limit: 10 })
+
+  const deleteUserMutation = useDeleteUser({
+    onSuccess: () => {
+      toast({ title: 'User deleted successfully' })
+    },
+    onError: (error) => {
+      toast({ 
+        title: 'Error deleting user', 
+        description: error.message,
+        variant: 'destructive' 
+      })
+    }
+  })
+
+  if (isLoading) return <div>Loading users...</div>
+  if (error) return <div>Error: {error.message}</div>
+
+  return (
+    <div>
+      {data?.users.map((user) => (
+        <div key={user.id} className="flex items-center justify-between p-4 border rounded">
+          <div>
+            <h3>{user.name}</h3>
+            <p>{user.email}</p>
+          </div>
+          <Button
+            variant="destructive"
+            onClick={() => deleteUserMutation.mutate(user.id)}
+            disabled={deleteUserMutation.isPending}
+          >
+            {deleteUserMutation.isPending ? 'Deleting...' : 'Delete'}
+          </Button>
+        </div>
+      ))}
+      
+      <div className="flex gap-2 mt-4">
+        <Button 
+          onClick={() => setPage(p => Math.max(1, p - 1))}
+          disabled={page === 1}
+        >
+          Previous
+        </Button>
+        <Button 
+          onClick={() => setPage(p => p + 1)}
+          disabled={!data?.users.length}
+        >
+          Next
+        </Button>
+      </div>
+    </div>
+  )
+}
+```
+
+### Error Handling Strategy
+```typescript
+// lib/api/types/errors.ts
+export interface ApiError {
+  message: string
+  code: string
+  status: number
+  details?: Record<string, unknown>
+}
+
+export class ApiErrorHandler {
+  static handle(error: unknown): ApiError {
+    if (axios.isAxiosError(error)) {
+      return {
+        message: error.response?.data?.message || error.message,
+        code: error.response?.data?.code || 'UNKNOWN_ERROR',
+        status: error.response?.status || 500,
+        details: error.response?.data?.details,
+      }
+    }
+    
+    return {
+      message: 'An unexpected error occurred',
+      code: 'UNEXPECTED_ERROR',
+      status: 500,
+    }
+  }
+}
+
+// Global error boundary for API errors
+export function ApiErrorBoundary({ children }: { children: React.ReactNode }) {
+  return (
+    <QueryErrorResetBoundary>
+      {({ reset }) => (
+        <ErrorBoundary
+          onReset={reset}
+          fallbackRender={({ error, resetErrorBoundary }) => (
+            <div className="p-4 border border-red-200 rounded bg-red-50">
+              <h2>Something went wrong</h2>
+              <p>{error.message}</p>
+              <Button onClick={resetErrorBoundary}>Try again</Button>
+            </div>
+          )}
+        >
+          {children}
+        </ErrorBoundary>
+      )}
+    </QueryErrorResetBoundary>
+  )
+}
+```
+
+### Testing API Layer
+```typescript
+// __tests__/api/userService.test.ts
+import { http, HttpResponse } from 'msw'
+import { setupServer } from 'msw/node'
+import { UserService } from '@/lib/api/services/userService'
+
+const server = setupServer(
+  http.get('/api/users', () => {
+    return HttpResponse.json({
+      users: [
+        { id: '1', name: 'John Doe', email: 'john@example.com', createdAt: '2024-01-01T00:00:00Z' }
+      ],
+      total: 1,
+      page: 1
+    })
+  })
+)
+
+beforeAll(() => server.listen())
+afterEach(() => server.resetHandlers())
+afterAll(() => server.close())
+
+describe('UserService', () => {
+  it('should fetch users successfully', async () => {
+    const result = await UserService.getUsers()
+    
+    expect(result.users).toHaveLength(1)
+    expect(result.users[0].name).toBe('John Doe')
+  })
+})
+```
+
+## API Integration Best Practices
+
+### API Security Requirements
+1. **Always use Axios** for HTTP requests with proper interceptors
+2. **Store tokens in HTTP-only cookies** - NEVER use localStorage
+3. **Create service classes** for each API domain (users, posts, etc.)
+4. **Validate all responses** with Zod schemas
+5. **Use TanStack Query** for all API state management
+6. **Implement proper error handling** with user-friendly messages
+7. **Create reusable query keys** for efficient cache management
+8. **Use optimistic updates** where appropriate
+9. **Implement retry logic** for failed requests
+10. **Enable withCredentials** for cookie-based authentication
+
+### Cache Management
+- Use query keys consistently across the application
+- Implement proper cache invalidation strategies
+- Use background refetching for better UX
+- Consider cache persistence for offline functionality
+
+### Performance Optimization
+- Implement request deduplication
+- Use proper stale times based on data freshness requirements
+- Consider infinite queries for paginated data
+- Implement proper loading and error states
+
+```typescript
+// Redux Toolkit slice example
+import { createSlice, PayloadAction } from '@reduxjs/toolkit'
+
+interface UiState {
+  theme: 'light' | 'dark'
+  sidebarOpen: boolean
+}
+
+const uiSlice = createSlice({
+  name: 'ui',
+  initialState: { theme: 'light', sidebarOpen: false } as UiState,
+  reducers: {
+    toggleTheme: (state) => {
+      state.theme = state.theme === 'light' ? 'dark' : 'light'
+    },
+    setSidebarOpen: (state, action: PayloadAction<boolean>) => {
+      state.sidebarOpen = action.payload
+    }
+  }
+})
+```
+
+## Naming Conventions
+
+### Files and Directories
+- **Components**: PascalCase (`UserProfile.tsx`)
+- **Hooks**: camelCase with 'use' prefix (`useUserData.ts`)
+- **Utilities**: camelCase (`formatDate.ts`)
+- **Constants**: SCREAMING_SNAKE_CASE (`API_ENDPOINTS.ts`)
+- **Types**: PascalCase (`UserTypes.ts`)
+
+### Variables and Functions
+- **Boolean variables**: `is`, `has`, `can`, `should` prefixes
+- **Event handlers**: `handle` prefix (`handleSubmit`)
+- **Async functions**: Descriptive verbs (`fetchUser`, `createPost`)
+
+## Documentation Requirements
+
+### Component Documentation
+```typescript
+/**
+ * UserCard displays user information in a card format
+ * 
+ * @param user - User object containing id, name, email
+ * @param onEdit - Callback fired when edit button is clicked
+ * @param variant - Visual variant of the card
+ * 
+ * @example
+ * ```tsx
+ * <UserCard 
+ *   user={userData} 
+ *   onEdit={handleEdit}
+ *   variant="compact" 
+ * />
+ * ```
+ */
+export function UserCard({ user, onEdit, variant = 'default' }: UserCardProps) {
+  // Implementation
+}
+```
+
+### API Documentation
+- Document all API endpoints
+- Include request/response schemas
+- Provide usage examples
+- Document error scenarios
+
+## Monitoring and Analytics
+
+### Performance Monitoring
+```typescript
+// Web Vitals tracking
+export function reportWebVitals(metric: any) {
+  if (process.env.NODE_ENV === 'production') {
+    // Send to analytics service
+    analytics.track(metric.name, {
+      value: metric.value,
+      id: metric.id
+    })
+  }
+}
+```
+
+### Error Tracking
+```typescript
+// Error boundary with logging
+export class ErrorBoundary extends Component {
+  componentDidCatch(error: Error, errorInfo: ErrorInfo) {
+    if (process.env.NODE_ENV === 'production') {
+      errorLogger.captureException(error, { extra: errorInfo })
+    }
+  }
+}
+```
+
+## Development Workflow
+
+### Code Review Checklist
+- [ ] TypeScript types are properly defined
+- [ ] Components are accessible
+- [ ] Error handling is implemented
+- [ ] Performance optimizations applied
+- [ ] Tests are included
+- [ ] Documentation is updated
+
+### Pre-commit Hooks
+- ESLint and Prettier formatting
+- TypeScript type checking
+- Unit test execution
+- Bundle size analysis
+
+Remember: Always prioritize maintainability, performance, and user experience. Write code that your future self and team members will thank you for.
