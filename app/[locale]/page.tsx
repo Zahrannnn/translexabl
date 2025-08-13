@@ -347,8 +347,8 @@ export default async function HomePage({ params }: HomePageProps) {
                       <Phone className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h4 className="font-semibold">Support</h4>
-                      <p className="text-muted-foreground">Response within 24 hours</p>
+                      <h4 className="font-semibold">Phone</h4>
+                      <p className="text-muted-foreground">+201024765229</p>
                     </div>
                   </div>
                   
@@ -357,8 +357,8 @@ export default async function HomePage({ params }: HomePageProps) {
                       <MapPin className="h-6 w-6 text-primary" />
                     </div>
                     <div>
-                      <h4 className="font-semibold">Global Service</h4>
-                      <p className="text-muted-foreground">Available worldwide</p>
+                      <h4 className="font-semibold">Address</h4>
+                      <p className="text-muted-foreground">العاشر من رمضان، الشرقية، مج ٣٩</p>
                     </div>
                   </div>
                 </div>

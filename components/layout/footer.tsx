@@ -1,6 +1,6 @@
 'use client';
 
-import { Sparkles, Github, Twitter, Linkedin, Mail, Globe, Shield, Zap } from "lucide-react"
+import { Sparkles, Github, Twitter, Linkedin, Mail, Globe, Shield, Zap, Phone, MapPin } from "lucide-react"
 import { Link } from "@/navigation"
 import { useTranslations } from 'next-intl'
 
@@ -154,12 +154,21 @@ export function Footer() {
 
        
 
-        {/* Bottom sectionn */}
+        {/* Bottom section */}
         <div className="py-8 border-t border-border/20">
           <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
             <div className="flex flex-col md:flex-row items-center space-y-2 md:space-y-0 md:space-x-6 text-sm text-muted-foreground">
               <span>{t('copyright')}</span>
-              
+                              <div className="flex flex-col md:flex-row items-center space-y-1 md:space-y-0 md:space-x-4">
+                  <div className="flex items-center space-x-2">
+                    <Phone className="h-4 w-4 text-primary" />
+                    <span>201024765229</span>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <MapPin className="h-4 w-4 text-primary" />
+                    <span>العاشر من رمضان، الشرقية، مج ٣٩</span>
+                  </div>
+                </div>
             </div>
             
          
