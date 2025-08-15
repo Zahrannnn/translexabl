@@ -359,7 +359,7 @@ export default async function HomePage({ params }: HomePageProps) {
                     </div>
                     <div>
                       <h4 className="font-semibold">Address</h4>
-                      <p className="text-muted-foreground">{tF('address')}</p>
+                      <p className="text-muted-foreground">{tF('footer.address')}</p>
                     </div>
                   </div>
                 </div>
