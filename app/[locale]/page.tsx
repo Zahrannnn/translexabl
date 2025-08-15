@@ -41,6 +41,7 @@ export default async function HomePage({ params }: HomePageProps) {
   
   // Create translation function
   const t = (path: string) => getTranslation(messages, path);
+  const tF = (path: string) => getTranslation(messages, path);
 
   const features = [
     {
@@ -358,7 +359,7 @@ export default async function HomePage({ params }: HomePageProps) {
                     </div>
                     <div>
                       <h4 className="font-semibold">Address</h4>
-                      <p className="text-muted-foreground">العاشر من رمضان، الشرقية، مج ٣٩</p>
+                      <p className="text-muted-foreground">{tF('address')}</p>
                     </div>
                   </div>
                 </div>
