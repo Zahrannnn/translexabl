@@ -52,9 +52,7 @@ export function Footer() {
   ]
 
   const socialLinks = [
-    { name: t('social.twitter'), icon: Twitter, href: "#", color: "hover:text-blue-400" },
-    { name: t('social.github'), icon: Github, href: "#", color: "hover:text-gray-400" },
-    { name: t('social.linkedin'), icon: Linkedin, href: "#", color: "hover:text-blue-600" },
+   
     { name: t('social.email'), icon: Mail, href: "mailto:hello@translexable.com", color: "hover:text-green-500" },
   ]
 
@@ -166,7 +164,7 @@ export function Footer() {
                   </div>
                   <div className="flex items-center space-x-2">
                     <MapPin className="h-4 w-4 text-primary" />
-                    <span>العاشر من رمضان، الشرقية، مج ٣٩</span>
+                    <span>{t('address')}</span>
                   </div>
                 </div>
             </div>
