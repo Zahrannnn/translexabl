@@ -65,7 +65,7 @@ export function Footer() {
   return (
     <footer className="relative overflow-hidden bg-gradient-to-br from-card to-muted/20 border-t border-border/20">
       {/* Background decoration */}
-      <div className="absolute inset-0 opacity-30">
+      <div className="absolute inset-0 opacity-30"> 
         <div className="absolute top-0 left-1/4 w-32 h-32 bg-gradient-to-r from-primary/10 to-accent/10 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-1/4 w-40 h-40 bg-gradient-to-r from-accent/10 to-primary/10 rounded-full blur-3xl" />
       </div>
