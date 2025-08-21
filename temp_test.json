@@ -1,0 +1,1 @@
+{"userId": 123, "transactionId": "test123", "orderId": "order123", "merchantOrderId": "user-123-1234567890", "amountCents": 175000, "currency": "EGP", "status": "success", "paymentMethod": "card", "cardType": "visa", "cardLastFour": "1234"}
