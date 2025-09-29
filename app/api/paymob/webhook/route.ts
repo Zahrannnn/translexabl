@@ -164,32 +164,60 @@ function getTransactionStatus(callbackData: PaymobCallbackData): string {
 
 export async function POST(request: NextRequest) {
   try {
-    const body = await request.json();
+    // Get raw body for HMAC verification
+    const rawBody = await request.text();
+    let body;
+    
+    try {
+      body = JSON.parse(rawBody);
+    } catch (parseError) {
+      console.error('❌ Invalid JSON in webhook body:', parseError);
+      return NextResponse.json(
+        { success: false, error: 'Invalid JSON payload' },
+        { status: 400 }
+      );
+    }
+
     const url = new URL(request.url);
     const receivedHmac = url.searchParams.get('hmac');
-
-    console.log('Paymob webhook received:', {
-      body: JSON.stringify(body, null, 2),
-      hmac: receivedHmac,
+    
+    // Log webhook receipt (without sensitive data in production)
+    console.log('📨 Paymob webhook received:', {
+      timestamp: new Date().toISOString(),
+      hasHmac: !!receivedHmac,
+      transactionId: body.obj?.id,
+      orderId: body.obj?.order?.id,
+      merchantOrderId: body.obj?.order?.merchant_order_id,
+      status: body.obj?.success,
+      userAgent: request.headers.get('user-agent'),
+      ip: request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'),
     });
 
-    // Verify HMAC signature if provided (optional for testing)
+    // Enhanced HMAC verification (recommended for production)
     if (receivedHmac) {
       const paymobService = new PaymobService();
       const isValid = paymobService.verifyCallback(body.obj, receivedHmac);
       
       if (!isValid) {
-        console.error('Invalid HMAC signature - continuing anyway for testing');
-        // In production, you might want to return an error here
-        // return NextResponse.json(
-        //   { success: false, error: 'Invalid signature' },
-        //   { status: 400 }
-        // );
+        console.error('❌ Invalid HMAC signature - webhook rejected');
+        console.error('🔒 Security Alert: Potential fraudulent webhook attempt from IP:', 
+          request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip'));
+        
+        // In production, reject invalid signatures
+        return NextResponse.json(
+          { success: false, error: 'Invalid HMAC signature' },
+          { status: 401 }
+        );
       } else {
         console.log('✅ HMAC signature verified successfully');
       }
     } else {
-      console.log('⚠️ No HMAC signature provided');
+      console.warn('⚠️ No HMAC signature provided - consider enabling HMAC for security');
+      // In production, you might want to require HMAC
+      // return NextResponse.json(
+      //   { success: false, error: 'HMAC signature required' },
+      //   { status: 401 }
+      // );
     }
 
     const callbackData: PaymobCallbackData = body.obj;
@@ -244,18 +272,29 @@ export async function POST(request: NextRequest) {
 
     console.log('✅ Successfully extracted userId from merchant_order_id:', userId);
 
+    // Prepare transaction processing
+    const transactionId = callbackData.id?.toString() || `paymob_${Date.now()}`;
+    
+    console.log('🔍 Processing transaction:', {
+      transactionId,
+      orderId: callbackData.order?.id,
+      merchantOrderId: callbackData.order?.merchant_order_id,
+      status: getTransactionStatus(callbackData),
+      amount: callbackData.amount_cents
+    });
+
     // Prepare transaction data for the external API
     const transactionData: TransactionData = {
       userId: userId,
-      transactionId: callbackData.id?.toString() || `paymob_${Date.now()}`,
+      transactionId: transactionId,
       orderId: callbackData.order?.id?.toString() || '',
       merchantOrderId: callbackData.order?.merchant_order_id || '',
       amountCents: callbackData.amount_cents,
       currency: callbackData.currency || 'EGP',
       status: getTransactionStatus(callbackData),
       paymentMethod: callbackData.source_data?.type || 'card',
-      cardType: callbackData.source_data?.sub_type || '',
-      cardLastFour: getCardLastFour(callbackData.source_data?.pan),
+      cardType: callbackData.source_data?.sub_type || 'unknown',
+      cardLastFour: getCardLastFour(callbackData.source_data?.pan) || '0000',
     };
 
     console.log('🎯 Transaction data to save:', transactionData);
@@ -307,13 +346,31 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // Always return success to acknowledge receipt
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error('Webhook processing error:', error);
+    // Always return 200 OK to acknowledge receipt (Paymob best practice)
+    console.log('✅ Webhook processed successfully - returning 200 OK');
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Webhook processed successfully',
+      timestamp: new Date().toISOString()
+    }, { status: 200 });
     
-    // Still return success to prevent retries for malformed requests
-    return NextResponse.json({ success: true });
+  } catch (error) {
+    console.error('❌ Webhook processing error:', error);
+    
+    // Log error details for debugging
+    console.error('🔍 Error details:', {
+      message: error instanceof Error ? error.message : 'Unknown error',
+      stack: error instanceof Error ? error.stack : undefined,
+      timestamp: new Date().toISOString()
+    });
+    
+    // Return 200 OK to prevent Paymob retries for processing errors
+    // Only return non-200 for authentication/validation failures
+    return NextResponse.json({ 
+      success: true, 
+      message: 'Webhook acknowledged - processing error logged',
+      timestamp: new Date().toISOString()
+    }, { status: 200 });
   }
 }
 
