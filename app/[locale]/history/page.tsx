@@ -26,6 +26,7 @@ import { useTranslations } from "next-intl"
 export default function TransactionHistoryPage() {
   const t = useTranslations('history')
   
+  
   const [currentPage, setCurrentPage] = useState(1)
   const router = useRouter()
   
@@ -105,9 +106,8 @@ export default function TransactionHistoryPage() {
     }
   }
 
-  // Extract data from React Query response and sort by newest first
-  const transactions = (transactionResponse?.data.transactions || [])
-    .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+  // Extract data from React Query response
+  const transactions = transactionResponse?.data.transactions || []
   const pagination = transactionResponse?.data.pagination || {
     currentPage: 1,
     totalPages: 1,
