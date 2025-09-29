@@ -151,11 +151,14 @@ function getCardLastFour(pan: string | undefined): string {
 // Helper function to determine transaction status
 function getTransactionStatus(callbackData: PaymobCallbackData): string {
   if (callbackData.success === 'true' || callbackData.success === true) {
-    return 'success';
+    return 'SUCCESS';
   } else if (callbackData.success === 'false' || callbackData.success === false) {
-    return 'failed';
+    return 'FAILED';
   } else {
-    return 'pending';
+    // For pending transactions, we'll treat them as failed for now since the external API
+    // doesn't support a PENDING status. We can save them when they become success/failed later.
+    console.log('⚠️ Transaction is pending - treating as FAILED for database compatibility');
+    return 'FAILED';
   }
 }
 
@@ -244,7 +247,7 @@ export async function POST(request: NextRequest) {
     // Prepare transaction data for the external API
     const transactionData: TransactionData = {
       userId: userId,
-      transactionId: callbackData.id?.toString(),
+      transactionId: callbackData.id?.toString() || `paymob_${Date.now()}`,
       orderId: callbackData.order?.id?.toString() || '',
       merchantOrderId: callbackData.order?.merchant_order_id || '',
       amountCents: callbackData.amount_cents,
